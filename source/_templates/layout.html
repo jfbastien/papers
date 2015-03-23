@@ -1,0 +1,27 @@
+{#
+    Single-page template.
+#}
+{%- block doctype -%}
+<!DOCTYPE html>
+{%- endblock %}
+{%- set titlesuffix = "" %}
+
+<html>
+  <head>
+    <meta charset="{{ encoding }}">
+    {%- block htmltitle %}
+    <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+    {%- endblock %}
+{%- block extrahead %} {% endblock %}
+  </head>
+  <body>
+{%- block header %}{% endblock %}
+{%- block content %}
+  {%- block document %}
+    <div class="body">
+{% block body %} {% endblock %}
+    </div>
+  {%- endblock %}
+{%- endblock %}
+  </body>
+</html>
