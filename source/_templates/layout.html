@@ -5,10 +5,53 @@
 <!DOCTYPE html>
 {%- endblock %}
 {%- set titlesuffix = "" %}
-
 <html>
   <head>
     <meta charset="{{ encoding }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      .body {
+        margin: 0 auto;
+        max-width: 80em;
+      }
+      a {
+        color: #455A64;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        color: #37474F;
+      }
+      h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+        padding-left: 1em;
+        padding-right: 3em;
+        text-decoration: none;
+        opacity: 0;
+      }
+      a.headerlink:hover {
+        opacity: 1;
+      }
+      .field-name {
+        text-align: right;
+        padding-right: 1em;
+      }
+      tt, .highlight {
+        color: #263238;
+        background-color: #ECEFF1;
+        font-family: 'Inconsolata', monospace;
+        font-weight: bold;
+      }
+      tt {
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+      }
+      .highlight {
+        padding: 0.5em;
+      }
+    </style>
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
     {%- endblock %}
