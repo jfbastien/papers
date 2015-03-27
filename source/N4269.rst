@@ -1,0 +1,374 @@
+=============================================
+D4269 No Sane Compiler Would Optimize Atomics
+=============================================
+
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Date: 2015-03-27
+
+--------
+Abstract
+--------
+
+False.
+
+Compilers do optimize atomics, memory accesses around atomics, and utilize
+architecture-specific knowledge. This paper illustrates a few such
+optimizations, and discusses their implications.
+
+--------------------
+Sample Optimizations
+--------------------
+
+We list optimizations that are either implemented in LLVM, or will be readily
+implemented.
+
+Optimizations on Atomics
+========================
+
+Atomic themselves can be optimized. A non-contentious example is constant
+propagation into atomics, leading to further optimizations such as using the
+locked ``inc``/``dec`` instructions instead of locked ``add``/``sub`` when
+adding/subtracting ``1`` to an atomic on x86:
+
+.. code:: c++
+
+  std::atomic<int> x, y;
+  void inc(int val) {
+    x += 1;
+    y += val;
+  }
+
+.. code:: gas
+
+  _Z3inci:
+    lock incl x(%rip)
+    lock addl %edi, y(%rip)
+    retq
+
+This optimization isn’t traditionally performed when using inline assembly and
+showcases the strengths of hoisting abstractions to the language level.
+
+Seqlock would like to use unordered relaxed loads, all of which happen before a
+final load which verifies a ticket number. Such accesses don’t exist in the
+current memory model. Hans Boehm suggests_ using a relaxed fetch-add of zero,
+and shows that on x86 the code can be transformed as follows:
+
+.. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
+
+.. code:: c++
+
+  do {
+    int r1, r2;
+    unsigned seq0, seq1;
+    seq0 = seq.load(std::memory_order_acquire);
+    r1 = data1.load(std::memory_order_relaxed);
+    r2 = data2.load(std::memory_order_relaxed);
+    seq1 = seq.fetch_add(0, std::memory_order_release);
+  } while (seq0 != seq1 || seq0 & 1);
+
+.. code:: gas
+
+  .LBB0_1:
+        movl    seq(%rip), %esi
+        movl    data1(%rip), %ecx
+        movl    data2(%rip), %eax
+        mfence
+        movl    seq(%rip), %edi
+        movl    %esi, %edx
+        andl    $1, %edx
+        cmpl    %edi, %esi
+        jne     .LBB0_1
+        testl   %edx, %edx
+        jne     .LBB0_1
+
+This is equivalent to a release fence followed by a relaxed load, and reduces
+contention by replacing an instruction requiring exclusive cache line
+access. This optimization is currently only known to be correct on x86, is
+probably correct for other architectures, and is `currently implemented in
+LLVM`_.
+
+.. _`currently implemented in LLVM`: http://reviews.llvm.org/D5091
+
+Traditional compiler optimizations, such as dead store elimination, can be
+performed on atomic operations, even sequentially consistent ones. Optimizers
+have to be careful to avoid doing so across synchronization points because
+another executor can observe or modify memory, which means that the traditional
+optimizations have to consider more intervening instructions than they usually
+would when considering optimizations to atomic operations. In the case of dead
+store elimination it isn’t sufficient to prove that an atomic store
+post-dominates and aliases another to eliminate the other store.
+
+A trickier example is fusion of relaxed atomic operations, even when
+interleaved:
+
+.. code:: c++
+
+  std::atomic<int> x, y;
+  void relaxed() {
+    x.fetch_add(1, std::memory_order_relaxed);
+    y.fetch_add(1, std::memory_order_relaxed);
+    x.fetch_add(1, std::memory_order_relaxed);
+    y.fetch_add(1, std::memory_order_relaxed);
+  }
+
+.. code:: c++
+
+  std::atomic<int> x, y;
+  void relaxed() {
+    x.fetch_add(2, std::memory_order_relaxed);
+    y.fetch_add(2, std::memory_order_relaxed);
+  }
+
+We aren’t aware of compilers performing this optimization yet, but `it is being
+discussed`_.
+
+.. _`it is being discussed`: http://llvm.org/bugs/show_bug.cgi?id=16477
+
+A compiler can tag all functions on whether they have atomic instructions or
+not, and optimize around call sites accordingly. This could even be done for all
+virtual overrides when we can enumerate them.
+
+Fences are generated as a consequence of std::atomic_thread_fence as well as, on
+some architectures, atomic operations. Fences tend to be expensive, and removing
+redundant ones as well as positioning them optimally leads to great performance
+gains, while keeping the code correct and simple. This is `currently under
+review in LLVM`_.
+
+.. _`currently under review in LLVM`: http://reviews.llvm.org/D5758
+
+Not all compiler optimizations are valid on atomics, this topic is still under
+`active research`_.
+
+.. _`active research`: http://www.di.ens.fr/~zappa/readings/c11comp.pdf
+
+Optimizations Around Atomics
+============================
+
+Compilers can optimize non-atomic memory accesses before and after atomic
+accesses. A somewhat surprising example is that the following code can (`and
+is`_!)  transformed as shown.
+
+.. _`and is`: http://reviews.llvm.org/D4845
+
+.. code:: c++
+
+  int x = 0;
+  std::atomic<int> y;
+  int dso() {
+    x = 0;
+    int z = y.load(std::memory_order_seq_cst);
+    y.store(0, std::memory_order_seq_cst);
+    x = 1;
+    return z;
+  }
+
+.. code:: c++
+
+  int x = 0;
+  std::atomic<int> y;
+  int dso() {
+    // Dead store eliminated.
+    int z = y.load(std::memory_order_seq_cst);
+    y.store(0, std::memory_order_seq_cst);
+    x = 1;
+    return z;
+  }
+
+The following code, with a different store/load ordering and using
+release/acquire memory ordering, can also be transformed as show (but currently
+isn’t).
+
+.. code:: c++
+
+  int x = 0;
+  std::atomic<int> y;
+  int rlo() {
+    x = 0;
+    y.store(0, std::memory_order_release);
+    int z = y.load(std::memory_order_acquire);
+    x = 1;
+    return z;
+  }
+
+.. code:: c++
+
+  int x = 0;
+  std::atomic<int> y;
+  int rlo() {
+    // Dead store eliminated.
+    y.store(0, std::memory_order_release);
+    // Redundant load eliminated.
+    x = 1;
+    return 0; // Stored value propagated here.
+  }
+
+Whereas the following code must (and does!) remain the same:
+
+.. code:: c++
+
+  int x = 0;
+  std::atomic<int> y;
+  int no() {
+    x = 0;
+    y.store(0, std::memory_order_release);
+    while (!y.load(std::memory_order_acquire));
+    x = 1;
+    return z;
+  }
+
+The intuition behind the dead store elimination optimization is that the only
+way another thread could have observed the dead store elimination is if their
+code had been racy in the first place: only a release/acquire pair could have
+been synchronized with another thread that observed the store (see `this paper`_
+for details). Sequentially consistent accesses are acquire/release, the key in
+this example is having the release store come before the acquire load and
+synchronize with another thread (which the loop does by observing changes in
+y). The second example’s load can be eliminated because there was no
+synchronization with another thread: even if the release is followed by an
+acquire the compiler is allowed to assume that the stored value wasn’t modified
+before the subsequent load, and that the load is therefore redundant. Other
+optimizations such as global value ordering across atomics can be applied.
+
+.. _`this paper`: http://www.di.ens.fr/~zappa/readings/pldi13.pdf
+
+Mutex: Safer than Atomics?
+==========================
+
+The same optimization potential applies to C++’s ``std::mutex``: locking a mutex
+is equivalent to acquire memory ordering, and unlocking a mutex is equivalent to
+release memory ordering. Using a mutex correctly is slightly easier because the
+API is simpler than atomic’s API, but it isn’t a panacea.
+
+Some current implementations rely on pthread’s mutex, which may not expose all
+optimization opportunities because the compiler may not know how to handle the
+slow-path futex (usually a syscall), or because the implementation is in a
+different translation unit. The optimization difficulties can be overcome by
+teaching the compiler to tread ``std::mutex`` or pthread specially, or by
+`making it possible to implement mutexes in pure C++`_. Optimization across
+translation unit, such as through link-time optimizations, can also help expose
+more opportunities.
+
+.. _`making it possible to implement mutexes in pure C++`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf
+
+Optimizations without Atomics
+=============================
+
+Another interesting optimization is to use potentially shared memory locations
+(on the stack, heap and globals) as scratch storage, if the compiler can prove
+that they are not accessed in other threads concurrently. For example the
+following transformation could occur:
+
+.. code:: c++
+
+  // Some code, but no synchronization.
+  *p = 1; // Can be on stack, heap or global.
+
+.. code:: c++
+
+  // ...
+  *p = RAX; // Spill temporary value.
+  // ...
+  RAX = *p; // Restore temporary value.
+  // ...
+  *p = 1;
+
+Since we write to ``*p`` and there is no synchronization operations, other
+threads do not read/write ``*p`` without exercising undefined behavior. We can
+therefore use it as scratch storage—and thus reduce stack frame size—without
+changing the observable behavior of the program.
+
+Architecture and Implementation Specific Optimizations
+======================================================
+
+Optimizations can sometimes be made per-architecture, or even per specific
+implementation of an architecture.
+
+Spinloop are usually implemented with an acquire load, which are equivalent to a
+relaxed load followed by an acquire fence in the loop. On some architecture
+implementations it may make sense to sink the fence outside the loop, but how
+and when to do this is architecture specific. In a similar way, mutexes usually
+want to be implemented as a spinloop with exponential randomized backoff
+followed by a futex. The right implementation of mutexes is highly
+platform-dependent.
+
+Instructions can also be implemented in manners that are nominally incorrect for
+the architecture in general, but happen to be correct for specific
+implementations of the architecture. For example, release fences should lower to
+``dmb ish`` on ARM, but `on Apple’s Swift processor`_ they lower to ``dmb
+ishist`` instead, which would be incorrect on other ARM processors. Some ARM
+processors can go even further and remove all ``DMB`` which aren’t system-wide
+because their memory model is much stronger than ARM’s prescribed model.
+
+.. _`on Apple’s Swift processor`: http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20130701/thread.html#179911
+
+Some architectures support transactional memory. A compiler can use this
+knowledge to make many consecutive atomic writes into a single atomic
+transaction, and retry on commit failure. It can also speculate that many reads
+and writes aren’t accessed concurrently and fall back to a slow path, or to
+smaller transactions, if a commit failure limit is reached.
+
+Other architectures do dynamic binary translation behind the scenes, and also
+use transactional memory. This can lead to further in-hardware optimizations as
+well as fairly hard to predict behavior: sometimes races aren’t observed because
+big transactions commit, and other times they do occur because transactions are
+smaller. This certainly makes micro-benchmarking hard, if not impossible.
+
+The same applies for simulators and emulators which often just-in-time translate
+the code they’re executing—leading to hard-to-predict behavior—and which also
+often emulate multi-core systems using cooperative thread switching—leading to
+predictable interleaving which is easier to optimize for the simulator.
+
+Volatility
+==========
+
+Atomic operations are unsuitable to express that memory locations can be
+externally modified. Indeed, ``volatile`` (or ``volatile atomic``) should be
+used in these circumstances.
+
+Shared memory isn’t explicitly defined by the C++ standard, yet programmers
+often use operating system APIs to map the same physical memory location onto
+multiple virtual addresses in the same process, or across processes. A
+sufficiently advanced compiler, performing some of the optimizations described
+above, can seriously harm code which uses shared memory naïvely.
+
+---------
+Takeaways
+---------
+
+For the Standards Committee
+===========================
+
+Don't assume that these optimizations don’t occur, but rather encourage
+them. Standardize more common practice that enable to-the-metal
+optimizations. Provide more libraries that make it easy to use concurrency and
+parallelism and hard to get it wrong.
+
+For Developers
+==============
+
+Drop assembly: it can’t be optimized as well and is only tuned to the
+architectures that existed when you originally wrote the code. File bugs when
+performance expectations aren’t met by the compiler. Suggest to the standard
+committee new idiomatic patterns which enable concurrency and parallelism. Use
+the tooling available to you, such as ThreadSanitizer, to find races in your
+code.
+
+For Hardware vendors
+====================
+
+Showcase your hardware’s strengths.
+
+For Compiler Writers
+====================
+
+Get back to work, there’s so much more to optimize… and so much code to break!
+Help users write good code: the compiler should provide diagnostics when it
+detects anti-patterns or misuses of atomics.
+
+---------------
+Acknowledgement
+---------------
+
+Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth and Jeffrey Yasskin
+for their review, corrections and ideas.
