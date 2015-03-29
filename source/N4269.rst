@@ -4,7 +4,8 @@ D4269 No Sane Compiler Would Optimize Atomics
 
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2015-03-27
+:Date: 2015-03-29
+:Revision: 2
 
 --------
 Abstract
@@ -31,7 +32,7 @@ propagation into atomics, leading to further optimizations such as using the
 locked ``inc``/``dec`` instructions instead of locked ``add``/``sub`` when
 adding/subtracting ``1`` to an atomic on x86:
 
-.. code:: c++
+.. code::
 
   std::atomic<int> x, y;
   void inc(int val) {
@@ -39,7 +40,7 @@ adding/subtracting ``1`` to an atomic on x86:
     y += val;
   }
 
-.. code:: gas
+.. code::
 
   _Z3inci:
     lock incl x(%rip)
@@ -56,18 +57,18 @@ and shows that on x86 the code can be transformed as follows:
 
 .. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
 
-.. code:: c++
+.. code::
 
+  int r1, r2;
+  unsigned seq0, seq1;
   do {
-    int r1, r2;
-    unsigned seq0, seq1;
     seq0 = seq.load(std::memory_order_acquire);
     r1 = data1.load(std::memory_order_relaxed);
     r2 = data2.load(std::memory_order_relaxed);
     seq1 = seq.fetch_add(0, std::memory_order_release);
   } while (seq0 != seq1 || seq0 & 1);
 
-.. code:: gas
+.. code::
 
   .LBB0_1:
         movl    seq(%rip), %esi
@@ -102,7 +103,7 @@ post-dominates and aliases another to eliminate the other store.
 A trickier example is fusion of relaxed atomic operations, even when
 interleaved:
 
-.. code:: c++
+.. code::
 
   std::atomic<int> x, y;
   void relaxed() {
@@ -112,7 +113,7 @@ interleaved:
     y.fetch_add(1, std::memory_order_relaxed);
   }
 
-.. code:: c++
+.. code::
 
   std::atomic<int> x, y;
   void relaxed() {
@@ -121,7 +122,8 @@ interleaved:
   }
 
 We aren’t aware of compilers performing this optimization yet, but `it is being
-discussed`_.
+discussed`_. ``std::atomic_signal_fence`` could be used to prevent this
+reordering and fusion.
 
 .. _`it is being discussed`: http://llvm.org/bugs/show_bug.cgi?id=16477
 
@@ -129,11 +131,11 @@ A compiler can tag all functions on whether they have atomic instructions or
 not, and optimize around call sites accordingly. This could even be done for all
 virtual overrides when we can enumerate them.
 
-Fences are generated as a consequence of std::atomic_thread_fence as well as, on
-some architectures, atomic operations. Fences tend to be expensive, and removing
-redundant ones as well as positioning them optimally leads to great performance
-gains, while keeping the code correct and simple. This is `currently under
-review in LLVM`_.
+Fences are generated as a consequence of ``std::atomic_thread_fence`` as well
+as, on some architectures, atomic operations. Fences tend to be expensive, and
+removing redundant ones as well as positioning them optimally leads to great
+performance gains, while keeping the code correct and simple. This is `currently
+under review in LLVM`_.
 
 .. _`currently under review in LLVM`: http://reviews.llvm.org/D5758
 
@@ -151,7 +153,7 @@ is`_!)  transformed as shown.
 
 .. _`and is`: http://reviews.llvm.org/D4845
 
-.. code:: c++
+.. code::
 
   int x = 0;
   std::atomic<int> y;
@@ -163,7 +165,7 @@ is`_!)  transformed as shown.
     return z;
   }
 
-.. code:: c++
+.. code::
 
   int x = 0;
   std::atomic<int> y;
@@ -179,7 +181,7 @@ The following code, with a different store/load ordering and using
 release/acquire memory ordering, can also be transformed as show (but currently
 isn’t).
 
-.. code:: c++
+.. code::
 
   int x = 0;
   std::atomic<int> y;
@@ -191,7 +193,7 @@ isn’t).
     return z;
   }
 
-.. code:: c++
+.. code::
 
   int x = 0;
   std::atomic<int> y;
@@ -205,7 +207,7 @@ isn’t).
 
 Whereas the following code must (and does!) remain the same:
 
-.. code:: c++
+.. code::
 
   int x = 0;
   std::atomic<int> y;
@@ -224,7 +226,7 @@ been synchronized with another thread that observed the store (see `this paper`_
 for details). Sequentially consistent accesses are acquire/release, the key in
 this example is having the release store come before the acquire load and
 synchronize with another thread (which the loop does by observing changes in
-y). The second example’s load can be eliminated because there was no
+``y``). The second example’s load can be eliminated because there was no
 synchronization with another thread: even if the release is followed by an
 acquire the compiler is allowed to assume that the stored value wasn’t modified
 before the subsequent load, and that the load is therefore redundant. Other
@@ -244,9 +246,9 @@ Some current implementations rely on pthread’s mutex, which may not expose all
 optimization opportunities because the compiler may not know how to handle the
 slow-path futex (usually a syscall), or because the implementation is in a
 different translation unit. The optimization difficulties can be overcome by
-teaching the compiler to tread ``std::mutex`` or pthread specially, or by
+teaching the compiler to treat ``std::mutex`` or pthread specially, or by
 `making it possible to implement mutexes in pure C++`_. Optimization across
-translation unit, such as through link-time optimizations, can also help expose
+translation units, such as through link-time optimizations, can also help expose
 more opportunities.
 
 .. _`making it possible to implement mutexes in pure C++`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf
@@ -259,12 +261,12 @@ Another interesting optimization is to use potentially shared memory locations
 that they are not accessed in other threads concurrently. For example the
 following transformation could occur:
 
-.. code:: c++
+.. code::
 
   // Some code, but no synchronization.
   *p = 1; // Can be on stack, heap or global.
 
-.. code:: c++
+.. code::
 
   // ...
   *p = RAX; // Spill temporary value.
@@ -286,7 +288,7 @@ implementation of an architecture.
 
 Spinloop are usually implemented with an acquire load, which are equivalent to a
 relaxed load followed by an acquire fence in the loop. On some architecture
-implementations it may make sense to sink the fence outside the loop, but how
+implementations it may make sense to hoist the fence outside the loop, but how
 and when to do this is architecture specific. In a similar way, mutexes usually
 want to be implemented as a spinloop with exponential randomized backoff
 followed by a futex. The right implementation of mutexes is highly
@@ -370,5 +372,5 @@ detects anti-patterns or misuses of atomics.
 Acknowledgement
 ---------------
 
-Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth and Jeffrey Yasskin
-for their review, corrections and ideas.
+Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth, Jeffrey Yasskin and
+Paul McKenney for their review, corrections and ideas.
