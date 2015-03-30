@@ -278,7 +278,10 @@ following transformation could occur:
 Since we write to ``*p`` and there is no synchronization operations, other
 threads do not read/write ``*p`` without exercising undefined behavior. We can
 therefore use it as scratch storage—and thus reduce stack frame size—without
-changing the observable behavior of the program.
+changing the observable behavior of the program. This requires escape analysis:
+the compiler must see the full scope of memory location ``p``, or must know that
+leaf functions don't capture ``p`` and aren't used concurrently, for this
+optimization to be valid.
 
 Architecture and Implementation Specific Optimizations
 ======================================================
