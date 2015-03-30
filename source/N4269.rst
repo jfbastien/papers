@@ -27,7 +27,7 @@ implemented.
 Optimizations on Atomics
 ========================
 
-Atomic themselves can be optimized. A non-contentious example is constant
+Atomics themselves can be optimized. A non-contentious example is constant
 propagation into atomics, leading to further optimizations such as using the
 locked ``inc``/``dec`` instructions instead of locked ``add``/``sub`` when
 adding/subtracting ``1`` to an atomic on x86:
@@ -148,8 +148,8 @@ Optimizations Around Atomics
 ============================
 
 Compilers can optimize non-atomic memory accesses before and after atomic
-accesses. A somewhat surprising example is that the following code can (`and
-is`_!)  transformed as shown.
+accesses. A somewhat surprising example is that the following code can be (`and
+is`_!) transformed as shown.
 
 .. _`and is`: http://reviews.llvm.org/D4845
 
@@ -178,7 +178,7 @@ is`_!)  transformed as shown.
   }
 
 The following code, with a different store/load ordering and using
-release/acquire memory ordering, can also be transformed as show (but currently
+release/acquire memory ordering, can also be transformed as shown (but currently
 isn’t).
 
 .. code::
@@ -286,8 +286,8 @@ Architecture and Implementation Specific Optimizations
 Optimizations can sometimes be made per-architecture, or even per specific
 implementation of an architecture.
 
-Spinloop are usually implemented with an acquire load, which are equivalent to a
-relaxed load followed by an acquire fence in the loop. On some architecture
+Spinloops are usually implemented with an acquire load, which are equivalent to
+a relaxed load followed by an acquire fence in the loop. On some architecture
 implementations it may make sense to hoist the fence outside the loop, but how
 and when to do this is architecture specific. In a similar way, mutexes usually
 want to be implemented as a spinloop with exponential randomized backoff
