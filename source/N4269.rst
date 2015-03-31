@@ -157,6 +157,8 @@ is`_!) transformed as shown.
 
 .. _`and is`: http://reviews.llvm.org/D4845
 
+.. TODO: Make sure this is actually valid.
+
 .. code::
 
   int x = 0;
@@ -346,6 +348,12 @@ above, can seriously harm code which uses shared memory naïvely.
 ---------
 Takeaways
 ---------
+
+.. TODO: Provide a better link between the paper and the takeaways. Abstractions
+         should be mentioned earlier. Sanitizers could be brought up in the
+         context of legal semantics of the program. Also discuss where
+         optimizing atomics doens't help (we only show where it does), which
+         optimizations were tried that fail, and where we can go next.
 
 For the Standards Committee
 ===========================
