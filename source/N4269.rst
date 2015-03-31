@@ -28,9 +28,32 @@ Optimizations on Atomics
 ========================
 
 Atomics themselves can be optimized. A non-contentious example is constant
-propagation into atomics, leading to further optimizations such as using the
-locked ``inc``/``dec`` instructions instead of locked ``add``/``sub`` when
-adding/subtracting ``1`` to an atomic on x86:
+propagation into atomics:
+
+.. code::
+
+  void inc(std::atomic<int> *y) {
+    *y += 1;
+  }
+
+  std::atomic<int> x;
+  void two() {
+    inc(&x);
+    inc(&x);
+  }
+
+Becomes:
+
+.. code::
+
+  std::atomic<int> x;
+  void two() {
+    x += 2;
+  }
+
+This leads to further optimizations such as using the locked ``inc``/``dec``
+instructions instead of locked ``add``/``sub`` when adding/subtracting ``1`` to
+an atomic on x86:
 
 .. code::
 
@@ -40,6 +63,8 @@ adding/subtracting ``1`` to an atomic on x86:
     y += val;
   }
 
+Becomes:
+
 .. code::
 
   _Z3inci:
@@ -47,13 +72,74 @@ adding/subtracting ``1`` to an atomic on x86:
     lock addl %edi, y(%rip)
     retq
 
-This optimization isn't traditionally performed when using inline assembly and
-showcases the strengths of hoisting abstractions to the language level.
+In a similar vein, some opportunities for strength reduction can be exposed
+through inlining and then optimized, such as the following trivial example:
 
-Seqlock would like to use unordered relaxed loads, all of which happen before a
-final load which verifies a ticket number. Such a release load access doesn't
-exist in the current memory model. Hans Boehm suggests_ using a release
-fetch-add of zero, and shows that on x86 the code can be transformed as follows:
+.. code::
+
+  template<typename T>
+  bool silly(std::atomic<T> *x, T expected, T desired) {
+    x->compare_exchange_strong(expected, desired);
+    return expected == desired;
+  }
+
+Becomes:
+
+.. code::
+
+  template<typename T>
+  bool silly(std::atomic<T> *x, T expected, T desired) {
+    return x->compare_exchange_strong(expected, desired);
+  }
+
+The following works for any memory order but ``release`` and ``acq_rel``:
+
+.. code::
+
+  template<typename T>
+  bool optme(std::atomic<T> *x, T desired) {
+    T expected = desired;
+    return x->compare_exchange_strong(expected, desired);
+  }
+
+Becomes:
+
+.. code::
+
+  template<typename T>
+  bool optme(std::atomic<T> *x, T desired) {
+    return y->load(desired) == desired;
+  }
+
+Similarly, while keeping the resulting memory order stronger or equal to the
+individual ones, the following can occur:
+
+.. code::
+
+  template<typename T>
+  T optmetoo(std::atomic<T> *x, T y) {
+    T z = x->load();
+    x->store(y);
+    return z;
+  }
+
+Becomes:
+
+.. code::
+
+  template<typename T>
+  T optmetoo(std::atomic<T> *x, T y) {
+    return x->exchange(y);
+  }
+
+These optimizations aren't traditionally performed when using inline assembly
+and showcases the strengths of hoisting abstractions to the language level.
+
+Seqlock would like to use unordered ``relaxed`` loads, all of which happen
+before a final load which verifies a ticket number. Such a ``release`` load
+access doesn't exist in the current memory model. Hans Boehm suggests_ using a
+``release`` fetch-add of zero, and shows that on x86 the code can be transformed
+as follows:
 
 .. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
 
@@ -67,6 +153,8 @@ fetch-add of zero, and shows that on x86 the code can be transformed as follows:
     r2 = data2.load(std::memory_order_relaxed);
     seq1 = seq.fetch_add(0, std::memory_order_release);
   } while (seq0 != seq1 || seq0 & 1);
+
+Becomes:
 
 .. code::
 
@@ -83,16 +171,17 @@ fetch-add of zero, and shows that on x86 the code can be transformed as follows:
         testl   %edx, %edx
         jne     .LBB0_1
 
-This is equivalent to a release fence followed by a relaxed load, and reduces
-contention by replacing an instruction requiring exclusive cache line
+This is equivalent to a ``release`` fence followed by a ``relaxed`` load, and
+reduces contention by replacing an instruction requiring exclusive cache line
 access. This optimization is currently only known to be correct on x86, is
 probably correct for other architectures, and is `currently implemented in
 LLVM`_.
 
 .. _`currently implemented in LLVM`: http://reviews.llvm.org/D5091
 
-Similar to the above release fetch-add of zero serving as a release load, one
-could also use an acquire exchange when an acquire store is desired.
+Similar to the above ``release`` fetch-add of zero serving as a ``release``
+load, one could also use an ``acquire`` exchange when an ``acquire`` store is
+desired.
 
 Traditional compiler optimizations, such as dead store elimination, can be
 performed on atomic operations, even sequentially consistent ones. Optimizers
@@ -103,7 +192,7 @@ would when considering optimizations to atomic operations. In the case of dead
 store elimination it isn't sufficient to prove that an atomic store
 post-dominates and aliases another to eliminate the other store.
 
-A trickier example is fusion of relaxed atomic operations, even when
+A trickier example is fusion of ``relaxed`` atomic operations, even when
 interleaved:
 
 .. code::
@@ -115,6 +204,8 @@ interleaved:
     x.fetch_add(1, std::memory_order_relaxed);
     y.fetch_add(1, std::memory_order_relaxed);
   }
+
+Becomes:
 
 .. code::
 
@@ -171,6 +262,8 @@ is`_!) transformed as shown.
     return z;
   }
 
+Becomes:
+
 .. code::
 
   int x = 0;
@@ -184,8 +277,8 @@ is`_!) transformed as shown.
   }
 
 The following code, with a different store/load ordering and using
-release/acquire memory ordering, can also be transformed as shown (but currently
-isn't).
+``release``/``acquire`` memory ordering, can also be transformed as shown (but
+currently isn't).
 
 .. code::
 
@@ -198,6 +291,8 @@ isn't).
     x = 1;
     return z;
   }
+
+Becomes:
 
 .. code::
 
@@ -227,16 +322,17 @@ Whereas the following code must (and does!) remain the same:
 
 The intuition behind the dead store elimination optimization is that the only
 way another thread could have observed the dead store elimination is if their
-code had been racy in the first place: only a release/acquire pair could have
-been synchronized with another thread that observed the store (see `this paper`_
-for details). Sequentially consistent accesses are acquire/release, the key in
-this example is having the release store come before the acquire load and
-synchronize with another thread (which the loop does by observing changes in
-``y``). The second example's load can be eliminated because there was no
-synchronization with another thread: even if the release is followed by an
-acquire the compiler is allowed to assume that the stored value wasn't modified
-before the subsequent load, and that the load is therefore redundant. Other
-optimizations such as global value ordering across atomics can be applied.
+code had been racy in the first place: only a ``release``/``acquire`` pair could
+have been synchronized with another thread that observed the store (see `this
+paper`_ for details). Sequentially consistent accesses are
+``acquire``/``release``, the key in this example is having the ``release`` store
+come before the ``acquire`` load and synchronize with another thread (which the
+loop does by observing changes in ``y``). The second example's load can be
+eliminated because there was no synchronization with another thread: even if the
+``release`` is followed by an ``acquire`` the compiler is allowed to assume that
+the stored value wasn't modified before the subsequent load, and that the load
+is therefore redundant. Other optimizations such as global value ordering across
+atomics can be applied.
 
 .. _`this paper`: http://www.di.ens.fr/~zappa/readings/pldi13.pdf
 
@@ -244,9 +340,9 @@ Mutex: Safer than Atomics?
 ==========================
 
 The same optimization potential applies to C++'s ``std::mutex``: locking a mutex
-is equivalent to acquire memory ordering, and unlocking a mutex is equivalent to
-release memory ordering. Using a mutex correctly is slightly easier because the
-API is simpler than atomic's API, but it isn't a panacea.
+is equivalent to ``acquire`` memory ordering, and unlocking a mutex is
+equivalent to ``release`` memory ordering. Using a mutex correctly is slightly
+easier because the API is simpler than atomic's API, but it isn't a panacea.
 
 Some current implementations rely on pthread's mutex, which may not expose all
 optimization opportunities because the compiler may not know how to handle the
@@ -271,6 +367,8 @@ following transformation could occur:
 
   // Some code, but no synchronization.
   *p = 1; // Can be on stack, heap or global.
+
+Becomes:
 
 .. code::
 
@@ -297,17 +395,17 @@ implementation of an architecture. Compilers can usually be told to target
 specific architectures, CPUs or attributes using flags such as ``-march``,
 ``-mcpu``, ``-mattr``.
 
-Spinloops are usually implemented with an acquire load, which are equivalent to
-a relaxed load followed by an acquire fence in the loop. On some architecture
-implementations it may make sense to hoist the fence outside the loop, but how
-and when to do this is architecture specific. In a similar way, mutexes usually
-want to be implemented as a spinloop with exponential randomized backoff
-followed by a futex. The right implementation of mutexes is highly
+Spinloops are usually implemented with an ``acquire`` load, which are equivalent
+to a ``relaxed`` load followed by an ``acquire`` fence in the loop. On some
+architecture implementations it may make sense to hoist the fence outside the
+loop, but how and when to do this is architecture specific. In a similar way,
+mutexes usually want to be implemented as a spinloop with exponential randomized
+backoff followed by a futex. The right implementation of mutexes is highly
 platform-dependent.
 
 Instructions can also be implemented in manners that are nominally incorrect for
 the architecture in general, but happen to be correct for specific
-implementations of the architecture. For example, release fences should lower to
+implementations of the architecture. For example, ``release`` fences should lower to
 ``dmb ish`` on ARM, but `on Apple's Swift processor`_ they lower to ``dmb
 ishst`` instead, which would be incorrect on other ARM processors. Some ARM
 processors can go even further and remove all ``dmb`` which aren't system-wide
