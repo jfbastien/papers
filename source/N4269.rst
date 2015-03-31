@@ -47,7 +47,7 @@ adding/subtracting ``1`` to an atomic on x86:
     lock addl %edi, y(%rip)
     retq
 
-This optimization isn’t traditionally performed when using inline assembly and
+This optimization isn't traditionally performed when using inline assembly and
 showcases the strengths of hoisting abstractions to the language level.
 
 Seqlock would like to use unordered relaxed loads, all of which happen before a
@@ -100,7 +100,7 @@ have to be careful to avoid doing so across synchronization points because
 another executor can observe or modify memory, which means that the traditional
 optimizations have to consider more intervening instructions than they usually
 would when considering optimizations to atomic operations. In the case of dead
-store elimination it isn’t sufficient to prove that an atomic store
+store elimination it isn't sufficient to prove that an atomic store
 post-dominates and aliases another to eliminate the other store.
 
 A trickier example is fusion of relaxed atomic operations, even when
@@ -124,7 +124,7 @@ interleaved:
     y.fetch_add(2, std::memory_order_relaxed);
   }
 
-We aren’t aware of compilers performing this optimization yet, but `it is being
+We aren't aware of compilers performing this optimization yet, but `it is being
 discussed`_. ``std::atomic_signal_fence`` could be used to prevent this
 reordering and fusion, or one could use a stronger memory ordering for the
 operations.
@@ -183,7 +183,7 @@ is`_!) transformed as shown.
 
 The following code, with a different store/load ordering and using
 release/acquire memory ordering, can also be transformed as shown (but currently
-isn’t).
+isn't).
 
 .. code::
 
@@ -230,9 +230,9 @@ been synchronized with another thread that observed the store (see `this paper`_
 for details). Sequentially consistent accesses are acquire/release, the key in
 this example is having the release store come before the acquire load and
 synchronize with another thread (which the loop does by observing changes in
-``y``). The second example’s load can be eliminated because there was no
+``y``). The second example's load can be eliminated because there was no
 synchronization with another thread: even if the release is followed by an
-acquire the compiler is allowed to assume that the stored value wasn’t modified
+acquire the compiler is allowed to assume that the stored value wasn't modified
 before the subsequent load, and that the load is therefore redundant. Other
 optimizations such as global value ordering across atomics can be applied.
 
@@ -241,12 +241,12 @@ optimizations such as global value ordering across atomics can be applied.
 Mutex: Safer than Atomics?
 ==========================
 
-The same optimization potential applies to C++’s ``std::mutex``: locking a mutex
+The same optimization potential applies to C++'s ``std::mutex``: locking a mutex
 is equivalent to acquire memory ordering, and unlocking a mutex is equivalent to
 release memory ordering. Using a mutex correctly is slightly easier because the
-API is simpler than atomic’s API, but it isn’t a panacea.
+API is simpler than atomic's API, but it isn't a panacea.
 
-Some current implementations rely on pthread’s mutex, which may not expose all
+Some current implementations rely on pthread's mutex, which may not expose all
 optimization opportunities because the compiler may not know how to handle the
 slow-path futex (usually a syscall), or because the implementation is in a
 different translation unit. The optimization difficulties can be overcome by
@@ -306,27 +306,27 @@ platform-dependent.
 Instructions can also be implemented in manners that are nominally incorrect for
 the architecture in general, but happen to be correct for specific
 implementations of the architecture. For example, release fences should lower to
-``dmb ish`` on ARM, but `on Apple’s Swift processor`_ they lower to ``dmb
+``dmb ish`` on ARM, but `on Apple's Swift processor`_ they lower to ``dmb
 ishst`` instead, which would be incorrect on other ARM processors. Some ARM
-processors can go even further and remove all ``dmb`` which aren’t system-wide
-because their memory model is much stronger than ARM’s prescribed model.
+processors can go even further and remove all ``dmb`` which aren't system-wide
+because their memory model is much stronger than ARM's prescribed model.
 
-.. _`on Apple’s Swift processor`: http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20130701/thread.html#179911
+.. _`on Apple's Swift processor`: http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20130701/thread.html#179911
 
 Some architectures support transactional memory. A compiler can use this
 knowledge to make many consecutive atomic writes into a single atomic
 transaction, and retry on commit failure. It can also speculate that many reads
-and writes aren’t accessed concurrently and fall back to a slow path, or to
+and writes aren't accessed concurrently and fall back to a slow path, or to
 smaller transactions, if a commit failure limit is reached.
 
 Other architectures do dynamic binary translation behind the scenes, and also
 use transactional memory. This can lead to further in-hardware optimizations as
-well as fairly hard to predict behavior: sometimes races aren’t observed because
+well as fairly hard to predict behavior: sometimes races aren't observed because
 big transactions commit, and other times they do occur because transactions are
 smaller. This certainly makes micro-benchmarking hard, if not impossible.
 
 The same applies for simulators and emulators which often just-in-time translate
-the code they’re executing—leading to hard-to-predict behavior—and which also
+the code they're executing—leading to hard-to-predict behavior—and which also
 often emulate multi-core systems using cooperative thread switching—leading to
 predictable interleaving which is easier to optimize for the simulator.
 
@@ -337,7 +337,7 @@ Atomic operations are unsuitable to express that memory locations can be
 externally modified. Indeed, ``volatile`` (or ``volatile atomic``) should be
 used in these circumstances.
 
-Shared memory isn’t explicitly defined by the C++ standard, yet programmers
+Shared memory isn't explicitly defined by the C++ standard, yet programmers
 often use operating system APIs to map the same physical memory location onto
 multiple virtual addresses in the same process, or across processes. A
 sufficiently advanced compiler, performing some of the optimizations described
@@ -350,7 +350,7 @@ Takeaways
 For the Standards Committee
 ===========================
 
-Don't assume that these optimizations don’t occur, but rather encourage
+Don't assume that these optimizations don't occur, but rather encourage
 them. Standardize more common practice that enable to-the-metal
 optimizations. Provide more libraries that make it easy to use concurrency and
 parallelism and hard to get it wrong.
@@ -358,9 +358,9 @@ parallelism and hard to get it wrong.
 For Developers
 ==============
 
-Drop assembly: it can’t be optimized as well and is only tuned to the
+Drop assembly: it can't be optimized as well and is only tuned to the
 architectures that existed when you originally wrote the code. File bugs when
-performance expectations aren’t met by the compiler. Suggest to the standard
+performance expectations aren't met by the compiler. Suggest to the standard
 committee new idiomatic patterns which enable concurrency and parallelism. Use
 the tooling available to you, such as ThreadSanitizer, to find races in your
 code.
@@ -368,12 +368,12 @@ code.
 For Hardware vendors
 ====================
 
-Showcase your hardware’s strengths.
+Showcase your hardware's strengths.
 
 For Compiler Writers
 ====================
 
-Get back to work, there’s so much more to optimize… and so much code to break!
+Get back to work, there's so much more to optimize… and so much code to break!
 Help users write good code: the compiler should provide diagnostics when it
 detects anti-patterns or misuses of atomics.
 
