@@ -224,7 +224,10 @@ operations.
 
 A compiler can tag all functions on whether they have atomic instructions or
 not, and optimize around call sites accordingly. This could even be done for all
-virtual overrides when we can enumerate them.
+virtual overrides when we can enumerate them, and can be used to carve out
+different `inteference-free regions`_.
+
+.. _`inteference-free regions`: http://www.hpl.hp.com/techreports/2011/HPL-2011-57.pdf
 
 Fences are generated as a consequence of ``std::atomic_thread_fence`` as well
 as, on some architectures, atomic operations. Fences tend to be expensive, and
@@ -349,11 +352,11 @@ optimization opportunities because the compiler may not know how to handle the
 slow-path futex (usually a syscall), or because the implementation is in a
 different translation unit. The optimization difficulties can be overcome by
 teaching the compiler to treat ``std::mutex`` or pthread specially, or by
-`making it possible to implement mutexes in pure C++`_. Optimization across
+`making it practical to implement mutexes in pure C++`_. Optimization across
 translation units, such as through link-time optimizations, or optimizations
 relying on escape analysis, can also help expose more opportunities.
 
-.. _`making it possible to implement mutexes in pure C++`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf
+.. _`making it practical to implement mutexes in pure C++`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf
 
 Optimizations without Atomics
 =============================
@@ -488,4 +491,4 @@ Acknowledgement
 ---------------
 
 Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth, Jeffrey Yasskin, Paul
-McKenney, and Lawrence Crowl for their review, corrections and ideas.
+McKenney, Lawrence Crowl and Hans Boehm for their review, corrections and ideas.
