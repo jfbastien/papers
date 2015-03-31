@@ -4,8 +4,8 @@ D4269 No Sane Compiler Would Optimize Atomics
 
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2015-03-29
-:Revision: 2
+:Date: 2015-03-30
+:Revision: 4
 
 --------
 Abstract
@@ -51,9 +51,9 @@ This optimization isn’t traditionally performed when using inline assembly and
 showcases the strengths of hoisting abstractions to the language level.
 
 Seqlock would like to use unordered relaxed loads, all of which happen before a
-final load which verifies a ticket number. Such accesses don’t exist in the
-current memory model. Hans Boehm suggests_ using a relaxed fetch-add of zero,
-and shows that on x86 the code can be transformed as follows:
+final load which verifies a ticket number. Such a release load access doesn't
+exist in the current memory model. Hans Boehm suggests_ using a release
+fetch-add of zero, and shows that on x86 the code can be transformed as follows:
 
 .. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
 
@@ -91,6 +91,9 @@ LLVM`_.
 
 .. _`currently implemented in LLVM`: http://reviews.llvm.org/D5091
 
+Similar to the above release fetch-add of zero serving as a release load, one
+could also use an acquire exchange when an acquire store is desired.
+
 Traditional compiler optimizations, such as dead store elimination, can be
 performed on atomic operations, even sequentially consistent ones. Optimizers
 have to be careful to avoid doing so across synchronization points because
@@ -123,7 +126,8 @@ interleaved:
 
 We aren’t aware of compilers performing this optimization yet, but `it is being
 discussed`_. ``std::atomic_signal_fence`` could be used to prevent this
-reordering and fusion.
+reordering and fusion, or one could use a stronger memory ordering for the
+operations.
 
 .. _`it is being discussed`: http://llvm.org/bugs/show_bug.cgi?id=16477
 
@@ -248,8 +252,8 @@ slow-path futex (usually a syscall), or because the implementation is in a
 different translation unit. The optimization difficulties can be overcome by
 teaching the compiler to treat ``std::mutex`` or pthread specially, or by
 `making it possible to implement mutexes in pure C++`_. Optimization across
-translation units, such as through link-time optimizations, can also help expose
-more opportunities.
+translation units, such as through link-time optimizations, or optimizations
+relying on escape analysis, can also help expose more opportunities.
 
 .. _`making it possible to implement mutexes in pure C++`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf
 
@@ -287,7 +291,9 @@ Architecture and Implementation Specific Optimizations
 ======================================================
 
 Optimizations can sometimes be made per-architecture, or even per specific
-implementation of an architecture.
+implementation of an architecture. Compilers can usually be told to target
+specific architectures, CPUs or attributes using flags such as ``-march``,
+``-mcpu``, ``-mattr``.
 
 Spinloops are usually implemented with an acquire load, which are equivalent to
 a relaxed load followed by an acquire fence in the loop. On some architecture
@@ -301,8 +307,8 @@ Instructions can also be implemented in manners that are nominally incorrect for
 the architecture in general, but happen to be correct for specific
 implementations of the architecture. For example, release fences should lower to
 ``dmb ish`` on ARM, but `on Apple’s Swift processor`_ they lower to ``dmb
-ishist`` instead, which would be incorrect on other ARM processors. Some ARM
-processors can go even further and remove all ``DMB`` which aren’t system-wide
+ishst`` instead, which would be incorrect on other ARM processors. Some ARM
+processors can go even further and remove all ``dmb`` which aren’t system-wide
 because their memory model is much stronger than ARM’s prescribed model.
 
 .. _`on Apple’s Swift processor`: http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20130701/thread.html#179911
@@ -375,5 +381,5 @@ detects anti-patterns or misuses of atomics.
 Acknowledgement
 ---------------
 
-Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth, Jeffrey Yasskin and
-Paul McKenney for their review, corrections and ideas.
+Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth, Jeffrey Yasskin, Paul
+McKenney, and Lawrence Crowl for their review, corrections and ideas.
