@@ -132,6 +132,13 @@ Becomes:
     return x->exchange(y);
   }
 
+As a slightly different example, the value for ``std::is_lock_free`` can be
+determined at compile time for some architectures, but for others the compiler
+must be given a specific sub-architecture flag or must defer to feature
+detection followed by patching when the program is loaded. This is the case, for
+example, for x86's ``LOCK CMPXCHG16B`` instruction which is used to implement
+lock-free 16-byte operations.
+
 These optimizations aren't traditionally performed when using inline assembly
 and showcases the strengths of hoisting abstractions to the language level.
 
