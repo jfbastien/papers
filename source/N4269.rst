@@ -429,8 +429,12 @@ because their memory model is much stronger than ARM's prescribed model.
 Some architectures support transactional memory. A compiler can use this
 knowledge to make many consecutive atomic writes into a single atomic
 transaction, and retry on commit failure. It can also speculate that many reads
-and writes aren't accessed concurrently and fall back to a slow path, or to
-smaller transactions, if a commit failure limit is reached.
+and writes aren't accessed concurrently, or that certain locks aren't contended,
+and fall back to a slow path, or to smaller transactions, if a commit failure
+limit is reached. Such approaches have been implemented using Intel's `RTM and
+HLE`_ extensions.
+
+.. _`RTM and HLE`: https://queue.acm.org/detail.cfm?id=2579227
 
 Other architectures do dynamic binary translation behind the scenes, and also
 use transactional memory. This can lead to further in-hardware optimizations as
