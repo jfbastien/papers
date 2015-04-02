@@ -4,8 +4,8 @@ D4269 No Sane Compiler Would Optimize Atomics
 
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2015-03-30
-:Revision: 5
+:Date: 2015-04-01
+:Revision: 6
 
 --------
 Abstract
@@ -541,4 +541,5 @@ Acknowledgement
 ---------------
 
 Thanks to Robin Morisset, Dmitry Vyukov, Chandler Carruth, Jeffrey Yasskin, Paul
-McKenney, Lawrence Crowl and Hans Boehm for their review, corrections and ideas.
+McKenney, Lawrence Crowl, Hans Boehm and Torvald Riegel for their reviews,
+corrections and ideas.
