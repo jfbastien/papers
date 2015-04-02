@@ -152,23 +152,52 @@ implement lock-free 16-byte operations.
 These optimizations aren't traditionally performed when using inline assembly
 and showcases the strengths of hoisting abstractions to the language level.
 
-Seqlock_ would like to use unordered ``relaxed`` loads, all of which happen
-before a final load which verifies a ticket number. Such a ``release`` load
-access doesn't exist in the current memory model. Hans Boehm suggests_ using a
-``release`` fetch-add of zero, and shows that on x86 the code can be transformed
-as follows:
+The reader for seqlock_ bounds ticket acquisition and release with a load and a
+fence. This lets the data reads get reordered in-between ticket acquire/release
+by using ``relaxed`` memory ordering for data. The algorithm retries if the
+ticket changed or data was being modified by the writer:
 
-.. _Seqlock: http://en.wikipedia.org/wiki/Seqlock
+.. _seqlock: http://en.wikipedia.org/wiki/Seqlock
+
+.. code::
+
+  std::tuple<T, T> reader() {
+    T d1, d2;
+    unsigned seq0, seq1;
+    do {
+      seq0 = seq.load(std::memory_order_acquire);
+      d1 = data1.load(std::memory_order_relaxed);
+      d2 = data2.load(std::memory_order_relaxed);
+      std::atomic_thread_fence(std::memory_order_acquire)
+      seq1 = seq.load(std::memory_order_relaxed);
+    } while (seq0 != seq1 || seq0 & 1);
+    return {d1, d2};
+  }
+  
+  void writer(T d1, T d2) {
+    unsigned seq0 = seq.load(std::memory_order_relaxed);
+    seq.store(seq0 + 1, std::memory_order_relaxed);
+    data1.store(d1, std::memory_order_release);
+    data2.store(d2, std::memory_order_release);
+    seq.store(seq0 + 2, std::memory_order_release);
+  }
+
+The last ticket load effectively act as a ``release`` load, which doesn't exist
+in the current memory model but would better express the intent of the code
+while allowing subsequent operations to be moved into the critical section if
+profitable. Hans Boehm suggests_ using a ``release`` fetch-add of zero, and
+shows that on x86 the code can be transformed as follows:
+
 .. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
 
 .. code::
 
-  int r1, r2;
+  int d1, d2;
   unsigned seq0, seq1;
   do {
     seq0 = seq.load(std::memory_order_acquire);
-    r1 = data1.load(std::memory_order_relaxed);
-    r2 = data2.load(std::memory_order_relaxed);
+    d1 = data1.load(std::memory_order_relaxed);
+    d2 = data2.load(std::memory_order_relaxed);
     seq1 = seq.fetch_add(0, std::memory_order_release);
   } while (seq0 != seq1 || seq0 & 1);
 
@@ -189,9 +218,8 @@ Becomes:
         testl   %edx, %edx
         jne     .LBB0_1
 
-This is equivalent to a ``release`` fence followed by a ``relaxed`` load, and
-reduces contention by replacing an instruction requiring exclusive cache line
-access. This optimization is currently only known to be correct on x86, is
+This reduces contention by replacing an instruction requiring exclusive cache
+line access. This optimization is currently only known to be correct on x86, is
 probably correct for other architectures, and is `currently implemented in
 LLVM`_.
 
