@@ -132,6 +132,14 @@ Becomes:
     return x->exchange(y);
   }
 
+This may not always pay off! Weaker memory models may be better off having the
+laod and store separated.
+
+Other simple optimizations can also occur because of inlining and constant
+propagation such as turning ``atomic<T>::fetch_and(~(T)0)`` into
+``atomic<T>::load()``. The same applies for ``fetch_or(0)`` and
+``fetch_xor(0)``, as well as ``fetch_and(0)`` becoming ``store(0)``.
+
 As a slightly different example, the value for ``std::is_lock_free`` can be
 determined at compile time for some architectures, but for others the compiler
 can't know the value for all sub-architectures and must return ``false``. The
