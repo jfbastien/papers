@@ -28,7 +28,7 @@ Optimizations on Atomics
 ========================
 
 Atomics themselves can be optimized. A non-contentious example is constant
-propagation into atomics:
+propagation into atomics without other intervening atomics:
 
 .. code::
 
@@ -134,20 +134,23 @@ Becomes:
 
 As a slightly different example, the value for ``std::is_lock_free`` can be
 determined at compile time for some architectures, but for others the compiler
-must be given a specific sub-architecture flag or must defer to feature
-detection followed by patching when the program is loaded. This is the case, for
-example, for x86's ``LOCK CMPXCHG16B`` instruction which is used to implement
-lock-free 16-byte operations.
+can't know the value for all sub-architectures and must return ``false``. The
+compiler may be given a specific sub-architecture flag to work around this
+(restricting which machines the code will execute correctly on) or must defer to
+feature detection followed by patching when the program is loaded. This is the
+case, for example, for x86's ``LOCK CMPXCHG16B`` instruction which is used to
+implement lock-free 16-byte operations.
 
 These optimizations aren't traditionally performed when using inline assembly
 and showcases the strengths of hoisting abstractions to the language level.
 
-Seqlock would like to use unordered ``relaxed`` loads, all of which happen
+Seqlock_ would like to use unordered ``relaxed`` loads, all of which happen
 before a final load which verifies a ticket number. Such a ``release`` load
 access doesn't exist in the current memory model. Hans Boehm suggests_ using a
 ``release`` fetch-add of zero, and shows that on x86 the code can be transformed
 as follows:
 
+.. _Seqlock: http://en.wikipedia.org/wiki/Seqlock
 .. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
 
 .. code::
