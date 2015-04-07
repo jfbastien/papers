@@ -23,7 +23,13 @@ Sample Optimizations
 --------------------
 
 We list optimizations that are either implemented in LLVM, or will be readily
-implemented.
+implemented. A general rule to keep in mind is that the compiler performs many
+of its optimizations on and around atomics based on the *as-if* rule. This
+implies that the compiler can make operations **more** atomic as long as it
+doesn't violate forward progress requirements, and can make them **less** atomic
+as long as it doesn't add non-benign race which weren't already present in the
+original program. Put another way, correct programs must work under all
+executions an implementation is allowed to create.
 
 Optimizations on Atomics
 ========================
@@ -52,9 +58,10 @@ Becomes:
     x += 2;
   }
 
-This leads to further optimizations such as using the locked ``inc``/``dec``
-instructions instead of locked ``add``/``sub`` when adding/subtracting ``1`` to
-an atomic on x86:
+The above optimization adds atomicity but cannot hinder forward progress, and is
+therefore correct. This leads to further optimizations such as using the locked
+``inc``/``dec`` instructions instead of locked ``add``/``sub`` when
+adding/subtracting ``1`` to an atomic on x86:
 
 .. code::
 
@@ -238,10 +245,10 @@ desired.
 Traditional compiler optimizations, such as dead store elimination, can be
 performed on atomic operations, even sequentially consistent ones. Optimizers
 have to be careful to avoid doing so across synchronization points because
-another executor can observe or modify memory, which means that the traditional
-optimizations have to consider more intervening instructions than they usually
-would when considering optimizations to atomic operations. In the case of dead
-store elimination it isn't sufficient to prove that an atomic store
+another thread of execution can observe or modify memory, which means that the
+traditional optimizations have to consider more intervening instructions than
+they usually would when considering optimizations to atomic operations. In the
+case of dead store elimination it isn't sufficient to prove that an atomic store
 post-dominates and aliases another to eliminate the other store.
 
 A trickier example is fusion of ``relaxed`` atomic operations, even when
