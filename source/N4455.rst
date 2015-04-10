@@ -117,7 +117,7 @@ Becomes:
 
   template<typename T>
   bool optme(std::atomic<T> *x, T desired) {
-    return y->load(std::memory_order_seq_cst) == desired;
+    return x->load(std::memory_order_seq_cst) == desired;
   }
 
 The above optimization may require that the compiler mark the transformed load
