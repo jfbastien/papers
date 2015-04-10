@@ -1,12 +1,11 @@
 =============================================
-D4269 No Sane Compiler Would Optimize Atomics
+N4269 No Sane Compiler Would Optimize Atomics
 =============================================
 
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2015-04-07
+:Date: 2015-04-10
 :URL: https://github.com/jfbastien/papers/blob/master/source/N4269.rst
-:Revision: 7
 
 --------
 Abstract
@@ -121,8 +120,8 @@ Becomes:
     return y->load(std::memory_order_seq_cst) == desired;
   }
 
-.. TODO: Is the above correct? See C++11 section 1.10 ¶7, particularly around
-         release sequence and the implications in ¶10.
+The above optimization may require that the compiler mark the transformed load
+as a *release sequence* as defined in section 1.10 of the C++ standard.
 
 Similarly, while keeping the resulting memory order stronger or equal to the
 individual ones, the following can occur:
@@ -145,8 +144,9 @@ Becomes:
     return x->exchange(y);
   }
 
-This may not always pay off! Architectures with weaker memory models may be
-better off having the load and store separated.
+This may not always pay off! In particular, architectures with weaker memory
+models may benefit from having write-after-read operations to the same location
+instead of having an atomic exchange.
 
 Other simple optimizations can also occur because of inlining and constant
 propagation such as turning ``atomic<T>::fetch_and(~(T)0)`` into
@@ -199,7 +199,7 @@ The reader's last ticket load effectively act as a ``release`` load, which
 doesn't exist in the current memory model but would better express the intent of
 the code while allowing subsequent operations to be moved into the critical
 section if profitable. Hans Boehm suggests_ using a ``release`` fetch-add of
-zero, and shows that on x86 the code can be transformed as follows:
+zero, and shows that on x86 the code can be written as follows:
 
 .. _suggests: http://www.hpl.hp.com/techreports/2012/HPL-2012-68.pdf
 
@@ -214,7 +214,7 @@ zero, and shows that on x86 the code can be transformed as follows:
     seq1 = seq.fetch_add(0, std::memory_order_release);
   } while (seq0 != seq1 || seq0 & 1);
 
-Becomes:
+This rewritten code then generates the following x86 assembly:
 
 .. code::
 
@@ -231,10 +231,10 @@ Becomes:
         testl   %edx, %edx
         jne     .LBB0_1
 
-This reduces contention by replacing an instruction requiring exclusive cache
-line access. This optimization is currently only known to be correct on x86, is
-probably correct for other architectures, and is `currently implemented in
-LLVM`_.
+This x86 assembly reduces contention by replacing ``fetch_add``—an instruction
+requiring exclusive cache line access—to a simple ``movl``. This optimization is
+currently only known to be correct on x86, is probably correct for other
+architectures, and is `currently implemented in LLVM`_.
 
 .. _`currently implemented in LLVM`: http://reviews.llvm.org/D5091
 
@@ -513,6 +513,9 @@ often use operating system APIs to map the same physical memory location onto
 multiple virtual addresses in the same process, or across processes. A
 sufficiently advanced compiler, performing some of the optimizations described
 above, can seriously harm code which uses shared memory naïvely.
+
+The C++ standard says that lock-free atomic operations must be *address free* to
+address such issues, but this mandate isn't normative.
 
 ---------
 Takeaways
