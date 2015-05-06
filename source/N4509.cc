@@ -5,8 +5,12 @@ namespace std {
 
   namespace detail {
     // It is implementation-defined what this returns, as long as:
-    // if (atomic<T>::is_lock_free())
-    //   assert(is_always_lock_free<T>::value);
+    //
+    // if (std::atomic<T>()::is_lock_free())
+    //   assert(std::atomic<T>::is_always_lock_free);
+    //
+    // An implementation may therefore have more variable template
+    // specializations than the ones shown below.
     template<typename T> static constexpr bool is_always_lock_free = false;
 
     // Implementations must match the C ATOMIC_*_LOCK_FREE macro values.
@@ -27,7 +31,12 @@ namespace std {
     template<> static constexpr bool is_always_lock_free<unsigned long long> = 2 == ATOMIC_LLONG_LOCK_FREE;
     template<typename T> static constexpr bool is_always_lock_free<T*> = 2 == ATOMIC_POINTER_LOCK_FREE;
     template<> static constexpr bool is_always_lock_free<std::nullptr_t> = 2 == ATOMIC_POINTER_LOCK_FREE;
-    // The macros do not support float, double, long double, but C++ does support atomics of these types.
+    // No need to specialize void since std::atomic<void> is an incomplete type.
+    //
+    // The macros do not support float, double, long double, but C++ does
+    // support atomics of these types. An implementation shall ensure that these
+    // types, as well as user-defined types, guarantee the above invariant that
+    // is_always_lock_free implies is_lock_free for the same type.
   }
 
   template<typename T>
@@ -40,8 +49,6 @@ namespace std {
 template<typename T> using atomic = std::atomic_n4509<T>;
 
 int main() {
-
-
   std::cout <<
     "bool\t" << atomic<bool>::is_always_lock_free << '\n' <<
     "char\t" << atomic<char>::is_always_lock_free << '\n' <<
