@@ -30,6 +30,8 @@ performance reasons.
 
 **The software design shipped in C++11 and C++14 is, however, somewhat sandbagged.**
 
+There is poor support for static determination of lock-freedom guarantees.
+
 At the present time the Standard has limited support in this domain: the
 ``ATOMIC_*_LOCK_FREE`` macros that return ``2``, ``1`` or ``0`` if the
 corresponding atomic type is *always* lock-free, sometimes lock-free or never
@@ -38,14 +40,13 @@ because they do not work with an arbitrary type ``T`` (as the C++ native
 ``std::atomic<T>`` library intends) and they leave adaptation for generic
 programming entirely up to the developer.
 
-The net result is that there is poor support for static determination of
-lock-freedom guarantees. This leads to the present, counter-intuitive state of
-the art whereby non-traditional uses of C++ have better support than
-high-performance computing. We aim to make the smallest possible change that
-improves the situation for HPC while leaving all other uses untouched.
+This leads to the present, counter-intuitive state of the art whereby
+non-traditional uses of C++ have better support than high-performance
+computing. We aim to make the smallest possible change that improves the
+situation for HPC while leaving all other uses untouched.
 
-We propose a ``constexpr`` version of ``is_lock_free()`` that is suitable for
-use with SFINAE or ``static_assert``:
+We propose a ``static constexpr`` complement of ``is_lock_free()`` that is
+suitable for use with SFINAE and ``static_assert``:
 
 .. code-block:: c++
 
@@ -56,8 +57,8 @@ use with SFINAE or ``static_assert``:
     };
   }
 
-The static data member ``is_always_lock_free`` (*29.6*) indicates whether the
-object is always lock-free.
+The ``static`` data member ``is_always_lock_free`` (*29.6*) indicates whether
+the object is always lock-free.
 
 i.e. the following should never assert:
 
