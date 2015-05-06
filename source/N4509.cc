@@ -6,8 +6,8 @@ namespace std {
   namespace detail {
     // It is implementation-defined what this returns, as long as:
     //
-    // if (std::atomic<T>()::is_lock_free())
-    //   assert(std::atomic<T>::is_always_lock_free);
+    // if (std::atomic<T>::is_always_lock_free)
+    //   assert(std::atomic<T>()::is_lock_free());
     //
     // An implementation may therefore have more variable template
     // specializations than the ones shown below.
