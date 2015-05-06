@@ -31,6 +31,7 @@ namespace std {
     template<> static constexpr bool is_always_lock_free<unsigned long long> = 2 == ATOMIC_LLONG_LOCK_FREE;
     template<typename T> static constexpr bool is_always_lock_free<T*> = 2 == ATOMIC_POINTER_LOCK_FREE;
     template<> static constexpr bool is_always_lock_free<std::nullptr_t> = 2 == ATOMIC_POINTER_LOCK_FREE;
+
     // The macros do not support float, double, long double, but C++ does
     // support atomics of these types. An implementation shall ensure that these
     // types, as well as user-defined types, guarantee the above invariant that
@@ -39,7 +40,9 @@ namespace std {
 
   template<typename T>
   struct atomic_n4509 {
+    // ...
     static constexpr bool is_always_lock_free = detail::is_always_lock_free<T>;
+    // ...
   };
 
 }
