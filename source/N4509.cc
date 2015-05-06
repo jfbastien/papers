@@ -31,8 +31,6 @@ namespace std {
     template<> static constexpr bool is_always_lock_free<unsigned long long> = 2 == ATOMIC_LLONG_LOCK_FREE;
     template<typename T> static constexpr bool is_always_lock_free<T*> = 2 == ATOMIC_POINTER_LOCK_FREE;
     template<> static constexpr bool is_always_lock_free<std::nullptr_t> = 2 == ATOMIC_POINTER_LOCK_FREE;
-    // No need to specialize void since std::atomic<void> is an incomplete type.
-    //
     // The macros do not support float, double, long double, but C++ does
     // support atomics of these types. An implementation shall ensure that these
     // types, as well as user-defined types, guarantee the above invariant that
