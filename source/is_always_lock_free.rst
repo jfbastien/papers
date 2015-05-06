@@ -1,0 +1,59 @@
+=======================================
+Nxxxx `constexpr is_always_lock_free()`
+=======================================
+
+:Author: Olivier Giroux
+:Contact: ogiroux@nvidia.com
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Date: 2015-05-05
+:URL: https://github.com/jfbastien/papers/blob/master/source/is_always_lock_free.rst
+
+The current design for ``std::atomic<T>`` affords implementations the critical
+freedom to revert to critical sections when hardware support for atomic
+operations does not meet the size or semantic requirements for the associated
+type ``T``. This preserves C++ support on aging hardware, chiefly, and improves
+the portability of abstract representations for C++ programs, e.g. as on the
+web.
+
+The Standard also ensures that users can be informed of the implementation’s
+lock-freedom guarantees, by using the ``is_lock_free()`` member and
+free-functions. This is important because programmers may want to select
+algorithm implementations, or even select algorithms, based on this
+knowledge. Users are equally likely to do so for correctness and performance
+reasons.
+
+**The software design shipped in C++11 and C++14 is, however, somewhat sandbagged.**
+
+At the present time the Standard has limited support in this domain: the
+``ATOMIC_*_LOCK_FREE`` macros that return ``2``, ``1`` or ``0`` if the
+corresponding atomic type is always lock-free, sometimes lock-free or never
+lock-free, respectively. These macros are little more than a consolation prize
+because they do not work with an arbitrary type ``T`` (as the C++ native
+``std::atomic<T>`` library intends) and they leave adaptation for generic
+programming entirely up to the user.
+
+The net result is that there is poor support for static determination of
+lock-freedom guarantees. This leads to the present, counter-intuitive state of
+the art whereby non-traditional uses of C++ have better support than
+high-performance computing. We aim to make the smallest possible change that
+improves the situation for HPC while leaving all other uses untouched.
+
+We propose a ``constexpr`` version of ``is_lock_free()`` that is suitable for
+use with SFINAE or ``static_assert``:
+
+.. code-block:: c++
+
+  namespace std {
+    template <class T> struct atomic {
+      constexpr bool is_always_lock_free() const noexcept;
+      constexpr bool is_always_lock_free() const volatile noexcept;
+      // Omitting all other members for brevity.
+    };
+    constexpr bool atomic_is_always_lock_free(const atomic-type*) noexcept;
+    constexpr bool atomic_is_always_lock_free(const volatile atomic-type*) noexcept;
+  }
+
+The function ``atomic_is_always_lock_free`` (*29.6*) indicates whether the
+object is always lock-free. In any given program execution, the result of the
+lock-free query shall be consistent for all pointers of the same type.
