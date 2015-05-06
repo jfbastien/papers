@@ -31,15 +31,16 @@ namespace std {
   }
 
   template<typename T>
-  class atomic_n4509 {
+  struct atomic_n4509 {
     static constexpr bool is_always_lock_free = detail::is_always_lock_free<T>;
   };
 
 }
 
+template<typename T> using atomic = std::atomic_n4509<T>;
+
 int main() {
 
-  template<typename T> using atomic = std::atomic_n4509<T>;
 
   std::cout <<
     "bool\t" << atomic<bool>::is_always_lock_free << '\n' <<
