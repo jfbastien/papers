@@ -1,0 +1,81 @@
+================================================
+N4509 `constexpr atomic<T>::is_always_lock_free`
+================================================
+
+:Author: Olivier Giroux
+:Contact: ogiroux@nvidia.com
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Author: Jeff Snyder
+:Contact: jeff-isocpp@caffeinated.me.uk
+:Date: 2015-05-05
+:URL: https://github.com/jfbastien/papers/blob/master/source/N4509.rst
+:Source: https://github.com/jfbastien/papers/blob/master/source/N4509.cc
+
+The current design for ``std::atomic<T>`` affords implementations the critical
+freedom to revert to critical sections when hardware support for atomic
+operations does not meet the size or semantic requirements for the associated
+type ``T``. This:
+
+* Preserves C++ support on aging hardware.
+* Supports developers who don't target a specific architecture e.g. with the
+  ``-march=xxx`` flag.
+* Improves the portability of abstract representations for C++ programs,
+  e.g. when compiling C++ code to execute portably within a web browser.
+
+The Standard also ensures that developers can be informed of the
+implementation's lock-freedom guarantees, by using the ``is_lock_free()`` member
+and free-functions. This is important because programmers may want to select
+algorithm implementations, or even select algorithms, based on this
+knowledge. Developers are equally likely to do so for correctness and
+performance reasons.
+
+**The software design shipped in C++11 and C++14 is, however, somewhat sandbagged.**
+
+There is poor support for static determination of lock-freedom guarantees.
+
+At the present time the Standard has limited support in this domain: the
+``ATOMIC_*_LOCK_FREE`` macros that return ``2``, ``1`` or ``0`` if the
+corresponding atomic type is *always* lock-free, sometimes lock-free or never
+lock-free, respectively. These macros are little more than a consolation prize
+because they do not work with an arbitrary type ``T`` (as the C++ native
+``std::atomic<T>`` library intends) and they leave adaptation for generic
+programming entirely up to the developer.
+
+This leads to the present, counter-intuitive state of the art whereby
+non-traditional uses of C++ have better support than high-performance
+computing. We aim to make the smallest possible change that improves the
+situation for HPC while leaving all other uses untouched.
+
+We propose a ``static constexpr`` complement of ``is_lock_free()`` that is
+suitable for use with SFINAE and ``static_assert``:
+
+.. code-block:: c++
+
+  namespace std {
+    template <class T> struct atomic {
+      static constexpr bool is_always_lock_free = /* implementation-defined */;
+      // Omitting all other members for brevity.
+    };
+  }
+
+The ``static`` data member ``is_always_lock_free`` (*29.6*) indicates whether
+the object is always lock-free.
+
+i.e. the following should never assert:
+
+.. code-block:: c++
+
+  if (atomic<T>().is_lock_free())
+    assert(atomic<T>::is_always_lock_free);
+
+We did not provide the ``atomic_is_always_lock_free`` C-style free functions
+(which the ``is_lock_free`` functions have) because these require a
+pointer. This makes the free functions significantly less useful as compile-time
+``constexpr``.
+
+We show a sample implementation:
+
+.. literalinclude:: N4509.cc
+   :language: c++
+   :lines: 4-48
