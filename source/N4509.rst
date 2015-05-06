@@ -1,5 +1,5 @@
 =======================================
-Nxxxx `constexpr is_always_lock_free()`
+N4509 `constexpr is_always_lock_free()`
 =======================================
 
 :Author: Olivier Giroux
@@ -7,7 +7,7 @@ Nxxxx `constexpr is_always_lock_free()`
 :Author: JF Bastien
 :Contact: jfb@google.com
 :Date: 2015-05-05
-:URL: https://github.com/jfbastien/papers/blob/master/source/is_always_lock_free.rst
+:URL: https://github.com/jfbastien/papers/blob/master/source/4509.rst
 
 The current design for ``std::atomic<T>`` affords implementations the critical
 freedom to revert to critical sections when hardware support for atomic

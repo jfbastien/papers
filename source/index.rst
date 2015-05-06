@@ -12,7 +12,7 @@ Contents:
   :maxdepth: 2
 
   N4455
-  is_always_lock_free
+  N4509
 
 
 Indices and tables
