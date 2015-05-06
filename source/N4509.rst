@@ -66,8 +66,8 @@ i.e. the following should never assert:
 
 .. code-block:: c++
 
-  if (atomic<T>().is_lock_free())
-    assert(atomic<T>::is_always_lock_free);
+  if (atomic<T>::is_always_lock_free)
+    assert(atomic<T>().is_lock_free());
 
 We did not provide the ``atomic_is_always_lock_free`` C-style free functions
 (which the ``is_lock_free`` functions have) because these require a
