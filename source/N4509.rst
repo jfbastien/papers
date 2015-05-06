@@ -13,10 +13,13 @@ N4509 `constexpr is_always_lock_free()`
 The current design for ``std::atomic<T>`` affords implementations the critical
 freedom to revert to critical sections when hardware support for atomic
 operations does not meet the size or semantic requirements for the associated
-type ``T``. This preserves C++ support on aging hardware, when developers don't
-target a specific architecture e.g. with the ``-march=xxx`` flag, and improves
-the portability of abstract representations for C++ programs, e.g. when
-compiling C++ code to execute portably within a web browser.
+type ``T``. This:
+
+* Preserves C++ support on aging hardware.
+* Supports developers who don't target a specific architecture e.g. with the
+  ``-march=xxx`` flag.
+* Improves the portability of abstract representations for C++ programs,
+  e.g. when compiling C++ code to execute portably within a web browser.
 
 The Standard also ensures that developers can be informed of the
 implementation's lock-freedom guarantees, by using the ``is_lock_free()`` member
@@ -48,21 +51,22 @@ use with SFINAE or ``static_assert``:
 
   namespace std {
     template <class T> struct atomic {
-      constexpr bool is_always_lock_free() const noexcept;
-      constexpr bool is_always_lock_free() const volatile noexcept;
+      static constexpr bool is_always_lock_free = /* implementation-defined */;
       // Omitting all other members for brevity.
     };
-    constexpr bool atomic_is_always_lock_free(const atomic-type*) noexcept;
-    constexpr bool atomic_is_always_lock_free(const volatile atomic-type*) noexcept;
   }
 
-The function ``atomic_is_always_lock_free`` (*29.6*) indicates whether the
-object is always lock-free. In any given program execution, the result of the
-lock-free query shall be consistent for all pointers of the same type.
+The static data member ``is_always_lock_free`` (*29.6*) indicates whether the
+object is always lock-free.
 
 i.e. the following should never assert:
 
 .. code-block:: c++
 
-  if (atomic<T>::is_lock_free())
-    assert(is_always_lock_free<T>::value);
+  if (atomic<T>().is_lock_free())
+    assert(atomic<T>::is_always_lock_free);
+
+We did not provide the ``atomic_is_always_lock_free`` C-style free functions
+(which the ``is_lock_free`` functions have) because these require a
+pointer. This makes the free functions significantly less useful as compile-time
+``constexpr``.
