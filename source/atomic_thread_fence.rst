@@ -1,5 +1,5 @@
 =============================================
-Nxxx ``std;;atomic_thread_fence(mo, T...&&)``
+Nxxx ``std::atomic_thread_fence(mo, T...&&)``
 =============================================
 .. TODO Update number above.
 
