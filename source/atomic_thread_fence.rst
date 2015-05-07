@@ -10,6 +10,7 @@ Nxxx ``std::atomic_thread_fence(mo, T...&&)``
 :Date: 2015-05-06
 :URL: https://github.com/jfbastien/papers/blob/atomic_thread_fence/source/atomic_thread_fence.rst
 .. TODO Update the URL above.
+.. TODO Also add OpenMP discussion
 
 It's easy to over-constrain the order of memory operations in the implementation
 of synchronization primitives that use more than a single atomic object.
