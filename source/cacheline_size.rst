@@ -74,8 +74,8 @@ Under 30.3.1.6 ``thread`` static members [**thread.thread.static**]:
 ``constexpr size_t likely_cacheline_size = /* implementation-defined */;``
 
 [*Note:* This number is a recommended spacing in bytes for the colocation of
-objects which are used with high contention. It is also the recommended amount
-of contiguous memory that the objects passed to
+objects which are used with high contention. It is also the recommended maximum
+amount of contiguous memory that the objects passed to
 ``std::atomic_thread_fence(std::memory_order, T...&&)`` should occupy for the
 highest possible performance under low contention. — *end note*]
 
