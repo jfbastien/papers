@@ -2,6 +2,15 @@
 Nxxx ``constexpr std::thread::likely_cacheline_size``
 =====================================================
 
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Author: Olivier Giroux
+:Contact: ogiroux@nvidia.com
+:Date: 2015-05-07
+:URL: https://github.com/jfbastien/papers/blob/master/source/cacheline_size.rst
+
+.. TODO Update URL above.
+
 ---------
 Rationale
 ---------
