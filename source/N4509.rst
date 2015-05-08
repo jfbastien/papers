@@ -48,7 +48,13 @@ computing. We aim to make the smallest possible change that improves the
 situation for HPC while leaving all other uses untouched.
 
 We propose a ``static constexpr`` complement of ``is_lock_free()`` that is
-suitable for use with SFINAE and ``static_assert``:
+suitable for use with SFINAE and ``static_assert``.
+
+-----------------
+Proposed addition
+-----------------
+
+Under 29.5 Atomic types [**atomics.types.generic**]:
 
 .. code-block:: c++
 
@@ -57,17 +63,36 @@ suitable for use with SFINAE and ``static_assert``:
       static constexpr bool is_always_lock_free = /* implementation-defined */;
       // Omitting all other members for brevity.
     };
+    template <> struct atomic<integral> {
+      static constexpr bool is_always_lock_free = /* implementation-defined */;
+      // Omitting all other members for brevity.
+    };
+    template <class T> struct atomic<T> {
+      static constexpr bool is_always_lock_free = /* implementation-defined */;
+      // Omitting all other members for brevity.
+    };
   }
 
-The ``static`` data member ``is_always_lock_free`` (*29.6*) indicates whether
-the object is always lock-free.
+After paragraph 2:
 
-i.e. the following should never assert:
+The ``static`` data member ``is_always_lock_free`` is true if the atomic type's operations are always lock-free, and false otherwise.  The value of ``is_always_lock_free`` shall be consistent with the value of the corresponding ``ATOMIC_…_LOCK_FREE`` macro.
+
+Under 29.6.5 Requirements for operations on atomic types [**atomics.types.operations.req**], in paragraph 7:
+
+The return value of the ``is_lock_free member`` function shall be consistent with the value of ``is_always_lock_free`` for the same type.
+
+[*Example:* the following shall never fail,
 
 .. code-block:: c++
 
   if (atomic<T>::is_always_lock_free)
     assert(atomic<T>().is_lock_free());
+
+— *end example*]
+
+-------------------
+Additional material
+-------------------
 
 We did not provide the ``atomic_is_always_lock_free`` C-style free functions
 (which the ``is_lock_free`` functions have) because these require a
