@@ -11,6 +11,10 @@ Nxxx ``std::atomic_thread_fence(mo, T...&&)``
 :URL: https://github.com/jfbastien/papers/blob/master/source/atomic_thread_fence.rst
 .. TODO Update the URL above.
 
+---------
+Rationale
+---------
+
 Fences allow programmers to express a conservative appromation to the ideal
 precise pair-wise relations of operations required to be ordered in the
 happens-before relation. This is conservative because fences use the
@@ -64,21 +68,41 @@ possible to compile this program without a fence in this location on
 architectures that are cache-line coherent. To concisely express the bound on
 the set of memory operations whose order is constrained, we propose to overload
 ``std::atomic_thread_fence`` with a variant that takes a reference to the object
-containing sub-objects to be ordered by the fence:
+containing sub-objects to be ordered by the fence.
+
+-----------------
+Proposed addition
+-----------------
+
+Under 29.2 Header ``<atomic>`` synopsis [**atomics.syn**]:
 
 .. code-block:: c++
 
+  namespace std {
+     // 29.8, fences
+     // ...
      template<class... T>
      void atomic_thread_fence(memory_order, T... &&objects) noexcept;
+   }
 
-For this overload, operations on objects that are not sub-objects of the
-object(s) in the variadic template argument(s) are *un-sequenced* with the
-fence. The compiler would likely apply restrictions on alignment, and may
-generate a dynamic test leading to a fence for under-aligned objects.
+Under 29.8 Fences [**atomics.fences**], after the current
+``atomic_thread_fence`` paragraph:
 
-In all cases, a trivially conforming implementation may implement the new
-overload in terms of the existing ``std::atomic_thread_fence`` using the same
-memory order:
+``template<class... T> void atomic_thread_fence(memory_order, T... &&objects) noexcept;``
+
+*Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
+objects that are not sub-objects of the object(s) in the variadic template
+argument(s) are *un-sequenced* with the fence.
+
+*Note*: The compiler can apply restrictions on alignment, and may generate a
+dynamic test leading to a fence for under-aligned objects.
+
+----------------------
+Implementation details
+----------------------
+
+A Trivially conforming implementation may implement the new overload in terms of
+the existing ``std::atomic_thread_fence`` using the same memory order:
 
 .. code-block:: c++
 
@@ -102,7 +126,3 @@ This enables hardware-specific optimizations which cannot be expressed in C++
 today. If the synchronized object(s) are know to reside in memory that's not
 visible to other threads of execution, then a weaker type of fence than the
 hardware's global fence can be used.
-
-We conjecture that this mechanism could also be used to identify transaction
-boundaries in hardware implementations which support transactional memory, and
-implement subsequent atomic operations as hardware transactions instead.
