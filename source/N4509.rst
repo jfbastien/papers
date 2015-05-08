@@ -35,7 +35,7 @@ performance reasons.
 There is poor support for static determination of lock-freedom guarantees.
 
 At the present time the Standard has limited support in this domain: the
-``ATOMIC_*_LOCK_FREE`` macros that return ``2``, ``1`` or ``0`` if the
+``ATOMIC_..._LOCK_FREE`` macros that return ``2``, ``1`` or ``0`` if the
 corresponding atomic type is *always* lock-free, sometimes lock-free or never
 lock-free, respectively. These macros are little more than a consolation prize
 because they do not work with an arbitrary type ``T`` (as the C++ native
@@ -78,7 +78,7 @@ After paragraph 2:
 The ``static`` data member ``is_always_lock_free`` is true if the atomic type's
 operations are always lock-free, and false otherwise. The value of
 ``is_always_lock_free`` shall be consistent with the value of the corresponding
-``ATOMIC_*_LOCK_FREE`` macro.
+``ATOMIC_..._LOCK_FREE`` macro.
 
 Under 29.6.5 Requirements for operations on atomic types
 [**atomics.types.operations.req**], in paragraph 7:
