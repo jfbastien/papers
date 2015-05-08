@@ -14,8 +14,7 @@ Contents:
   N4455
   N4509
   D4522
-
-  cacheline_size
+  D4523
 
 
 Indices and tables
