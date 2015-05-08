@@ -13,6 +13,7 @@ Contents:
 
   N4455
   N4509
+  atomic_thread_fence
 
 
 Indices and tables
