@@ -32,10 +32,12 @@ benefit of the compiler, but also in expert hands it can unlock the maximum
 memory performance out of all popular hardware platforms.
 
 An example of this important optimization can be seen in a likely implementation
-of N4392's ``std::barrier`` object. This algorithm makes ordered modifications
-on the atomic sub-objects of a larger non-atomic synchronization object, but the
+of N4392_ ``std::barrier`` object. This algorithm makes ordered modifications on
+the atomic sub-objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
 surrounding objects.
+
+.. _N4392: wg21.link/N4392
 
 .. code-block:: c++
 
