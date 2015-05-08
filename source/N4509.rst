@@ -75,24 +75,22 @@ Under 29.5 Atomic types [**atomics.types.generic**]:
 
 After paragraph 2:
 
-The ``static`` data member ``is_always_lock_free`` is true if the atomic type’s operations are always lock-free, and false otherwise.  The value of is_always_lock_free shall be consistent with the value of the corresponding ATOMIC_…_LOCK_FREE macro.
+The ``static`` data member ``is_always_lock_free`` is true if the atomic type's operations are always lock-free, and false otherwise.  The value of ``is_always_lock_free`` shall be consistent with the value of the corresponding ``ATOMIC_…_LOCK_FREE`` macro.
 
-Under 29.6.5 Requirements for operations on atomic types [**atomics.types.operations.req**]
+Under 29.6.5 Requirements for operations on atomic types [**atomics.types.operations.req**], in paragraph 7:
 
-In paragraph 7:
+The return value of the ``is_lock_free member`` function shall be consistent with the value of ``is_always_lock_free`` for the same type.
 
-The return value of the is_lock_free member function for the same type.
-
-[Example: the following shall never fail:
+[*Example:* the following shall never fail,
 
 .. code-block:: c++
 
   if (atomic<T>::is_always_lock_free)
     assert(atomic<T>().is_lock_free());
 
-— end example]
+— *end example*]
 
-—————————
+-------------------
 Additional material
 -------------------
 
