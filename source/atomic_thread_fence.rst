@@ -53,7 +53,7 @@ surrounding objects.
               epoch.store(myepoch + 1, memory_order_release);
           }
           else
-              while(epoch.load(memory_order_acquire) == myepoch)
+              while (epoch.load(memory_order_acquire) == myepoch)
                   ;
       }
   private:
