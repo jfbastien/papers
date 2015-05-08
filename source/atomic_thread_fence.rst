@@ -46,7 +46,7 @@ surrounding objects.
       void arrive_and_wait() {
           int const myepoch = epoch.load(memory_order_relaxed);
           int const result = arrived.fetch_add(1, memory_order_acq_rel) + 1;
-          if(result == expected) {
+          if (result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
               // Only need to order {expected, arrived} -> {epoch}.
@@ -117,7 +117,7 @@ The above barrier example's inner-code would use the new overload as follows:
 
 .. code-block:: c++
 
-          if(result == expected) {
+          if (result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
 	      atomic_thread_fence(memory_order_release, *this);
