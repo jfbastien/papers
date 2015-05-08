@@ -88,6 +88,9 @@ amount of contiguous memory that the objects passed to
 ``std::atomic_thread_fence(std::memory_order, T...&&)`` should occupy for the
 highest possible performance under low contention. — *end note*]
 
+The ``__cpp_lib_atomic_thread_likely_cacheline_size`` feature test macro should
+be added.
+
 -------------------------
 OS and ISA specific usage
 -------------------------
