@@ -59,8 +59,7 @@ suitable for use with SFINAE and ``static_assert``:
     };
   }
 
-The ``static`` data member ``is_always_lock_free`` (*29.6*) indicates whether
-the object is always lock-free.
+The ``static`` data member ``is_always_lock_free`` (*29.6*) is true if the atomic type’s operations are always lock-free, and false otherwise.  The value of is_always_lock_free shall be consistent with the value of the corresponding ATOMIC_…_LOCK_FREE macro, and the return value of the is_lock_free member function for the same type.
 
 i.e. the following should never assert:
 

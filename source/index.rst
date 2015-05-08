@@ -13,7 +13,11 @@ Contents:
 
   N4455
   N4509
+<<<<<<< HEAD
+  atomic_thread_fence
+=======
   cacheline_size
+>>>>>>> jfbastien/cacheline_size
 
 
 Indices and tables
