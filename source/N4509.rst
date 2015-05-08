@@ -95,6 +95,8 @@ with the value of ``is_always_lock_free`` for the same type.
 
 — *end example*]
 
+The ``__cpp_lib_atomic_is_always_lock_free`` feature test macro should be added.
+
 -------------------
 Additional material
 -------------------
