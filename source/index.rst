@@ -13,6 +13,7 @@ Contents:
 
   N4455
   N4509
+  cacheline_size
 
 
 Indices and tables
