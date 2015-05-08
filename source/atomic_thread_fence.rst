@@ -49,7 +49,7 @@ surrounding objects.
           if(result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
-              //only need to order {expected, arrived} -> {epoch}
+              // Only need to order {expected, arrived} -> {epoch}.
               epoch.store(myepoch + 1, memory_order_release);
           }
           else
