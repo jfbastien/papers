@@ -12,16 +12,24 @@ Nxxx ``std::atomic_thread_fence(mo, T...&&)``
 .. TODO Update the URL above.
 .. TODO Also add OpenMP discussion
 
-It's easy to over-constrain the order of memory operations in the implementation
-of synchronization primitives that use more than a single atomic object.
-Typically, more complex algorithms need to make ordered modifications on the
-sub-objects of a larger synchronization object, but there is no intention of
-ordering all of the surrounding objects to the same extent. The constraint
-imposed on the order of memory operations on other objects is a collateral cost
-to performance.
+Fences allow programmers to express a conservative appromation to the ideal precise pair-wise 
+relations of operations required to be ordered in the happens-before relation.  This
+is conservative because fences use the sequenced-before relation to select vast extents
+of the program into the happens-before relation.  That makes it easy to over-constrain 
+the order of memory operations in the implementation of synchronization primitives that 
+use more than a single atomic memory location.
 
-A small example of this is can be seen in a likely implementation of N3998's
-barrier primitive:
+The flush primitive of OpenMP is more expressive, more precise, than the fences of C++11 and 
+C++14 in at least one sense: it can optionally restrict the memory operations to a user-specified
+set of memory locations.  This is often enough for short lock-free algorithms to achieve
+the fully-precise expression of pair-wise ordering.  This capability isn’t only relevant in OpenMP
+and isn’t only to the benefit of the compiler, but also in expert hands it can unlock the maximum
+memory performance out of all popular hardware platforms.  
+
+An example of this important optimization can be seen in a likely implementation of N4392’s
+std::barrier object.  This algorithm makes ordered modifications on the atomic sub-objects of a 
+larger non-atomic synchronization object, but the internal modifications need only be ordered with
+respect to each other, not all surrounding objects.
 
 .. code-block:: c++
 
@@ -33,6 +41,7 @@ barrier primitive:
           if(result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
+              //only need to order {expected, arrived} -> {epoch}
               epoch.store(myepoch + 1, memory_order_release);
           }
           else
