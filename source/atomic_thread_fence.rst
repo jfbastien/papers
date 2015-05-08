@@ -37,7 +37,7 @@ the atomic sub-objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
 surrounding objects.
 
-.. _N4392: wg21.link/N4392
+.. _N4392: http://wg21.link/N4392
 
 .. code-block:: c++
 
