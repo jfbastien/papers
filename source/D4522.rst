@@ -99,6 +99,9 @@ argument(s) are *un-sequenced* with the fence.
 *Note*: The compiler can apply restrictions on alignment, and may generate a
 dynamic test leading to a fence for under-aligned objects.
 
+The ``__cpp_lib_atomic_thread_fence_variadic`` feature test macro should be
+added.
+
 ----------------------
 Implementation details
 ----------------------
