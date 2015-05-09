@@ -15,13 +15,13 @@ D4522 ``std::atomic_thread_fence(mo, T...&&)``
 Rationale
 ---------
 
-Fences allow programmers to express a conservative appromation to the ideal
-precise pair-wise relations of operations required to be ordered in the
-happens-before relation. This is conservative because fences use the
-sequenced-before relation to select vast extents of the program into the
-happens-before relation. That makes it easy to over-constrain the order of
-memory operations in the implementation of synchronization primitives that use
-more than a single atomic memory location.
+Fences allow programmers to express a conservative approximation to the precise
+pair-wise relations of operations required to be ordered in the happens-before
+relation. This is conservative because fences use the sequenced-before relation
+to select vast extents of the program into the happens-before relation. That
+makes it easy to over-constrain the order of memory operations in the
+implementation of synchronization primitives that use more than a single atomic
+memory location.
 
 The flush primitive of OpenMP is more expressive, more precise, than the fences
 of C++11 and C++14 in at least one sense: it can optionally restrict the memory
