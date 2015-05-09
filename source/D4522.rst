@@ -39,6 +39,8 @@ surrounding objects.
 
 .. _N4392: http://wg21.link/N4392
 
+``barrier`` is currently implemented as:
+
 .. code-block:: c++
 
   struct barrier {
@@ -93,11 +95,12 @@ Under 29.8 Fences [**atomics.fences**], after the current
 ``template<class... T> void atomic_thread_fence(memory_order, T... &&objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
-objects that are not sub-objects of the object(s) in the variadic template
-argument(s) are *un-sequenced* with the fence.
+objects other than those in the variadic template arguments and their
+sub-objects are *un-sequenced* with the fence.
 
-*Note*: The compiler can apply restrictions on alignment, and may generate a
-dynamic test leading to a fence for under-aligned objects.
+*Note*: The compiler may omit fences entirely depending on alignment
+information, may generate a dynamic test leading to a fence for under-aligned
+objects, or may emit the same fence an ``atomic_thread_fence`` would.
 
 The ``__cpp_lib_atomic_thread_fence_variadic`` feature test macro should be
 added.
@@ -127,7 +130,10 @@ The above barrier example's inner-code would use the new overload as follows:
               epoch.store(myepoch + 1, memory_order_relaxed);
           }
 
-This enables hardware-specific optimizations which cannot be expressed in C++
-today. If the synchronized object(s) are know to reside in memory that's not
-visible to other threads of execution, then a weaker type of fence than the
-hardware's global fence can be used.
+The rewrite could also list individual members of ``barrier`` instead of
+``*this``. Both rewrites would be equivalent.
+
+A non-trivial implementation enables hardware-specific optimizations which
+cannot be expressed in C++ today. If the synchronized object(s) are know to
+reside in memory that's not visible to other threads of execution, then a weaker
+type of fence than the hardware's global fence can be used.
