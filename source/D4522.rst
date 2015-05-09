@@ -31,9 +31,9 @@ capability isn't only relevant in OpenMP and isn't only to the benefit of the
 compiler, but also in expert hands it can unlock the maximum memory performance
 out of all popular hardware platforms.
 
-An example of this optimization can be seen in a likely implementation of N4392_
-``std::barrier`` object. This algorithm makes ordered modifications on the
-atomic sub-objects of a larger non-atomic synchronization object, but the
+An example of this optimization can be seen in a likely implementation of
+N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
+the atomic sub-objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
 surrounding objects.
 
