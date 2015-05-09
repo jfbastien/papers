@@ -23,10 +23,10 @@ makes it easy to over-constrain the order of memory operations in the
 implementation of synchronization primitives that use more than a single atomic
 memory location.
 
-The flush primitive of OpenMP is more expressive, more precise, than the fences
-of C++11 and C++14 in at least one sense: it can optionally restrict the memory
-operations to a user-specified set of memory locations. This is often enough for
-short lock-free algorithms to achieve the fully-precise expression of pair-wise
+The flush primitive of OpenMP is more expressive than the fences of C++11 and
+C++14 in at least one sense: it can optionally restrict the memory operations to
+a user-specified set of memory locations. This is often enough for short
+lock-free algorithms to achieve the fully-precise expression of pair-wise
 ordering. This capability isn't only relevant in OpenMP and isn't only to the
 benefit of the compiler, but also in expert hands it can unlock the maximum
 memory performance out of all popular hardware platforms.
