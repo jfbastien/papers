@@ -190,4 +190,4 @@ Therefore ``assert(x)`` of ``6`` does not fire.
 
 Therefore ``0`` does not happen-before ``7``, nor the reverse, and the
 ``assert(w)`` of ``7`` makes the program undefined due to a data-race. This is
-true because operations on w are unsequenced with any object.
+true because operations on ``w`` are unsequenced with any object.
