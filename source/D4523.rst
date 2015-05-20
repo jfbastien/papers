@@ -1,6 +1,6 @@
-======================================================
-D4523 ``constexpr std::thread::likely_cacheline_size``
-======================================================
+===================================================================
+D4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
+===================================================================
 
 :Author: JF Bastien
 :Contact: jfb@google.com
@@ -41,11 +41,20 @@ Typical examples where this matters are:
 * Multiple-producer and multiple-consumer queue.
 * The ``barrier`` example, as illustrated in N4522_.
 * Grouping an atomic variable with the data it protects.
-* Generally, preventing false-sharing.
+* Preventing false-sharing between objects with different runtime access
+  patterns from different threads.
+* Promoting true-sharing between objects which have the same runtime access
+  patterns.
 
 .. _N4522: http://wg21.link/N4522
 
-The only significant cacheline size in these circumstances is L1 cacheline size.
+The only significant cacheline size in these circumstances is L1 cacheline
+size. Advanced high-performance applications will care about the effects of
+cache associativity and ways, multiple cache hierarchy, page size, TLB size,
+number of sockets, in-rack distance, intra-datacenter distance, inter-datacenter
+distance, and much more. This paper explicity doesn't address second-order and
+N\ :sup:`th`-order effects and merely tries to tackle the first-order effect
+described above.
 
 Nowadays, developers either hard code a likely number, such as ``64`` bytes, or
 figure out exactly the right number by consulting their specific machine's
@@ -56,6 +65,27 @@ magic number from each developer's code base to each implementation.
 A precise value can still be obtained from the operating system or using inline
 assembly at runtime. This value can be passed to allocator implementations which
 can guarantee alignment.
+
+We further extend existing practice by offering two values:
+
+* *False-sharing size*: a number that's suitable as offset between two objects
+  to likely avoid false-sharing due to different runtime access patterns from
+  different threads.
+* *True-sharing size*: a number which should bound two objects' footprint and
+  their initial alignment to likely promote true sharing between then.
+
+In both cases these values are provided on a quality of implementation basis:
+they're likely correct for the architectural information that the compiler was
+given:
+
+* When a virtual ISA is provided a wide discrepancy between the two numbers is
+  to be expected.
+* When a specific ISA is provided but no specific architecture implementation is
+  then one might expect to be given known biggest L1 size and smallest L1 size
+  amongst relevant/existing implementations of this ISA.
+* When a specific architecture implementation is provided then one can expect
+  both numbers to be the same, and be the same as that specific architecture's
+  L1 cacheline size.
 
 -----------------
 Proposed addition
@@ -71,24 +101,50 @@ Under 30.3.1 Class ``thread`` [**thread.thread.class**]:
     class thread {
       // ...
     public:
-      static constexpr size_t likely_cacheline_size = /* implementation-defined */;
+      static constexpr size_t hardware_false_sharing_size = /* implementation-defined */;
+      static constexpr size_t hardware_true_sharing_size = /* implementation-defined */;
       // ...
     };
   }
 
 Under 30.3.1.6 ``thread`` static members [**thread.thread.static**]:
 
-``constexpr size_t likely_cacheline_size = /* implementation-defined */;``
+``constexpr size_t hardware_false_sharing_size = /* implementation-defined */;``
 
-[*Note:* This number is a recommended spacing in bytes for the colocation of
-objects which are used with high contention. It is also the recommended maximum
-amount of contiguous memory that the objects passed to
-``std::atomic_thread_fence(std::memory_order, T...&&)`` should occupy for the
-highest possible performance under low contention, and the alignment that this
-memory location should have. — *end note*]
+This number is the minimum recommended offset between two concurrently-accessed
+objects to avoid additional performance degradation due to contention introduced
+by the implementation.
 
-The ``__cpp_lib_atomic_thread_likely_cacheline_size`` feature test macro should
-be added.
+[*Example:*
+
+.. code-block:: c++
+
+  struct apart {
+    alignas(hardware_false_sharing_size) atomic<int> flag1, flag2;
+  };
+
+— *end example*]
+
+``constexpr size_t hardware_true_sharing_size = /* implementation-defined */;``
+
+This number is the minimum recommended alignment and maximum recommended size of
+contiguous memory occupied by two objects accessed with temporal locality by
+concurrent threads.
+
+[*Example:*
+
+.. code-block:: c++
+
+  alignas(hardware_true_sharing_size) struct colocated {
+    atomic<int> flag;
+    int tinydata;
+  };
+  static_assert(sizeof(colocated) <= hardware_true_sharing_size);
+
+— *end example*]
+
+The ``__cpp_lib_thread_hardware_sharing_size`` feature test macro should be
+added.
 
 .. _appendix:
 
