@@ -1,0 +1,138 @@
+==============================================
+D4522 ``std::atomic_object_fence(mo, T...&&)``
+==============================================
+
+:Author: Olivier Giroux
+:Contact: ogiroux@nvidia.com
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Date: 2015-05-08
+:URL: https://github.com/jfbastien/papers/blob/master/source/D4522.rst
+
+.. TODO Update the URL above when this becomes an N paper.
+
+---------
+Rationale
+---------
+
+Fences allow programmers to express a conservative approximation to the precise
+pair-wise relations of operations required to be ordered in the happens-before
+relation. This is conservative because fences use the sequenced-before relation
+to select vast extents of the program into the happens-before relation. That
+makes it easy to over-constrain the order of memory operations in the
+implementation of synchronization primitives that use more than a single atomic
+memory location.
+
+The flush primitive of OpenMP is more expressive than the fences of C++11 and
+C++14 in at least one sense: it can optionally restrict the memory operations to
+a user-specified set of memory locations. This is often enough for short
+lock-free algorithms to exactly express the required pair-wise ordering. This
+capability isn't only relevant in OpenMP and isn't only to the benefit of the
+compiler, but also in expert hands it can unlock the maximum memory performance
+out of all popular hardware platforms.
+
+An example of this optimization can be seen in a likely implementation of
+N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
+the atomic sub-objects of a larger non-atomic synchronization object, but the
+internal modifications need only be ordered with respect to each other, not all
+surrounding objects.
+
+.. _N4392: http://wg21.link/N4392
+
+``barrier`` is currently implemented as:
+
+.. code-block:: c++
+
+  struct barrier {
+      // Some member functions elided.
+      void arrive_and_wait() {
+          int const myepoch = epoch.load(memory_order_relaxed);
+          int const result = arrived.fetch_add(1, memory_order_acq_rel) + 1;
+          if (result == expected) {
+              expected = nexpected.load(memory_order_relaxed);
+              arrived.store(0, memory_order_relaxed);
+              // Only need to order {expected, arrived} -> {epoch}.
+              epoch.store(myepoch + 1, memory_order_release);
+          }
+          else
+              while (epoch.load(memory_order_acquire) == myepoch)
+                  ;
+      }
+  private:
+      int expected;
+      atomic<int> arrived, nexpected, epoch;
+  };
+
+The release operation on the epoch atomic is likely to require the compiler to
+insert a fence that has an effect that goes beyond the intended constraint,
+which is to order only the operations on the barrier object. Since the barrier
+object is likely to be smaller than a cache line and the library's
+implementation can control its alignment using ``alignas``, then it would be
+possible to compile this program without a fence in this location on
+architectures that are cache-line coherent. To concisely express the bound on
+the set of memory operations whose order is constrained, we propose to overload
+``std::atomic_object_fence`` with a variant that takes a reference to the object
+containing sub-objects to be ordered by the fence.
+
+-----------------
+Proposed addition
+-----------------
+
+Under 29.2 Header ``<atomic>`` synopsis [**atomics.syn**]:
+
+.. code-block:: c++
+
+  namespace std {
+     // 29.8, fences
+     // ...
+     template<class... T>
+     void atomic_object_fence(memory_order, T... &&objects) noexcept;
+   }
+
+Under 29.8 Fences [**atomics.fences**], after the current
+``atomic_thread_fence`` paragraph:
+
+``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
+
+*Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
+objects other than those in the variadic template arguments and their
+sub-objects are *un-sequenced* with the fence.
+
+*Note*: The compiler may omit fences entirely depending on alignment
+information, may generate a dynamic test leading to a fence for under-aligned
+objects, or may emit the same fence an ``atomic_thread_fence`` would.
+
+The ``__cpp_lib_atomic_object_fence`` feature test macro should be added.
+
+----------------------
+Implementation details
+----------------------
+
+A Trivially conforming implementation may implement the new overload in terms of
+the existing ``std::atomic_thread_fence`` using the same memory order:
+
+.. code-block:: c++
+
+     template<class... T>
+     void atomic_object_fence(memory_order, T... &&) noexcept {
+       atomic_thread_fence(memory_order);
+     }
+
+The above barrier example's inner-code would use the new overload as follows:
+
+.. code-block:: c++
+
+          if (result == expected) {
+              expected = nexpected.load(memory_order_relaxed);
+              arrived.store(0, memory_order_relaxed);
+	      atomic_object_fence(memory_order_release, *this);
+              epoch.store(myepoch + 1, memory_order_relaxed);
+          }
+
+The rewrite could also list individual members of ``barrier`` instead of
+``*this``. Both rewrites would be equivalent.
+
+A non-trivial implementation enables hardware-specific optimizations which
+cannot be expressed in C++ today. If the synchronized object(s) are know to
+reside in memory that's not visible to other threads of execution, then a weaker
+type of fence than the hardware's global fence can be used.

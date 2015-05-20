@@ -14,10 +14,15 @@ Contents:
   N4455
   N4509
 <<<<<<< HEAD
+<<<<<<< HEAD
   atomic_thread_fence
 =======
   cacheline_size
 >>>>>>> jfbastien/cacheline_size
+=======
+  D4522
+  D4523
+>>>>>>> jfbastien/master
 
 
 Indices and tables
