@@ -58,9 +58,10 @@ described above.
 
 Nowadays, developers either hard code a likely number, such as ``64`` bytes, or
 figure out exactly the right number by consulting their specific machine's
-manual. The implementation is better positioned to do the exact same thing at
-compile-time, we therefore propose to standardize existing practice, moving the
-magic number from each developer's code base to each implementation.
+manual. See the appendix_ for examples. The implementation is better positioned
+to do the exact same thing at compile-time, we therefore propose to standardize
+existing practice, moving the magic number from each developer's code base to
+each implementation.
 
 A precise value can still be obtained from the operating system or using inline
 assembly at runtime. This value can be passed to allocator implementations which
@@ -151,6 +152,57 @@ added.
 --------
 Appendix
 --------
+
+Compile-time cacheline size
+===========================
+
+We informatively list a few ways in which the L1 cacheline size is obtained in
+different open-source projects at compile-time.
+
+The Linux kernel defines the ``__cacheline_aligned`` macro which is configured
+for each architecture through ``L1_CACHE_BYTES``. On some architectures this
+value is determined through the configure-time option
+``CONFIG_<ARCH>_L1_CACHE_SHIFT``, and on others the value of ``L1_CACHE_SHIFT``
+is hard-coded in the architecture's ``include/asm/cache.h`` header.
+
+Many open-source projects from Google contain a ``base/port.h`` header which
+defines the ``CACHELINE_ALIGNED`` macro based on an explicit list of
+architecture detection macros. These header files have often diverged. A token
+example from the autofdo_ project is:
+
+.. _autofdo: https://github.com/google/autofdo/blob/master/base/port.h
+
+.. code-block:: c++
+
+  // Cache line alignment
+  #if defined(__i386__) || defined(__x86_64__)
+  #define CACHELINE_SIZE 64
+  #elif defined(__powerpc64__)
+  // TODO(dougkwan) This is the L1 D-cache line size of our Power7 machines.
+  // Need to check if this is appropriate for other PowerPC64 systems.
+  #define CACHELINE_SIZE 128
+  #elif defined(__arm__)
+  // Cache line sizes for ARM: These values are not strictly correct since
+  // cache line sizes depend on implementations, not architectures.  There
+  // are even implementations with cache line sizes configurable at boot
+  // time.
+  #if defined(__ARM_ARCH_5T__)
+  #define CACHELINE_SIZE 32
+  #elif defined(__ARM_ARCH_7A__)
+  #define CACHELINE_SIZE 64
+  #endif
+  #endif
+
+  #ifndef CACHELINE_SIZE
+  // A reasonable default guess.  Note that overestimates tend to waste more
+  // space, while underestimates tend to waste more time.
+  #define CACHELINE_SIZE 64
+  #endif
+
+  #define CACHELINE_ALIGNED __attribute__((aligned(CACHELINE_SIZE)))
+
+Runtime cacheline size
+======================
 
 We informatively list a few ways in which the L1 cacheline size can be obtained
 on different operating systems and architectures at runtime.
