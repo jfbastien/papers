@@ -33,7 +33,7 @@ out of all popular hardware platforms.
 
 An example of this optimization can be seen in a likely implementation of
 N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
-the atomic sub-objects of a larger non-atomic synchronization object, but the
+the atomic objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
 surrounding objects.
 
@@ -70,9 +70,9 @@ object is likely to be smaller than a cache line and the library's
 implementation can control its alignment using ``alignas``, then it would be
 possible to compile this program without a fence in this location on
 architectures that are cache-line coherent. To concisely express the bound on
-the set of memory operations whose order is constrained, we propose to overload
-``std::atomic_object_fence`` with a variant that takes a reference to the object
-containing sub-objects to be ordered by the fence.
+the set of memory operations whose order is constrained, we propose to accompany
+``std::atomic_thread_fence`` with an ``object`` variant which takes a reference to
+the object(s) to be ordered by the fence.
 
 -----------------
 Proposed addition
@@ -95,8 +95,8 @@ Under 29.8 Fences [**atomics.fences**], after the current
 ``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
-objects other than those in the variadic template arguments and their
-sub-objects are *un-sequenced* with the fence.
+objects other than those in the variadic template arguments and their are
+*un-sequenced* with the fence.
 
 *Note*: The compiler may omit fences entirely depending on alignment
 information, may generate a dynamic test leading to a fence for under-aligned
