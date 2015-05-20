@@ -1,5 +1,5 @@
 ==============================================
-D4522 ``std::atomic_object_fence(mo, T...&&)``
+D4522 ``std::atomic_object_fence(mo, T&&...)``
 ==============================================
 
 :Author: Olivier Giroux
@@ -86,13 +86,13 @@ Under 29.2 Header ``<atomic>`` synopsis [**atomics.syn**]:
      // 29.8, fences
      // ...
      template<class... T>
-     void atomic_object_fence(memory_order, T... &&objects) noexcept;
+     void atomic_object_fence(memory_order, T&&... objects) noexcept;
    }
 
 Under 29.8 Fences [**atomics.fences**], after the current
 ``atomic_thread_fence`` paragraph:
 
-``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
+``template<class... T> void atomic_object_fence(memory_order, T&&... objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
 objects other than those in the variadic template arguments and their are
@@ -114,7 +114,7 @@ the existing ``std::atomic_thread_fence`` using the same memory order:
 .. code-block:: c++
 
      template<class... T>
-     void atomic_object_fence(memory_order, T... &&) noexcept {
+     void atomic_object_fence(memory_order, T&&...) noexcept {
        atomic_thread_fence(memory_order);
      }
 
