@@ -105,7 +105,7 @@ objects, or may emit the same fence an ``atomic_thread_fence`` would.
 The ``__cpp_lib_atomic_object_fence`` feature test macro should be added.
 
 ----------------------
-Implementation details
+Example implementation
 ----------------------
 
 A trivially conforming implementation may implement the new overload in terms of
@@ -157,6 +157,49 @@ type of fence than the hardware's global fence can be used.
 A sophisticated implementation based on a virtual ISA may include a memory
 barrier that is applied to a sized region of memory.  Thus it can convey to the
 hardware nearly the full precision of the C++ primitive proposed here.
+
+----------------------
+Relation to D4523
+----------------------
+
+In D4523 we propose to formalize the notions of false-sharing and true-sharing 
+as perceived by the implementation in relation to the placement of objects in memory.
+In the expository implementation of the previous section we also showed how a cache-line
+coherent architecture or micro-architecture can elide fences that only bisect
+relations between objects that are in the same cache line, if provable at compile-time.
+These notions interact in a virtuous way.
+
+The example application of ``std::atomic_object_fence`` to the ``std::barrier`` object
+is improved by combining these notions as follows:
+
+.. code-block:: c++
+
+  alignas(std::thread::hardware_true_sharing_size) /* D4523 */
+  struct barrier {
+      // Some member functions elided.
+      void arrive_and_wait() {
+          int const myepoch = epoch.load(memory_order_relaxed);
+          int const result = arrived.fetch_add(1, memory_order_acq_rel) + 1;
+          if (result == expected) {
+              expected = nexpected.load(memory_order_relaxed);
+              arrived.store(0, memory_order_relaxed);
+	      atomic_object_fence(memory_order_release, *this); /* D4522 */
+              epoch.store(myepoch + 1, memory_order_relaxed);
+          }
+          else
+              while (epoch.load(memory_order_acquire) == myepoch)
+                  ;
+      }
+  private:
+      int expected;
+      atomic<int> arrived, nexpected, epoch;
+  };
+
+By aligning the barrier object to the true-sharing granularity, it is significantly
+more likely that the implementation will be able to elide the fence if the architecture
+or micro-architecture has cache-line coherency.  Of course an implementation of the
+Standard is free to ensure this by other means, we provide this example as exposition
+for what user programs might do.
 
 --------------------
 Memory model example
