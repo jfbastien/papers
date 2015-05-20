@@ -114,8 +114,8 @@ the existing ``std::atomic_thread_fence`` using the same memory order:
 .. code-block:: c++
 
      template<class... T>
-     void atomic_object_fence(memory_order, T&&...) noexcept {
-       atomic_thread_fence(memory_order);
+     void atomic_object_fence(std::memory_order order, T &&...) noexcept {
+       std::atomic_thread_fence(order);
      }
 
 A more advanced conforming implementation may specialize the single-object case
@@ -124,11 +124,12 @@ on architectures or micro-architectures that are cache-line coherent:
 .. code-block:: c++
 
      #define __CACHE_LINE_SIZE // Secret (micro-)architectural value.
-     template<class T>
-     std::enable_if<std::is_standard_layout<T>::value &&
-	            __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >= sizeof(T)
-     >::type atomic_object_fence(memory_order, T &&object) noexcept {
-       asm volatile ("":"+m"(object):"m"(object)); // Code motion barrier.
+     template <class T>
+     typename std::enable_if<std::is_standard_layout<T>::value &&
+                             __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >=
+                                 sizeof(T)>::type
+     atomic_object_fence(std::memory_order, T &&object) noexcept {
+       asm volatile("" : "+m"(object) : "m"(object));  // Code motion barrier.
      }
 
 For multiple objects, an implementation for the same architecture may emit a
