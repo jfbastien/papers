@@ -127,8 +127,8 @@ architectures or micro-architectures that are cache-line coherent:
      template<class T>
      std::enable_if<std::is_standard_layout<T>::value && 
 	            __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >= sizeof(T)
-     >::type atomic_object_fence(memory_order, T && o) noexcept {
-       asm volatile ("":"+m"(o):"m"(o)); // Code motion barrier.
+     >::type atomic_object_fence(memory_order, T &&object) noexcept {
+       asm volatile ("":"+m"(object):"m"(object)); // Code motion barrier.
      }
 
 For multiple objects, an implementation for the same architecture may emit a run-time 
