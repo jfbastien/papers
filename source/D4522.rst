@@ -18,28 +18,30 @@ Rationale
 Fences allow programmers to express a conservative approximation to the precise
 pair-wise relations of operations required to be ordered in the happens-before
 relation. This is conservative because fences use the sequenced-before relation
-to select vast extents of the program into the happens-before relation. That
-makes it easy to over-constrain the order of memory operations in the
-implementation of synchronization primitives that use more than a single atomic
-memory location.
+to select vast extents of the program into the happens-before relation.
 
-The flush primitive of OpenMP is more expressive than the fences of C++11 and
-C++14 in at least one sense: it can optionally restrict the memory operations to
-a user-specified set of memory locations. This is often enough for short
-lock-free algorithms to exactly express the required pair-wise ordering. This
-capability isn't only relevant in OpenMP and isn't only to the benefit of the
-compiler, but also in expert hands it can unlock the maximum memory performance
-out of all popular hardware platforms.
+This is commonly desired because it is difficult for users to reason about 
+operations hidden behind layers of abstraction in C++ programs. An unfortunate
+consequence of this is that precise expression of ordering is not possible in 
+C++ currently, which makes it easy to over-constrain the order of operations 
+internal to synchronization primitives that comprise multiple atomic objects.
 
-An example of this optimization can be seen in a likely implementation of
+In existing practice, the flush primitive of OpenMP is more expressive than the 
+fences of C++ in at least one sense: it can optionally restrict the ordering of 
+operations to a user-specified set of memory locations. This is enough to exactly 
+express the required pair-wise ordering for short lock-free algorithms. This
+capability isn't only relevant in OpenMP and would benefit from integration with 
+the other facets of the C++ memory model.
+
+An example use-case for this capability is a likely implementation strategy for
 N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
 the atomic sub-objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
-surrounding objects.
+surrounding objects (they are ordered separately).
 
 .. _N4392: http://wg21.link/N4392
 
-``barrier`` is currently implemented as:
+In one example implementation, ``std::barrier`` is coded as follows:
 
 .. code-block:: c++
 
@@ -69,10 +71,12 @@ which is to order only the operations on the barrier object. Since the barrier
 object is likely to be smaller than a cache line and the library's
 implementation can control its alignment using ``alignas``, then it would be
 possible to compile this program without a fence in this location on
-architectures that are cache-line coherent. To concisely express the bound on
-the set of memory operations whose order is constrained, we propose to accompany
-``std::atomic_thread_fence`` with an ``object`` variant which takes a reference
-to the object(s) to be ordered by the fence.
+architectures that are cache-line coherent.
+
+To concisely express the bound on the set of memory operations whose order is 
+constrained, we propose to accompany ``std::atomic_thread_fence`` with an 
+``object`` variant which takes a reference to the object(s) to be ordered by 
+the fence.
 
 -----------------
 Proposed addition
