@@ -33,7 +33,7 @@ out of all popular hardware platforms.
 
 An example of this optimization can be seen in a likely implementation of
 N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
-the atomic sub-objects of a larger non-atomic synchronization object, but the
+the atomic objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
 surrounding objects.
 
@@ -70,9 +70,9 @@ object is likely to be smaller than a cache line and the library's
 implementation can control its alignment using ``alignas``, then it would be
 possible to compile this program without a fence in this location on
 architectures that are cache-line coherent. To concisely express the bound on
-the set of memory operations whose order is constrained, we propose to overload
-``std::atomic_object_fence`` with a variant that takes a reference to the object
-containing sub-objects to be ordered by the fence.
+the set of memory operations whose order is constrained, we propose to accompany
+``std::atomic_thread_fence`` with an ``object`` variant which takes a reference to
+the object(s) to be ordered by the fence.
 
 -----------------
 Proposed addition
@@ -95,8 +95,8 @@ Under 29.8 Fences [**atomics.fences**], after the current
 ``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
-objects other than those in the variadic template arguments and their
-sub-objects are *un-sequenced* with the fence.
+objects other than those in the variadic template arguments and their are
+*un-sequenced* with the fence.
 
 *Note*: The compiler may omit fences entirely depending on alignment
 information, may generate a dynamic test leading to a fence for under-aligned
@@ -108,7 +108,7 @@ The ``__cpp_lib_atomic_object_fence`` feature test macro should be added.
 Implementation details
 ----------------------
 
-A Trivially conforming implementation may implement the new overload in terms of
+A trivially conforming implementation may implement the new overload in terms of
 the existing ``std::atomic_thread_fence`` using the same memory order:
 
 .. code-block:: c++
@@ -117,6 +117,23 @@ the existing ``std::atomic_thread_fence`` using the same memory order:
      void atomic_object_fence(memory_order, T... &&) noexcept {
        atomic_thread_fence(memory_order);
      }
+
+A more advanced conforming implementation may specialize the single-object case on 
+architectures or micro-architectures that are cache-line coherent:
+
+.. code-block:: c++
+     
+     #define __CACHE_LINE_SIZE // Secret (micro-)architectural value.
+     template<class T>
+     std::enable_if<std::is_standard_layout<T>::value && 
+	            __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >= sizeof(T)
+     >::type atomic_object_fence(memory_order, T &&object) noexcept {
+       asm volatile ("":"+m"(object):"m"(object)); // Code motion barrier.
+     }
+
+For multiple objects, an implementation for the same architecture may emit a run-time 
+check that the total footprint of all the objects fits in the span of a single cache 
+line.  This check may commonly be eliminated as dead code.
 
 The above barrier example's inner-code would use the new overload as follows:
 
@@ -133,6 +150,10 @@ The rewrite could also list individual members of ``barrier`` instead of
 ``*this``. Both rewrites would be equivalent.
 
 A non-trivial implementation enables hardware-specific optimizations which
-cannot be expressed in C++ today. If the synchronized object(s) are know to
+cannot be expressed in C++ today. If the synchronized object(s) are known to
 reside in memory that's not visible to other threads of execution, then a weaker
 type of fence than the hardware's global fence can be used.
+
+A sophisticated implementation based on a virtual ISA may include a memory barrier
+that is applied to a sized region of memory.  Thus it can convey to the hardware
+nearly the full precision of the C++ primitive proposed here.
