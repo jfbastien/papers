@@ -33,7 +33,7 @@ out of all popular hardware platforms.
 
 An example of this optimization can be seen in a likely implementation of
 N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
-the atomic objects of a larger non-atomic synchronization object, but the
+the atomic sub-objects of a larger non-atomic synchronization object, but the
 internal modifications need only be ordered with respect to each other, not all
 surrounding objects.
 
@@ -70,9 +70,9 @@ object is likely to be smaller than a cache line and the library's
 implementation can control its alignment using ``alignas``, then it would be
 possible to compile this program without a fence in this location on
 architectures that are cache-line coherent. To concisely express the bound on
-the set of memory operations whose order is constrained, we propose to accompany
-``std::atomic_thread_fence`` with an ``object`` variant which takes a reference to
-the object(s) to be ordered by the fence.
+the set of memory operations whose order is constrained, we propose to overload
+``std::atomic_object_fence`` with a variant that takes a reference to the object
+containing sub-objects to be ordered by the fence.
 
 -----------------
 Proposed addition
@@ -95,8 +95,8 @@ Under 29.8 Fences [**atomics.fences**], after the current
 ``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
-objects other than those in the variadic template arguments and their are
-*un-sequenced* with the fence.
+objects other than those in the variadic template arguments and their
+sub-objects are *un-sequenced* with the fence.
 
 *Note*: The compiler may omit fences entirely depending on alignment
 information, may generate a dynamic test leading to a fence for under-aligned
@@ -127,8 +127,8 @@ architectures or micro-architectures that are cache-line coherent:
      template<class T>
      std::enable_if<std::is_standard_layout<T>::value && 
 	            __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >= sizeof(T)
-     >::type atomic_object_fence(memory_order, T &&object) noexcept {
-       asm volatile ("":"+m"(object):"m"(object)); // Code motion barrier.
+     >::type atomic_object_fence(memory_order, T && o) noexcept {
+       asm volatile ("":"+m"(o):"m"(o)); // Code motion barrier.
      }
 
 For multiple objects, an implementation for the same architecture may emit a run-time 
@@ -157,3 +157,37 @@ type of fence than the hardware's global fence can be used.
 A sophisticated implementation based on a virtual ISA may include a memory barrier
 that is applied to a sized region of memory.  Thus it can convey to the hardware
 nearly the full precision of the C++ primitive proposed here.
+
+----------------------
+Memory model example
+----------------------
+
+=========================== ============================
+T0                          T1
+=========================== ============================
+``0: w = 1;``               ``4: while(!a.load(rlx));``
+``1: x = 1;``               ``5: objfence(acq, a, x);``
+``2: objfence(rel, a, x);`` ``6: assert(x);``
+``3: a.store(1,rlx);``      ``7: assert(w);``
+=========================== ============================
+
+``2`` synchronizes-with ``5`` because [**29.8p2**]:
+  A. ``2`` is sequenced-before ``3``, 
+  B. ``3`` inter-thread happens-before ``4``, and 
+  C. ``4`` is sequenced-before ``5``.
+
+``1`` happens-before ``6`` because [**1.10p13-14**]:
+  A. ``1`` is sequenced-before ``2``,
+  B. ``2`` synchronizes-with ``5``, and
+  C. ``5`` is sequenced-before ``6``.
+  
+Therefore ``assert(x)`` of ``6`` does not fire.
+  
+``0`` has a data-race with ``7`` because [**1.10p23**]:
+  A. ``0`` is not sequenced-before ``2``, or
+  B. ``5`` is not sequenced-before ``7``.
+
+Therefore ``0`` does not happen-before ``7``, nor the reverse, and the 
+``assert(w)`` of ``7`` makes the program undefined due to a data-race.
+This is true because operations on w are unsequenced with any object
+fence on ``a`` and ``x``.
