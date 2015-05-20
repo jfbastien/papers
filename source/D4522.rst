@@ -169,7 +169,8 @@ as perceived by the implementation in relation to the placement of objects in me
 In the expository implementation of the previous section we also showed how a cache-line
 coherent architecture or micro-architecture can elide fences that only bisect
 relations between objects that are in the same cache line, if provable at compile-time.
-These notions interact in a virtuous way.
+These notions interact in a virtuous way because D4523's abstraction enables reasoning
+about likely cache behavior that implementations can optimize for.
 
 The example application of ``std::atomic_object_fence`` to the ``std::barrier`` object
 is improved by combining these notions as follows:
