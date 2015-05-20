@@ -125,9 +125,9 @@ on architectures or micro-architectures that are cache-line coherent:
 
      #define __CACHE_LINE_SIZE // Secret (micro-)architectural value.
      template <class T>
-     typename std::enable_if<std::is_standard_layout<T>::value &&
-                             __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >=
-                                 sizeof(T)>::type
+     std::enable_if_t<std::is_standard_layout<T>::value &&
+                      __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >=
+                          sizeof(T)>
      atomic_object_fence(std::memory_order, T &&object) noexcept {
        asm volatile("" : "+m"(object) : "m"(object));  // Code motion barrier.
      }
