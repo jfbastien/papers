@@ -1,5 +1,5 @@
 ==============================================
-D4522 ``std::atomic_thread_fence(mo, T...&&)``
+D4522 ``std::atomic_object_fence(mo, T...&&)``
 ==============================================
 
 :Author: Olivier Giroux
@@ -71,7 +71,7 @@ implementation can control its alignment using ``alignas``, then it would be
 possible to compile this program without a fence in this location on
 architectures that are cache-line coherent. To concisely express the bound on
 the set of memory operations whose order is constrained, we propose to overload
-``std::atomic_thread_fence`` with a variant that takes a reference to the object
+``std::atomic_object_fence`` with a variant that takes a reference to the object
 containing sub-objects to be ordered by the fence.
 
 -----------------
@@ -86,13 +86,13 @@ Under 29.2 Header ``<atomic>`` synopsis [**atomics.syn**]:
      // 29.8, fences
      // ...
      template<class... T>
-     void atomic_thread_fence(memory_order, T... &&objects) noexcept;
+     void atomic_object_fence(memory_order, T... &&objects) noexcept;
    }
 
 Under 29.8 Fences [**atomics.fences**], after the current
 ``atomic_thread_fence`` paragraph:
 
-``template<class... T> void atomic_thread_fence(memory_order, T... &&objects) noexcept;``
+``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
 objects other than those in the variadic template arguments and their
@@ -102,8 +102,7 @@ sub-objects are *un-sequenced* with the fence.
 information, may generate a dynamic test leading to a fence for under-aligned
 objects, or may emit the same fence an ``atomic_thread_fence`` would.
 
-The ``__cpp_lib_atomic_thread_fence_variadic`` feature test macro should be
-added.
+The ``__cpp_lib_atomic_object_fence`` feature test macro should be added.
 
 ----------------------
 Implementation details
@@ -115,7 +114,7 @@ the existing ``std::atomic_thread_fence`` using the same memory order:
 .. code-block:: c++
 
      template<class... T>
-     void atomic_thread_fence(memory_order, T... &&) noexcept {
+     void atomic_object_fence(memory_order, T... &&) noexcept {
        atomic_thread_fence(memory_order);
      }
 
@@ -126,7 +125,7 @@ The above barrier example's inner-code would use the new overload as follows:
           if (result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
-	      atomic_thread_fence(memory_order_release, *this);
+	      atomic_object_fence(memory_order_release, *this);
               epoch.store(myepoch + 1, memory_order_relaxed);
           }
 
