@@ -214,6 +214,8 @@ T0                          T1
 ``3: a.store(1,rlx);``      ``7: assert(w);``
 =========================== ===========================
 
+The semantics of fences mean that:
+
 ``2`` synchronizes-with ``5`` because [**29.8¶2**]:
   A. ``2`` is sequenced-before ``3``,
   B. ``3`` inter-thread happens-before ``4``, and
@@ -224,13 +226,13 @@ T0                          T1
   B. ``2`` synchronizes-with ``5``, and
   C. ``5`` is sequenced-before ``6``.
 
-Therefore ``assert(x)`` of ``6`` does not fire.
+Therefore the program is well-defined (so far) and the ``assert(x)`` of ``6`` does not fire.
 
-``0`` has a data-race with ``7`` because [**1.10¶23**]:
-  A. ``0`` is not sequenced-before ``2``, or
-  B. ``5`` is not sequenced-before ``7``.
+However, the *un-sequenced* semantics of the object fence also mean that:
 
-Therefore ``0`` does not happen-before ``7``, nor the reverse, and the
-``assert(w)`` of ``7`` makes the program undefined due to a data-race. This is
-true because operations on w are unsequenced with any object.
+``0``  conflicts with ``7`` because [**1.10¶23**]:
+  A. ``0`` is a store to ``w``, ``7`` is a load of ``w`` and they are not both atomic, and
+  B. ``0`` is not sequenced-before ``2`` and ``5`` is not sequenced-before ``7``.
+
+Therefore the ``assert(w)`` of ``7`` makes the program undefined due to a data-race.
 
