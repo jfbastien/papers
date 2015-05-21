@@ -67,11 +67,7 @@ Under 29.5 Atomic types [**atomics.types.generic**]:
       static constexpr bool is_always_lock_free = /* implementation-defined */;
       // Omitting all other members for brevity.
     };
-<<<<<<< HEAD
-    template <class T> struct atomic<T> {
-=======
     template <class T> struct atomic<T*> {
->>>>>>> jfbastien/master
       static constexpr bool is_always_lock_free = /* implementation-defined */;
       // Omitting all other members for brevity.
     };
@@ -79,15 +75,6 @@ Under 29.5 Atomic types [**atomics.types.generic**]:
 
 After paragraph 2:
 
-<<<<<<< HEAD
-The ``static`` data member ``is_always_lock_free`` is true if the atomic type's operations are always lock-free, and false otherwise.  The value of ``is_always_lock_free`` shall be consistent with the value of the corresponding ``ATOMIC_…_LOCK_FREE`` macro.
-
-Under 29.6.5 Requirements for operations on atomic types [**atomics.types.operations.req**], in paragraph 7:
-
-The return value of the ``is_lock_free member`` function shall be consistent with the value of ``is_always_lock_free`` for the same type.
-
-[*Example:* the following shall never fail,
-=======
 The ``static`` data member ``is_always_lock_free`` is true if the atomic type's
 operations are always lock-free, and false otherwise. The value of
 ``is_always_lock_free`` shall be consistent with the value of the corresponding
@@ -100,7 +87,6 @@ The return value of the ``is_lock_free`` member function shall be consistent
 with the value of ``is_always_lock_free`` for the same type.
 
 [*Example:* the following should never fail,
->>>>>>> jfbastien/master
 
 .. code-block:: c++
 
@@ -109,11 +95,8 @@ with the value of ``is_always_lock_free`` for the same type.
 
 — *end example*]
 
-<<<<<<< HEAD
-=======
 The ``__cpp_lib_atomic_is_always_lock_free`` feature test macro should be added.
 
->>>>>>> jfbastien/master
 -------------------
 Additional material
 -------------------
