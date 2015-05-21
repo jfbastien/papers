@@ -16,84 +16,41 @@ Rationale
 ---------
 
 In C++11 the library added ``std::thread::hardware_concurrency()`` to expose the
-implementation quantity most relevant for control structures in multi-threaded
-executions: a scope for threads that do not interfere, to a first-order. Established
-practice throughout the industry also relies on another implementation quantity, the 
-cache-line size, which is used to control interference for data structures in 
-multi-threaded executions.
+implementation quantity most relevant for new control structures in multi-threaded
+executions: the extent of threads that do not interfere, to a first-order. Established
+practice throughout the industry also relies on a second implementation quantity, however, to 
+control interference for new data structures in multi-threaded executions.  This quantity 
+represents the extent of memory that does or does not interfere, to a first order, 
+and is commonly referred-to as the "cache-line size".
 
-Each architecture implementation has a cacheline size which never
-changes. Indeed, this number is deeply embedded in the caching hardware's
-implementation, yet C++ doesn't expose this number as a ``constexpr``. This is
-partly due to this cacheline size changing from one architecture implementation
-to another within the same Instruction Set Architecture. Knowing which ISA the
-compiler targets is therefore insufficient to get an exact cacheline size: one
-has to target a specific architecture implementation.
+Uses of "cache-line size" fall into two broad categories:
 
-The current methods to obtain the cacheline size are all runtime methods, not
-``constexpr`` values, and are either ISA-dependent, OS-dependent, or use cache
-timing. See the appendix_ for examples.
-
-Having a ``constexpr`` value is useful, even when the ``constexpr`` is only a
-likely good value instead of the exact one. This allows setting ``alignas`` on
-datastructures. It isn't a guarantee, merely a good guess at what would
-work. This is useful to separate members in a class which have different access
-patterns based on the algorithm. A developer can reason about the caching
-protocol, e.g. MOESI, and group members which the algorithms makes exclusive to
-a thread of execution and separate them from elements which are shared between
-threads of execution.
-
-Typical examples where this matters are:
-
-* Multiple-producer and multiple-consumer queue.
-* The ``barrier`` example, as illustrated in N4522_.
-* Grouping an atomic variable with the data it protects.
 * Preventing false-sharing between objects with different runtime access
-  patterns from different threads.
+  patterns from different threads.  e.g. Producer-consumer queues.
 * Promoting true-sharing between objects which have the same runtime access
-  patterns.
+  patterns.  e.g. The ``barrier`` example, as illustrated in N4522_.
 
 .. _N4522: http://wg21.link/N4522
 
-The only significant cacheline size in these circumstances is L1 cacheline
-size. Advanced high-performance applications will care about the effects of
-cache associativity and ways, multiple cache hierarchy, page size, TLB size,
-number of sockets, in-rack distance, intra-datacenter distance, inter-datacenter
-distance, and much more. This paper explicity doesn't address second-order and
-N\ :sup:`th`-order effects and merely tries to tackle the first-order effect
-described above.
+The most sigificant issue with this useful implementation quantity is the questionable 
+portability of the methods used in current practice to determine its value, despite 
+their pervasiveness and popularity as a group.  In the appendix_ we review several 
+different compile-time and run-time methods.  The portability problem with most of 
+these methods is that they expose a micro-architectural detail without accounting for 
+the intent of the implementors over the long life of the architecture for which 
+the program is compiled - i.e.: it changes over time.
 
-Nowadays, developers either hard code a likely number, such as ``64`` bytes, or
-figure out exactly the right number by consulting their specific machine's
-manual. See the appendix_ for examples. The implementation is better positioned
-to do the exact same thing at compile-time, we therefore propose to standardize
-existing practice, moving the magic number from each developer's code base to
-each implementation.
+We aim to contribute a modest invention for this cause: abstractions for this quantity that 
+can be conservatively defined for a purpose:
 
-A precise value can still be obtained from the operating system or using inline
-assembly at runtime. This value can be passed to allocator implementations which
-can guarantee alignment.
-
-We further extend existing practice by offering two values:
-
-* *False-sharing size*: a number that's suitable as offset between two objects
+* *False-sharing size*: a number that's suitable as an offset between two objects
   to likely avoid false-sharing due to different runtime access patterns from
   different threads.
-* *True-sharing size*: a number which should bound two objects' footprint and
-  their initial alignment to likely promote true sharing between then.
+* *True-sharing size*: a number that's suitable as a on limit two objects' memory 
+  footprint size and alignment to likely promote true sharing between then.
 
-In both cases these values are provided on a quality of implementation basis:
-they're likely correct for the architectural information that the compiler was
-given:
-
-* When a virtual ISA is provided a wide discrepancy between the two numbers is
-  to be expected.
-* When a specific ISA is provided but no specific architecture implementation is
-  then one might expect to be given known biggest L1 size and smallest L1 size
-  amongst relevant/existing implementations of this ISA.
-* When a specific architecture implementation is provided then one can expect
-  both numbers to be the same, and be the same as that specific architecture's
-  L1 cacheline size.
+In both cases these values are provided on a quality of implementation basis, to
+be conservatively defined at the discretion of the implementers.
 
 -----------------
 Proposed addition
