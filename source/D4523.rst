@@ -15,20 +15,21 @@ D4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
 Rationale
 ---------
 
-In C++11 the library added ``std::thread::hardware_concurrency()`` to expose the
-implementation quantity most relevant for new control structures in multi-threaded
-executions: the extent of threads that do not interfere, to a first-order. Established
-practice throughout the industry also relies on a second implementation quantity, however, to 
-control interference for new data structures in multi-threaded executions.  This quantity 
-represents the extent of memory that does or does not interfere, to a first order, 
-and is commonly referred-to as the "cache-line size".
+In C++11 the library added ``std::thread::hardware_concurrency()`` to expose an
+implementation quantity that is key to defending the performance of new control 
+structures in multi-threaded executions: the extent of threads that do not interfere, 
+to a first-order. Established practice throughout the industry also relies on a second 
+implementation quantity, however, to control interference for new data structures in 
+multi-threaded executions.  This quantity represents the extent of memory that does 
+or does not interfere, to a first order, and is commonly referred-to as the "cache-line 
+size".
 
 Uses of "cache-line size" fall into two broad categories:
 
-* Preventing false-sharing between objects with different runtime access
+* Avoiding false-sharing between objects with temporally disjoint runtime access
   patterns from different threads.  e.g. Producer-consumer queues.
-* Promoting true-sharing between objects which have the same runtime access
-  patterns.  e.g. The ``barrier`` example, as illustrated in N4522_.
+* Promoting true-sharing between objects which have temporally local 
+  runtime access patterns.  e.g. The ``barrier`` example, as illustrated in N4522_.
 
 .. _N4522: http://wg21.link/N4522
 
@@ -37,11 +38,11 @@ portability of the methods used in current practice to determine its value, desp
 their pervasiveness and popularity as a group.  In the appendix_ we review several 
 different compile-time and run-time methods.  The portability problem with most of 
 these methods is that they expose a micro-architectural detail without accounting for 
-the intent of the implementors over the long life of the architecture for which 
+the intent of the implementors over the long life of either the ISA or ABI for which 
 the program is compiled - i.e.: it changes over time.
 
-We aim to contribute a modest invention for this cause: abstractions for this quantity that 
-can be conservatively defined for a purpose:
+We aim to contribute a modest invention for this cause, abstractions for this quantity 
+that can be conservatively defined for a purpose by implementations:
 
 * *False-sharing size*: a number that's suitable as an offset between two objects
   to likely avoid false-sharing due to different runtime access patterns from
