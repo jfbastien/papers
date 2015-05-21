@@ -15,6 +15,13 @@ D4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
 Rationale
 ---------
 
+In C++11 the library added ``std::thread::hardware_concurrency()`` to expose the
+implementation quantity most relevant for control structures in multi-threaded
+executions: a scope for threads that do not interfere, to a first-order. Established
+practice throughout the industry also relies on another implementation quantity, the 
+cache-line size, which is used to control interference for data structures in 
+multi-threaded executions.
+
 Each architecture implementation has a cacheline size which never
 changes. Indeed, this number is deeply embedded in the caching hardware's
 implementation, yet C++ doesn't expose this number as a ``constexpr``. This is
