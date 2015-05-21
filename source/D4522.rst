@@ -1,5 +1,5 @@
-==============================================
-D4522 ``std::atomic_object_fence(mo, T...&&)``
+﻿==============================================
+D4522 ``std::atomic_object_fence(mo, T&&...)``
 ==============================================
 
 :Author: Olivier Giroux
@@ -73,7 +73,7 @@ which is to order only the operations on the barrier object. Since the barrier
 object is likely to be smaller than a cache line and the library's
 implementation can control its alignment using ``alignas``, then it would be
 possible to compile this program without a fence in this location on
-architectures that are cache-line coherent.
+architectures that are cache-line coherent. 
 
 To concisely express the bound on the set of memory operations whose order is 
 constrained, we propose to accompany ``std::atomic_thread_fence`` with an 
@@ -92,13 +92,13 @@ Under 29.2 Header ``<atomic>`` synopsis [**atomics.syn**]:
      // 29.8, fences
      // ...
      template<class... T>
-     void atomic_object_fence(memory_order, T... &&objects) noexcept;
+     void atomic_object_fence(memory_order, T&&... objects) noexcept;
    }
 
 Under 29.8 Fences [**atomics.fences**], after the current
 ``atomic_thread_fence`` paragraph:
 
-``template<class... T> void atomic_object_fence(memory_order, T... &&objects) noexcept;``
+``template<class... T> void atomic_object_fence(memory_order, T&&... objects) noexcept;``
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
 objects other than those in the variadic template arguments and their
@@ -120,22 +120,22 @@ the existing ``std::atomic_thread_fence`` using the same memory order:
 .. code-block:: c++
 
      template<class... T>
-     void atomic_object_fence(memory_order, T... &&) noexcept {
-       atomic_thread_fence(memory_order);
+     void atomic_object_fence(std::memory_order order, T &&...) noexcept {
+       std::atomic_thread_fence(order);
      }
 
-A slightly more advanced implementation can overload this for the single-object case
+A more advanced implementation can overload this for the single-object case
 on architectures (or micro-architectures) that have cache coherency with a known 
 line size, even if it is conservatively approximated:
 
 .. code-block:: c++
 
-     #define __CACHE_LINE_SIZE <conservative (micro-)architectural value>
-     template<class T>
-     std::enable_if<std::is_standard_layout<T>::value &&
-	            __CACHE_LINE_SIZE - alignof(T) % __CACHE_LINE_SIZE >= sizeof(T)
-     >::type atomic_object_fence(memory_order, T && o) noexcept {
-       asm volatile ("":"+m"(o):"m"(o)); // Code motion barrier.
+     #define __CACHELINE_SIZE // Secret (micro-)architectural value.
+     template <class T>
+     std::enable_if_t<std::is_standard_layout<T>::value &&
+                      __CACHELINE_SIZE - alignof(T) % __CACHELINE_SIZE >= sizeof(T)>
+     atomic_object_fence(std::memory_order, T &&object) noexcept {
+       asm volatile("" : "+m"(object) : "m"(object));  // Code motion barrier.
      }
 
 To extend this for multiple objects, an implementation for the same architecture may 
