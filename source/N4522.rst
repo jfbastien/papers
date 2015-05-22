@@ -1,15 +1,13 @@
-﻿==============================================
-D4522 ``std::atomic_object_fence(mo, T&&...)``
+==============================================
+N4522 ``std::atomic_object_fence(mo, T&&...)``
 ==============================================
 
 :Author: Olivier Giroux
 :Contact: ogiroux@nvidia.com
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2015-05-08
-:URL: https://github.com/jfbastien/papers/blob/master/source/D4522.rst
-
-.. TODO Update the URL above when this becomes an N paper.
+:Date: 2015-05-21
+:URL: https://github.com/jfbastien/papers/blob/master/source/N4522.rst
 
 ---------
 Rationale
