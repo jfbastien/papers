@@ -1,15 +1,13 @@
 ===================================================================
-D4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
+N4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
 ===================================================================
 
 :Author: JF Bastien
 :Contact: jfb@google.com
 :Author: Olivier Giroux
 :Contact: ogiroux@nvidia.com
-:Date: 2015-05-08
-:URL: https://github.com/jfbastien/papers/blob/master/source/D4523.rst
-
-.. TODO Update the URL above when this becomes an N paper.
+:Date: 2015-05-21
+:URL: https://github.com/jfbastien/papers/blob/master/source/N4523.rst
 
 ---------
 Rationale
