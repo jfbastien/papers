@@ -1,5 +1,5 @@
 ==================================================
-D4509 ``constexpr atomic<T>::is_always_lock_free``
+N4509 ``constexpr atomic<T>::is_always_lock_free``
 ==================================================
 
 :Author: Olivier Giroux
