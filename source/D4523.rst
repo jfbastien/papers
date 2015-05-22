@@ -15,14 +15,13 @@ D4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
 Rationale
 ---------
 
-In C++11 the library added ``std::thread::hardware_concurrency()`` to expose an
-implementation quantity that is key to defending the performance of new control 
-structures in multi-threaded executions: the extent of threads that do not interfere, 
-to a first-order. Established practice throughout the industry also relies on a second 
-implementation quantity, however, to control interference for new data structures in 
-multi-threaded executions.  This quantity represents the extent of memory that does 
-or does not interfere, to a first order, and is commonly referred-to as the "cache-line 
-size".
+Starting with C++11, the library includes ``std::thread::hardware_concurrency()`` to 
+provide an implementation quantity useful in the design of control structures in 
+multi-threaded programs: the extent of threads that do not interfere (to the first-order). 
+Established practice throughout the industry also relies on a second implementation 
+quantity, used instead in the design of data structures in the same programs.  This 
+quantity is the granularity of memory that does not interfere (to the first order), 
+commonly referred to as the "cache-line size".
 
 Uses of "cache-line size" fall into two broad categories:
 
@@ -38,11 +37,10 @@ portability of the methods used in current practice to determine its value, desp
 their pervasiveness and popularity as a group.  In the appendix_ we review several 
 different compile-time and run-time methods.  The portability problem with most of 
 these methods is that they expose a micro-architectural detail without accounting for 
-the intent of the implementors over the long life of either the ISA or ABI for which 
-the program is compiled - i.e.: it changes over time.
+the intent of the implementors (such as we are) over the life of the ISA or ABI.
 
 We aim to contribute a modest invention for this cause, abstractions for this quantity 
-that can be conservatively defined for a purpose by implementations:
+that can be conservatively defined for given purposes by implementations:
 
 * *False-sharing size*: a number that's suitable as an offset between two objects
   to likely avoid false-sharing due to different runtime access patterns from
@@ -50,8 +48,10 @@ that can be conservatively defined for a purpose by implementations:
 * *True-sharing size*: a number that's suitable as a on limit two objects' memory 
   footprint size and alignment to likely promote true sharing between then.
 
-In both cases these values are provided on a quality of implementation basis, to
-be conservatively defined at the discretion of the implementers.
+In both cases these values are provided on a quality of implementation basis, purely 
+as hints that are likely to improve performance.  These are ideal portable values to use
+with the ``alignas()`` keyword, for which there currently exists nearly no standard-
+supported portable uses.
 
 -----------------
 Proposed addition
