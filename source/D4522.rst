@@ -20,20 +20,22 @@ pair-wise relations of operations required to be ordered in the happens-before
 relation. This is conservative because fences use the sequenced-before relation
 to select vast extents of the program into the happens-before relation.
 
-This conservatism is commonly desired because it is difficult to reason about 
+This conservatism is commonly desired because it is difficult to reason about
 operations hidden behind layers of abstraction in C++ programs. An unfortunate
-consequence of this is that precise expression of ordering is not possible in 
-C++ currently, which makes it easy to over-constrain the order of operations 
+consequence of this is that precise expression of ordering is not possible in
+C++ currently, which makes it easy to over-constrain the order of operations
 internal to synchronization primitives that comprise multiple atomic objects.
-This constrains the ability of implementations (compiler and hardware) to reorder, 
-ignore, or assume the absence of operations that are not relevant or not visible.
+This constrains the ability of implementations (compiler and hardware) to
+reorder, ignore, or assume the absence of operations that are not relevant or
+not visible.
 
-In existing practice, the ``flush`` primitive of OpenMP is more expressive than the 
-fences of C++ in at least this one sense: it can optionally restrict the ordering of 
-operations to a user-specified set of memory locations. This is enough to exactly 
-express the required pair-wise ordering for short lock-free algorithms. This
-capability isn't only relevant to OpenMP and would be further enhanced if it was 
-integrated with the other facets of the more modern C++ memory model.
+In existing practice, the ``flush`` primitive of OpenMP is more expressive than
+the fences of C++ in at least this one sense: it can optionally restrict the
+ordering of operations to a developer-specified set of memory locations. This is
+enough to exactly express the required pair-wise ordering for short lock-free
+algorithms. This capability isn't only relevant to OpenMP and would be further
+enhanced if it was integrated with the other facets of the more modern C++
+memory model.
 
 An example use-case for this capability is a likely implementation strategy for
 N4392_'s ``std::barrier`` object. This algorithm makes ordered modifications on
@@ -160,24 +162,27 @@ It is equivalently valid to list the individual members of ``barrier`` instead o
 Less trivial implementations of ``std::atomic_object_fence`` can enable more 
 optimizations for new hardware and portable program representations.
 
-----------------------
-Relation to D4523
-----------------------
+-----------------
+Relation to N4523
+-----------------
 
-In D4523 we propose to formalize the notions of false-sharing and true-sharing 
-as perceived by the implementation in relation to the placement of objects in memory.
-In the expository implementation of the previous section we also showed how a cache-line
-coherent architecture or micro-architecture can elide fences that only bisect
-relations between objects that are in the same cache line, if provable at compile-time.
-These notions interact in a virtuous way because D4523's abstraction enables reasoning
-about likely cache behavior that implementations can optimize for.
+In N4523_ we propose to formalize the notions of false-sharing and true-sharing
+as perceived by the implementation in relation to the placement of objects in
+memory. In the expository implementation of the previous section we also showed
+how a cache-line coherent architecture or micro-architecture can elide fences
+that only bisect relations between objects that are in the same cache line, if
+provable at compile-time. These notions interact in a virtuous way because
+N4523's abstraction enables reasoning about likely cache behavior that
+implementations can optimize for.
 
-The example application of ``std::atomic_object_fence`` to the ``std::barrier`` object
-is improved by combining these notions as follows:
+.. _N4523: http://wg21.link/N4523
+
+The example application of ``std::atomic_object_fence`` to the ``std::barrier``
+object is improved by combining these notions as follows:
 
 .. code-block:: c++
 
-  alignas(std::thread::hardware_true_sharing_size) /* D4523 */
+  alignas(std::thread::hardware_true_sharing_size) // N4523
   struct barrier {
       // Some member functions elided.
       void arrive_and_wait() {
@@ -186,7 +191,7 @@ is improved by combining these notions as follows:
           if (result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
-	      atomic_object_fence(memory_order_release, *this); /* D4522 */
+              atomic_object_fence(memory_order_release, *this); // N4522
               epoch.store(myepoch + 1, memory_order_relaxed);
           }
           else
@@ -198,11 +203,11 @@ is improved by combining these notions as follows:
       atomic<int> arrived, nexpected, epoch;
   };
 
-By aligning the barrier object to the true-sharing granularity, it is significantly
-more likely that the implementation will be able to elide the fence if the architecture
-or micro-architecture has cache-line coherency.  Of course an implementation of the
-Standard is free to ensure this by other means, we provide this example as exposition
-for what user programs might do.
+By aligning the barrier object to the true-sharing granularity, it is
+significantly more likely that the implementation will be able to elide the
+fence if the architecture or micro-architecture has cache-line coherency. Of
+course an implementation of the Standard is free to ensure this by other means,
+we provide this example as exposition for what developer programs might do.
 
 --------------------
 Memory model example
@@ -229,13 +234,17 @@ The semantics of fences mean that:
   B. ``2`` synchronizes-with ``5``, and
   C. ``5`` is sequenced-before ``6``.
 
-Therefore the program is well-defined (so far) and the ``assert(x)`` of ``6`` does not fire.
+Therefore the program is well-defined (so far) and the ``assert(x)`` of ``6``
+does not fire.
 
 However, the *un-sequenced* semantics of the object fence also mean that:
 
 ``0``  conflicts with ``7`` because [**1.10¶23**]:
-  A. ``0`` is a store to ``w``, ``7`` is a load of ``w`` and they are not both atomic, and
-  B. ``0`` is not sequenced-before ``2`` and ``5`` is not sequenced-before ``7``.
+  A. ``0`` is a store to ``w``, ``7`` is a load of ``w`` and they are not both
+     atomic, and
+  B. ``0`` is not sequenced-before ``2`` and ``5`` is not sequenced-before
+     ``7``.
 
-Therefore the ``assert(w)`` of ``7`` makes the program undefined due to a data-race.
+Therefore the ``assert(w)`` of ``7`` makes the program undefined due to a
+data-race.
 

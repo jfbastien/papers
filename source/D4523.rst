@@ -15,43 +15,47 @@ D4523 ``constexpr std::thread::hardware_{true,false}_sharing_size``
 Rationale
 ---------
 
-Starting with C++11, the library includes ``std::thread::hardware_concurrency()`` to 
-provide an implementation quantity useful in the design of control structures in 
-multi-threaded programs: the extent of threads that do not interfere (to the first-order). 
-Established practice throughout the industry also relies on a second implementation 
-quantity, used instead in the design of data structures in the same programs.  This 
-quantity is the granularity of memory that does not interfere (to the first order), 
-commonly referred to as the "cache-line size".
+Starting with C++11, the library includes
+``std::thread::hardware_concurrency()`` to provide an implementation quantity
+useful in the design of control structures in multi-threaded programs: the
+extent of threads that do not interfere (to the first-order). Established
+practice throughout the industry also relies on a second implementation
+quantity, used instead in the design of data structures in the same programs.
+This quantity is the granularity of memory that does not interfere (to the
+first-order), commonly referred to as the *cache-line size*.
 
-Uses of "cache-line size" fall into two broad categories:
+Uses of *cache-line size* fall into two broad categories:
 
 * Avoiding false-sharing between objects with temporally disjoint runtime access
-  patterns from different threads.  e.g. Producer-consumer queues.
-* Promoting true-sharing between objects which have temporally local 
-  runtime access patterns.  e.g. The ``barrier`` example, as illustrated in N4522_.
+  patterns from different threads. e.g. Producer-consumer queues.
+* Promoting true-sharing between objects which have temporally local runtime
+  access patterns. e.g. The ``barrier`` example, as illustrated in N4522_.
 
 .. _N4522: http://wg21.link/N4522
 
-The most sigificant issue with this useful implementation quantity is the questionable 
-portability of the methods used in current practice to determine its value, despite 
-their pervasiveness and popularity as a group.  In the appendix_ we review several 
-different compile-time and run-time methods.  The portability problem with most of 
-these methods is that they expose a micro-architectural detail without accounting for 
-the intent of the implementors (such as we are) over the life of the ISA or ABI.
+The most sigificant issue with this useful implementation quantity is the
+questionable portability of the methods used in current practice to determine
+its value, despite their pervasiveness and popularity as a group. In the
+appendix_ we review several different compile-time and run-time methods. The
+portability problem with most of these methods is that they expose a
+micro-architectural detail without accounting for the intent of the implementors
+(such as we are) over the life of the ISA or ABI.
 
-We aim to contribute a modest invention for this cause, abstractions for this quantity 
-that can be conservatively defined for given purposes by implementations:
+We aim to contribute a modest invention for this cause, abstractions for this
+quantity that can be conservatively defined for given purposes by
+implementations:
 
-* *False-sharing size*: a number that's suitable as an offset between two objects
-  to likely avoid false-sharing due to different runtime access patterns from
-  different threads.
-* *True-sharing size*: a number that's suitable as a on limit two objects' memory 
-  footprint size and alignment to likely promote true sharing between then.
+* *False-sharing size*: a number that's suitable as an offset between two
+  objects to likely avoid false-sharing due to different runtime access patterns
+  from different threads.
+* *True-sharing size*: a number that's suitable as a limit on two objects'
+  combined memory footprint size and base alignment to likely promote
+  true-sharing between them.
 
-In both cases these values are provided on a quality of implementation basis, purely 
-as hints that are likely to improve performance.  These are ideal portable values to use
-with the ``alignas()`` keyword, for which there currently exists nearly no standard-
-supported portable uses.
+In both cases these values are provided on a quality of implementation basis,
+purely as hints that are likely to improve performance. These are ideal portable
+values to use with the ``alignas()`` keyword, for which there currently exists
+nearly no standard-supported portable uses.
 
 -----------------
 Proposed addition
@@ -118,11 +122,11 @@ added.
 Appendix
 --------
 
-Compile-time cacheline size
-===========================
+Compile-time *cache-line size*
+==============================
 
-We informatively list a few ways in which the L1 cacheline size is obtained in
-different open-source projects at compile-time.
+We informatively list a few ways in which the L1 *cache-line size* is obtained
+in different open-source projects at compile-time.
 
 The Linux kernel defines the ``__cacheline_aligned`` macro which is configured
 for each architecture through ``L1_CACHE_BYTES``. On some architectures this
@@ -166,11 +170,11 @@ example from the autofdo_ project is:
 
   #define CACHELINE_ALIGNED __attribute__((aligned(CACHELINE_SIZE)))
 
-Runtime cacheline size
-======================
+Runtime *cache-line size*
+=========================
 
-We informatively list a few ways in which the L1 cacheline size can be obtained
-on different operating systems and architectures at runtime.
+We informatively list a few ways in which the L1 *cache-line size* can be
+obtained on different operating systems and architectures at runtime.
 
 On OSX one would use:
 
