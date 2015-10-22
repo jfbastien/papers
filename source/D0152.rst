@@ -61,20 +61,25 @@ Under 29.5 Atomic types [**atomics.types.generic**]:
 
   namespace std {
     template <class T> struct atomic {
-      static constexpr bool is_always_lock_free = /* implementation-defined */;
+      static constexpr bool is_always_lock_free = implementation-defined;
       // Omitting all other members for brevity.
     };
     template <> struct atomic<integral> {
-      static constexpr bool is_always_lock_free = /* implementation-defined */;
+      static constexpr bool is_always_lock_free = implementation-defined;
       // Omitting all other members for brevity.
     };
     template <class T> struct atomic<T*> {
-      static constexpr bool is_always_lock_free = /* implementation-defined */;
+      static constexpr bool is_always_lock_free = implementation-defined;
       // Omitting all other members for brevity.
     };
   }
 
-After paragraph 2:
+Under 29.6.5 Requirements for operations on atomic types
+[**atomics.types.operations.req**], between paragraphs 6 and 7:
+
+.. code-block:: c++
+
+  static constexpr bool is_always_lock_free = implementation-defined;
 
 The ``static`` data member ``is_always_lock_free`` is true if the atomic type's
 operations are always lock-free, and false otherwise. The value of
@@ -87,7 +92,7 @@ Under 29.6.5 Requirements for operations on atomic types
 The return value of the ``is_lock_free`` member function shall be consistent
 with the value of ``is_always_lock_free`` for the same type.
 
-[*Example:* the following should never fail,
+[*Example:* The following should never fail
 
 .. code-block:: c++
 
