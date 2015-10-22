@@ -9,9 +9,9 @@ D0152 ``constexpr atomic<T>::is_always_lock_free``
 :Author: Jeff Snyder
 :Contact: jeff-isocpp@caffeinated.me.uk
 :Date: 2015-10-21
+:Previous: http://wg21.link/N4509
 :URL: https://github.com/jfbastien/papers/blob/master/source/D0152.rst
 :Source: https://github.com/jfbastien/papers/blob/master/source/D0152.cc
-:Previous Revision: http://wg21.link/N4509
 
 The current design for ``std::atomic<T>`` affords implementations the critical
 freedom to revert to critical sections when hardware support for atomic
