@@ -103,7 +103,8 @@ Under 29.8 Fences [**atomics.fences**], after the current
 
 *Effect*: Equivalent to ``atomic_thread_fence(order)`` except that operations on
 objects other than those in the variadic template arguments and their
-sub-objects are *un-sequenced* with the fence.
+sub-objects are *un-sequenced* with the fence. The *objects* operands are not
+accessed.
 
 *Note*: The compiler may omit fences entirely depending on alignment
 information, may generate a dynamic test leading to a fence for under-aligned
