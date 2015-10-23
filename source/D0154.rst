@@ -1,6 +1,6 @@
-===================================================================
-D0154 ``constexpr std::thread::hardware_{true,false}_sharing_size``
-===================================================================
+======================================================================================
+D0154 ``constexpr std::thread::hardware_{constructive,destructive}_interference_size``
+======================================================================================
 
 :Author: JF Bastien
 :Contact: jfb@google.com
@@ -70,45 +70,45 @@ Under 30.3.1 Class ``thread`` [**thread.thread.class**]:
     class thread {
       // ...
     public:
-      static constexpr size_t hardware_false_sharing_size = /* implementation-defined */;
-      static constexpr size_t hardware_true_sharing_size = /* implementation-defined */;
+      static constexpr size_t hardware_destructive_interference_size = implementation-defined;
+      static constexpr size_t hardware_constructive_interference_size = implementation-defined;
       // ...
     };
   }
 
 Under 30.3.1.6 ``thread`` static members [**thread.thread.static**]:
 
-``constexpr size_t hardware_false_sharing_size = /* implementation-defined */;``
+``constexpr size_t hardware_destructive_interference_size = implementation-defined;``
 
 This number is the minimum recommended offset between two concurrently-accessed
 objects to avoid additional performance degradation due to contention introduced
-by the implementation.
+by the implementation. It shall be a valid alignment value for any type.
 
 [*Example:*
 
 .. code-block:: c++
 
   struct apart {
-    alignas(hardware_false_sharing_size) atomic<int> flag1, flag2;
+    alignas(hardware_destructive_interference_size) atomic<int> flag1, flag2;
   };
 
 — *end example*]
 
-``constexpr size_t hardware_true_sharing_size = /* implementation-defined */;``
+``constexpr size_t hardware_constructive_interference_size = implementation-defined;``
 
 This number is the minimum recommended alignment and maximum recommended size of
 contiguous memory occupied by two objects accessed with temporal locality by
-concurrent threads.
+concurrent threads. It shall be a valid alignment value for any type.
 
 [*Example:*
 
 .. code-block:: c++
 
-  alignas(hardware_true_sharing_size) struct colocated {
+  alignas(hardware_constructive_interference_size) struct colocated {
     atomic<int> flag;
     int tinydata;
   };
-  static_assert(sizeof(colocated) <= hardware_true_sharing_size);
+  static_assert(sizeof(colocated) <= hardware_constructive_interference_size);
 
 — *end example*]
 
