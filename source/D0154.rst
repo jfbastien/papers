@@ -1,0 +1,210 @@
+===================================================================
+D0154 ``constexpr std::thread::hardware_{true,false}_sharing_size``
+===================================================================
+
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Author: Olivier Giroux
+:Contact: ogiroux@nvidia.com
+:Date: 2015-10-22
+:Previous: http://wg21.link/N4523
+:URL: https://github.com/jfbastien/papers/blob/master/source/D0154.rst
+
+---------
+Rationale
+---------
+
+Starting with C++11, the library includes
+``std::thread::hardware_concurrency()`` to provide an implementation quantity
+useful in the design of control structures in multi-threaded programs: the
+extent of threads that do not interfere (to the first-order). Established
+practice throughout the industry also relies on a second implementation
+quantity, used instead in the design of data structures in the same programs.
+This quantity is the granularity of memory that does not interfere (to the
+first-order), commonly referred to as the *cache-line size*.
+
+Uses of *cache-line size* fall into two broad categories:
+
+* Avoiding false-sharing between objects with temporally disjoint runtime access
+  patterns from different threads. e.g. Producer-consumer queues.
+* Promoting true-sharing between objects which have temporally local runtime
+  access patterns. e.g. The ``barrier`` example, as illustrated in P0153R0_.
+
+.. _P0153R0: http://wg21.link/P0153R0
+
+The most sigificant issue with this useful implementation quantity is the
+questionable portability of the methods used in current practice to determine
+its value, despite their pervasiveness and popularity as a group. In the
+appendix_ we review several different compile-time and run-time methods. The
+portability problem with most of these methods is that they expose a
+micro-architectural detail without accounting for the intent of the implementors
+(such as we are) over the life of the ISA or ABI.
+
+We aim to contribute a modest invention for this cause, abstractions for this
+quantity that can be conservatively defined for given purposes by
+implementations:
+
+* *False-sharing size*: a number that's suitable as an offset between two
+  objects to likely avoid false-sharing due to different runtime access patterns
+  from different threads.
+* *True-sharing size*: a number that's suitable as a limit on two objects'
+  combined memory footprint size and base alignment to likely promote
+  true-sharing between them.
+
+In both cases these values are provided on a quality of implementation basis,
+purely as hints that are likely to improve performance. These are ideal portable
+values to use with the ``alignas()`` keyword, for which there currently exists
+nearly no standard-supported portable uses.
+
+-----------------
+Proposed addition
+-----------------
+
+We propose adding the following to the standard:
+
+Under 30.3.1 Class ``thread`` [**thread.thread.class**]:
+
+.. code-block:: c++
+
+  namespace std {
+    class thread {
+      // ...
+    public:
+      static constexpr size_t hardware_false_sharing_size = /* implementation-defined */;
+      static constexpr size_t hardware_true_sharing_size = /* implementation-defined */;
+      // ...
+    };
+  }
+
+Under 30.3.1.6 ``thread`` static members [**thread.thread.static**]:
+
+``constexpr size_t hardware_false_sharing_size = /* implementation-defined */;``
+
+This number is the minimum recommended offset between two concurrently-accessed
+objects to avoid additional performance degradation due to contention introduced
+by the implementation.
+
+[*Example:*
+
+.. code-block:: c++
+
+  struct apart {
+    alignas(hardware_false_sharing_size) atomic<int> flag1, flag2;
+  };
+
+— *end example*]
+
+``constexpr size_t hardware_true_sharing_size = /* implementation-defined */;``
+
+This number is the minimum recommended alignment and maximum recommended size of
+contiguous memory occupied by two objects accessed with temporal locality by
+concurrent threads.
+
+[*Example:*
+
+.. code-block:: c++
+
+  alignas(hardware_true_sharing_size) struct colocated {
+    atomic<int> flag;
+    int tinydata;
+  };
+  static_assert(sizeof(colocated) <= hardware_true_sharing_size);
+
+— *end example*]
+
+The ``__cpp_lib_thread_hardware_sharing_size`` feature test macro should be
+added.
+
+.. _appendix:
+
+--------
+Appendix
+--------
+
+Compile-time *cache-line size*
+==============================
+
+We informatively list a few ways in which the L1 *cache-line size* is obtained
+in different open-source projects at compile-time.
+
+The Linux kernel defines the ``__cacheline_aligned`` macro which is configured
+for each architecture through ``L1_CACHE_BYTES``. On some architectures this
+value is determined through the configure-time option
+``CONFIG_<ARCH>_L1_CACHE_SHIFT``, and on others the value of ``L1_CACHE_SHIFT``
+is hard-coded in the architecture's ``include/asm/cache.h`` header.
+
+Many open-source projects from Google contain a ``base/port.h`` header which
+defines the ``CACHELINE_ALIGNED`` macro based on an explicit list of
+architecture detection macros. These header files have often diverged. A token
+example from the autofdo_ project is:
+
+.. _autofdo: https://github.com/google/autofdo/blob/master/base/port.h
+
+.. code-block:: c++
+
+  // Cache line alignment
+  #if defined(__i386__) || defined(__x86_64__)
+  #define CACHELINE_SIZE 64
+  #elif defined(__powerpc64__)
+  // TODO(dougkwan) This is the L1 D-cache line size of our Power7 machines.
+  // Need to check if this is appropriate for other PowerPC64 systems.
+  #define CACHELINE_SIZE 128
+  #elif defined(__arm__)
+  // Cache line sizes for ARM: These values are not strictly correct since
+  // cache line sizes depend on implementations, not architectures.  There
+  // are even implementations with cache line sizes configurable at boot
+  // time.
+  #if defined(__ARM_ARCH_5T__)
+  #define CACHELINE_SIZE 32
+  #elif defined(__ARM_ARCH_7A__)
+  #define CACHELINE_SIZE 64
+  #endif
+  #endif
+
+  #ifndef CACHELINE_SIZE
+  // A reasonable default guess.  Note that overestimates tend to waste more
+  // space, while underestimates tend to waste more time.
+  #define CACHELINE_SIZE 64
+  #endif
+
+  #define CACHELINE_ALIGNED __attribute__((aligned(CACHELINE_SIZE)))
+
+Runtime *cache-line size*
+=========================
+
+We informatively list a few ways in which the L1 *cache-line size* can be
+obtained on different operating systems and architectures at runtime.
+
+On OSX one would use:
+
+.. code-block:: c++
+
+  sysctlbyname("hw.cachelinesize", &cacheline_size, &sizeof_cacheline_size, 0, 0)
+
+On Windows one would use:
+
+.. code-block:: c++
+
+  GetLogicalProcessorInformation(&buf[0], &sizeof_buf);
+  for (i = 0; i != sizeof_buf / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION); ++i) {
+    if (buf[i].Relationship == RelationCache && buf[i].Cache.Level == 1)
+      cacheline_size = buf[i].Cache.LineSize;
+
+On Linux one would either use:
+
+.. code-block:: c++
+
+  p = fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
+  fscanf(p, "%d", &cacheline_size);
+
+or:
+
+.. code-block:: c++
+
+  sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+
+On x86 one would use the ``CPUID`` Instruction with ``EAX = 80000005h``, which
+leaves the result in ``ECX``, which needs further work to extract.
+
+On ARM one would use ``mrs %[ctr], ctr_el0``, which needs further work to
+extract.
