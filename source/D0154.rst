@@ -1,12 +1,12 @@
-======================================================================================
-D0154 ``constexpr std::thread::hardware_{constructive,destructive}_interference_size``
-======================================================================================
+==============================================================================
+D0154 ``constexpr std::hardware_{constructive,destructive}_interference_size``
+==============================================================================
 
 :Author: JF Bastien
 :Contact: jfb@google.com
 :Author: Olivier Giroux
 :Contact: ogiroux@nvidia.com
-:Date: 2015-10-22
+:Date: 2015-10-24
 :Previous: http://wg21.link/N4523
 :URL: https://github.com/jfbastien/papers/blob/master/source/D0154.rst
 
@@ -25,10 +25,12 @@ first-order), commonly referred to as the *cache-line size*.
 
 Uses of *cache-line size* fall into two broad categories:
 
-* Avoiding false-sharing between objects with temporally disjoint runtime access
-  patterns from different threads. e.g. Producer-consumer queues.
-* Promoting true-sharing between objects which have temporally local runtime
-  access patterns. e.g. The ``barrier`` example, as illustrated in P0153R0_.
+* Avoiding destructive interference (false-sharing) between objects with
+  temporally disjoint runtime access patterns from different
+  threads. e.g. Producer-consumer queues.
+* Promoting constructive interference (true-sharing) between objects which have
+  temporally local runtime access patterns. e.g. The ``barrier`` example, as
+  illustrated in P0153R0_.
 
 .. _P0153R0: http://wg21.link/P0153R0
 
@@ -44,11 +46,11 @@ We aim to contribute a modest invention for this cause, abstractions for this
 quantity that can be conservatively defined for given purposes by
 implementations:
 
-* *False-sharing size*: a number that's suitable as an offset between two
-  objects to likely avoid false-sharing due to different runtime access patterns
-  from different threads.
-* *True-sharing size*: a number that's suitable as a limit on two objects'
-  combined memory footprint size and base alignment to likely promote
+* *Destructive interference size*: a number that's suitable as an offset between
+  two objects to likely avoid false-sharing due to different runtime access
+  patterns from different threads.
+* *Constructive interference size*: a number that's suitable as a limit on two
+  objects' combined memory footprint size and base alignment to likely promote
   true-sharing between them.
 
 In both cases these values are provided on a quality of implementation basis,
@@ -60,23 +62,22 @@ nearly no standard-supported portable uses.
 Proposed addition
 -----------------
 
-We propose adding the following to the standard:
+Below, substitute the `�` character with a number the editor finds appropriate
+for the sub-section. We propose adding the following to the standard:
 
-Under 30.3.1 Class ``thread`` [**thread.thread.class**]:
+Under 20.7.2 Header ``<memory>`` synopsis [**memory.syn**]:
 
 .. code-block:: c++
 
   namespace std {
-    class thread {
-      // ...
-    public:
-      static constexpr size_t hardware_destructive_interference_size = implementation-defined;
-      static constexpr size_t hardware_constructive_interference_size = implementation-defined;
-      // ...
-    };
+    // ...
+    // 20.7.� Hardware interference size
+    static constexpr size_t hardware_destructive_interference_size = implementation-defined;
+    static constexpr size_t hardware_constructive_interference_size = implementation-defined;
+    // ...
   }
 
-Under 30.3.1.6 ``thread`` static members [**thread.thread.static**]:
+Under 20.7.� Hardware interference size [**hardware.interference**]:
 
 ``constexpr size_t hardware_destructive_interference_size = implementation-defined;``
 
@@ -96,9 +97,12 @@ by the implementation. It shall be a valid alignment value for any type.
 
 ``constexpr size_t hardware_constructive_interference_size = implementation-defined;``
 
-This number is the minimum recommended alignment and maximum recommended size of
-contiguous memory occupied by two objects accessed with temporal locality by
-concurrent threads. It shall be a valid alignment value for any type.
+This number is the minimum recommended alignment of contiguous memory occupied
+by two objects accessed with temporal locality by concurrent threads. It shall
+be a valid alignment value for any type.
+
+[*Note:* This number is also the maximum recommended size of contiguous memory
+occupied by two objects accessed in this manner. — *end note*]
 
 [*Example:*
 
@@ -112,7 +116,7 @@ concurrent threads. It shall be a valid alignment value for any type.
 
 — *end example*]
 
-The ``__cpp_lib_thread_hardware_sharing_size`` feature test macro should be
+The ``__cpp_lib_thread_hardware_interference_size`` feature test macro should be
 added.
 
 .. _appendix:
@@ -173,7 +177,11 @@ Runtime *cache-line size*
 =========================
 
 We informatively list a few ways in which the L1 *cache-line size* can be
-obtained on different operating systems and architectures at runtime.
+obtained on different operating systems and architectures at runtime. Libraries
+such as hwloc_ perform these queries, and could also be added to the standard as
+a separate proposal.
+
+.. _hwloc: http://www.open-mpi.org/projects/hwloc/
 
 On OSX one would use:
 
