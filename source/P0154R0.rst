@@ -1,6 +1,6 @@
-==============================================================================
-D0154 ``constexpr std::hardware_{constructive,destructive}_interference_size``
-==============================================================================
+================================================================================
+P0154R0 ``constexpr std::hardware_{constructive,destructive}_interference_size``
+================================================================================
 
 :Author: JF Bastien
 :Contact: jfb@google.com
@@ -8,7 +8,7 @@ D0154 ``constexpr std::hardware_{constructive,destructive}_interference_size``
 :Contact: ogiroux@nvidia.com
 :Date: 2015-10-24
 :Previous: http://wg21.link/N4523
-:URL: https://github.com/jfbastien/papers/blob/master/source/D0154.rst
+:URL: https://github.com/jfbastien/papers/blob/master/source/P0154R0.rst
 
 ---------
 Rationale
