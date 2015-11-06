@@ -1,6 +1,6 @@
-==================================================
-D0152 ``constexpr atomic<T>::is_always_lock_free``
-==================================================
+====================================================
+P0152R0 ``constexpr atomic<T>::is_always_lock_free``
+====================================================
 
 :Author: Olivier Giroux
 :Contact: ogiroux@nvidia.com
@@ -10,8 +10,8 @@ D0152 ``constexpr atomic<T>::is_always_lock_free``
 :Contact: jeff-isocpp@caffeinated.me.uk
 :Date: 2015-10-21
 :Previous: http://wg21.link/N4509
-:URL: https://github.com/jfbastien/papers/blob/master/source/D0152.rst
-:Source: https://github.com/jfbastien/papers/blob/master/source/D0152.cc
+:URL: https://github.com/jfbastien/papers/blob/master/source/P0152R0.rst
+:Source: https://github.com/jfbastien/papers/blob/master/source/P0152.cc
 
 The current design for ``std::atomic<T>`` affords implementations the critical
 freedom to revert to critical sections when hardware support for atomic
@@ -114,6 +114,6 @@ pointer. This makes the free functions significantly less useful as compile-time
 
 We show a sample implementation:
 
-.. literalinclude:: D0152.cc
+.. literalinclude:: P0152.cc
    :language: c++
    :lines: 4-48
