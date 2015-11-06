@@ -6,7 +6,7 @@ D0153 ``std::atomic_object_fence(mo, T&&...)``
 :Contact: ogiroux@nvidia.com
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2015-10-22
+:Date: 2015-11-05
 :Previous: http://wg21.link/N4522
 :URL: https://github.com/jfbastien/papers/blob/master/source/D0153.rst
 
@@ -111,6 +111,38 @@ information, may generate a dynamic test leading to a fence for under-aligned
 objects, or may emit the same fence an ``atomic_thread_fence`` would.
 
 The ``__cpp_lib_atomic_object_fence`` feature test macro should be added.
+
+-----------------
+Alternate wording
+-----------------
+
+At the Kona meeting, the SG1 group expressed concerns about the current wording
+and suggested that it be reworked. The main concern was that the exclusive
+behavior expressed in the *effect* clause wasn't fully correct.
+
+The authors seek comments on the following approach.
+
+The current definition from 1.10 (13) is:
+
+  An evaluation A inter-thread happens before an evaluation B if
+
+  * (13.1) — A synchronizes with B, or
+  * (13.2) — A is dependency-ordered before B, or
+  * (13.3) — for some evaluation X
+
+    - (13.3.1) — A synchronizes with X and X is sequenced before B, or
+    - (13.3.2) — A is sequenced before X and X inter-thread happens before B, or
+    - (13.3.3) — A inter-thread happens before X and X inter-thread happens before B.
+
+An alternate wording could update (13.3.1) and (13.3.2) for the case where X is
+an object fence. In that case, these clauses apply if A's and B's modified
+memory location are named in the fence's objects parameters.
+
+This could be done by either:
+
+1. Adding two new (13.3.*) clauses.
+2. Keeping all the wording updates in 29.8 and declaring an exception to 1.10
+   from there.
 
 ----------------------
 Example implementation
