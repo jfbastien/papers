@@ -1,6 +1,6 @@
-==============================================
-D0153 ``std::atomic_object_fence(mo, T&&...)``
-==============================================
+================================================
+P0153R0 ``std::atomic_object_fence(mo, T&&...)``
+================================================
 
 :Author: Olivier Giroux
 :Contact: ogiroux@nvidia.com
@@ -8,7 +8,7 @@ D0153 ``std::atomic_object_fence(mo, T&&...)``
 :Contact: jfb@google.com
 :Date: 2015-11-05
 :Previous: http://wg21.link/N4522
-:URL: https://github.com/jfbastien/papers/blob/master/source/D0153.rst
+:URL: https://github.com/jfbastien/papers/blob/master/source/P0153R0.rst
 
 ---------
 Rationale
@@ -214,7 +214,7 @@ object is improved by combining these notions as follows:
 
 .. code-block:: c++
 
-  alignas(std::thread::hardware_true_sharing_size) // P0154R0
+  alignas(std::thread::hardware_true_sharing_size) // P0154
   struct barrier {
       // Some member functions elided.
       void arrive_and_wait() {
@@ -223,7 +223,7 @@ object is improved by combining these notions as follows:
           if (result == expected) {
               expected = nexpected.load(memory_order_relaxed);
               arrived.store(0, memory_order_relaxed);
-              atomic_object_fence(memory_order_release, *this); // D0153
+              atomic_object_fence(memory_order_release, *this); // P0153
               epoch.store(myepoch + 1, memory_order_relaxed);
           }
           else
