@@ -170,7 +170,7 @@ fence. This lets the data reads get reordered in-between ticket acquire/release
 by using ``relaxed`` memory ordering for data. The algorithm retries if the
 ticket changed or data was being modified by the writer:
 
-.. _seqlock: http://en.wikipedia.org/wiki/Seqlock
+.. _seqlock: https://en.wikipedia.org/wiki/Seqlock
 
 .. code::
 
@@ -280,7 +280,7 @@ reordering and fusion, or one could use a stronger memory ordering for the
 operations: this optimization is only valid on relaxed operations which aren't
 ordered with respect to each other.
 
-.. _`it is being discussed`: http://llvm.org/bugs/show_bug.cgi?id=16477
+.. _`it is being discussed`: https://llvm.org/bugs/show_bug.cgi?id=16477
 
 A compiler can tag all functions on whether they have atomic instructions or
 not, and optimize around call sites accordingly. This could even be done for all
@@ -478,7 +478,7 @@ ishst`` instead, which would be incorrect on other ARM processors. Some ARM
 processors can go even further and remove all ``dmb`` which aren't system-wide
 because their memory model is much stronger than ARM's prescribed model.
 
-.. _`on Apple's Swift processor`: http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20130701/thread.html#179911
+.. _`on Apple's Swift processor`: http://lists.llvm.org/pipermail/llvm-commits/Week-of-Mon-20130701/thread.html#179911
 
 Some architectures support transactional memory. A compiler can use this
 knowledge to make many consecutive atomic writes into a single atomic
