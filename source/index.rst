@@ -15,6 +15,9 @@ Contents:
   N4509
   N4522
   N4523
+  P0152R0
+  P0153R0
+  P0154R0
 
 
 Indices and tables
