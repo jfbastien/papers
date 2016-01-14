@@ -1,0 +1,11 @@
+sudo: false
+# This repository doesn't contain Python code, but it uses Python tooling.
+language: python
+python:
+  - "2.7"
+install:
+  - pip install Sphinx
+script:
+  - make html
+notifications:
+  email: false
