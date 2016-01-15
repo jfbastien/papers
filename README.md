@@ -14,7 +14,9 @@ final and published when numbered `N` or `P`, and are drafts when numbered
 papers. The paper revision (the `R` part in `P` numbered papers) has to be
 incremented, and a new paper published.
 
-New paper numbers are obtained through the Committee's Vice-Chair.
+New paper numbers are obtained through the Committee's Vice-Chair. The Committee's
+website details [how to submit proposals][].
 
   [the Committee site]: https://isocpp.org/std/the-committee
   [the C++ mailings]: http://open-std.org/jtc1/sc22/wg21/docs/papers/
+  [how to submit proposals]: https://isocpp.org/std/submit-a-proposal
