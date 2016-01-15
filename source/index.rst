@@ -18,6 +18,7 @@ Contents:
   P0152R0
   P0153R0
   P0154R0
+  D0193R0
 
 
 Indices and tables
