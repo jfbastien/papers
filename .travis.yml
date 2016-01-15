@@ -7,5 +7,6 @@ install:
   - pip install Sphinx
 script:
   - make html
+  - ./linkcheck.sh
 notifications:
   email: false
