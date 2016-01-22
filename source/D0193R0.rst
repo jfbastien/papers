@@ -4,7 +4,9 @@ D0193R0 Where is Vectorization in C++‽
 
 :Author: JF Bastien
 :Contact: jfb@google.com
-:Date: 2016-01-??
+:Author: Hans Boehm
+:Contact: hboehm@google.com
+:Date: 2016-01-21
 :URL: https://github.com/jfbastien/papers/blob/master/source/D0193R0.rst
 
 The C++ Standards Committee's Concurrency and Parallelism sub-group (WG21/SG1)
@@ -329,8 +331,8 @@ The following APIs are supported:
 Acknowledgement
 ---------------
 
-Thanks to Hans Boehm, Chandler Carruth, Joel Falcou, Michael Wong, and Robert
-Geva for their review of the pre-publication paper.
+Thanks to Chandler Carruth, Joel Falcou, Michael Wong, and Robert Geva for their
+review of the pre-publication paper.
 
 Thanks to the many vector programming paper authors and SG1 for working
 tirelessly on such a complex topic for years.
