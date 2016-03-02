@@ -90,8 +90,9 @@ by the implementation. It shall be a valid alignment value for any type.
 
 .. code-block:: c++
 
-  struct apart {
-    alignas(hardware_destructive_interference_size) atomic<int> flag1, flag2;
+  struct not_the_same {
+    alignas(hardware_destructive_interference_size) atomic<int> cat;
+    alignas(hardware_destructive_interference_size) atomic<int> dog;
   };
 
 — *end example*]
@@ -109,11 +110,16 @@ occupied by two objects accessed in this manner. — *end note*]
 
 .. code-block:: c++
 
-  alignas(hardware_constructive_interference_size) struct colocated {
-    atomic<int> flag;
-    int tinydata;
+  struct together {
+    atomic<int> dog;
+    int puppy;
   };
-  static_assert(sizeof(colocated) <= hardware_constructive_interference_size);
+  struct venery {
+    // Other data members...
+    alignas(sizeof(together)) together pack;
+    // Other data members...
+  };
+  static_assert(sizeof(together) <= hardware_constructive_interference_size);
 
 — *end example*]
 
