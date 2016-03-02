@@ -114,7 +114,7 @@ occupied by two objects accessed in this manner. — *end note*]
     atomic<int> dog;
     int puppy;
   };
-  struct venery {
+  struct kennel {
     // Other data members...
     alignas(sizeof(together)) together pack;
     // Other data members...
