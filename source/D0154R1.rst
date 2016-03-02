@@ -99,12 +99,9 @@ by the implementation. It shall be at least ``alignof(max_align_t)``.
 
 ``constexpr size_t hardware_constructive_interference_size = implementation-defined;``
 
-This number is the minimum recommended alignment of contiguous memory occupied
-by two objects accessed with temporal locality by concurrent threads. It shall
-be at least ``alignof(max_align_t)``.
-
-[*Note:* This number is also the maximum recommended size of contiguous memory
-occupied by two objects accessed in this manner. — *end note*]
+This number is the maximum recommended size of contiguous memory occupied by two
+objects accessed with temporal locality by concurrent threads. It shall be at
+least ``alignof(max_align_t)``.
 
 [*Example:*
 
