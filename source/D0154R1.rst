@@ -84,7 +84,7 @@ Under 18.6.� Hardware interference size [**hardware.interference**]:
 
 This number is the minimum recommended offset between two concurrently-accessed
 objects to avoid additional performance degradation due to contention introduced
-by the implementation. It shall be a valid alignment value for any type.
+by the implementation. It shall be at least ``alignof(std::max_align_t)``.
 
 [*Example:*
 
@@ -101,7 +101,7 @@ by the implementation. It shall be a valid alignment value for any type.
 
 This number is the minimum recommended alignment of contiguous memory occupied
 by two objects accessed with temporal locality by concurrent threads. It shall
-be a valid alignment value for any type.
+be at least ``alignof(std::max_align_t)``.
 
 [*Note:* This number is also the maximum recommended size of contiguous memory
 occupied by two objects accessed in this manner. — *end note*]
