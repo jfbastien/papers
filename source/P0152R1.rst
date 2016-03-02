@@ -1,5 +1,5 @@
 ====================================================
-D0152R1 ``constexpr atomic<T>::is_always_lock_free``
+P0152R1 ``constexpr atomic<T>::is_always_lock_free``
 ====================================================
 
 :Author: Olivier Giroux
@@ -11,7 +11,7 @@ D0152R1 ``constexpr atomic<T>::is_always_lock_free``
 :Date: 2016-03-02
 :Previous: http://wg21.link/N4509
 :Previous: http://wg21.link/P0152R0
-:URL: https://github.com/jfbastien/papers/blob/master/source/D0152R1.rst
+:URL: https://github.com/jfbastien/papers/blob/master/source/P0152R1.rst
 :Source: https://github.com/jfbastien/papers/blob/master/source/P0152.cc
 
 The current design for ``std::atomic<T>`` affords implementations the critical
