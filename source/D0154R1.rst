@@ -90,7 +90,7 @@ by the implementation. It shall be at least ``alignof(max_align_t)``.
 
 .. code-block:: c++
 
-  struct not_the_same {
+  struct keep_apart {
     alignas(hardware_destructive_interference_size) atomic<int> cat;
     alignas(hardware_destructive_interference_size) atomic<int> dog;
   };
