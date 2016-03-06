@@ -1,32 +1,22 @@
-.. Papers documentation master file, created by
-   sphinx-quickstart on Sun Mar 22 16:26:35 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+C++ standards committee papers by JF Bastien
+============================================
 
-Welcome to Papers's documentation!
-==================================
+Here are a few papers that I've written for the C++ standards committee. This
+list isn't comprehensive and currently only contains the papers which I've moved
+to github_.
 
-Contents:
+ .. _github: https://github.com/jfbastien/papers
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   N4455
   N4509
-  N4522
-  N4523
   P0152R0
   P0152R1
-  P0153R0
+  N4523
   P0154R0
   P0154R1
+  N4522
+  P0153R0
   P0193R0
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
