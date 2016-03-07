@@ -72,8 +72,10 @@ This is the sub-group I attended during the entire week. Here’s an overview of
 * `Light-weight execution agents`_ also made good progress here as well as with the core working group. It’ll make it easier to standardize execution agents which don’t offer strong forward-progress guarantees by clarifying blocking and obstruction-freedom.
 * We removed `plain old function` from the language and improved compatibility with signals_ by defining which functionality can be used from a signal handler.
 * Extensive discussion on `vectorization in C++`_, which has gotten interest from the gaming and low-latency group as well.
+
   - `Parallel for loop`_ and Wavefront_ made progress, allowing developers to express parallelism and dependencies with the goal of getting some vectorization. There are still issues around gather / scatter memory operation ordering, but we’re otherwise moving this to the next parallelism TS.
   - `Vector types`_ and extra considerations_ for their design is in a great shape. We’re still worried about what shuffles will look like, we’re adding some math functions to the specification, and are getting close to putting this into a TS.
+
 * `Concurrent queue`_ and `distributed counters`_ had quite long API design discussions, trying to find what a minimal API could be and whether memory ordering was required in the API.
 * `Abstract execution`_ and executors_ were briefly discussed, as neither of the authors for executors were present. We’re still hoping to get executors into a TS soon, but have to reconcile both designs.
 * `Atomic view`_ saw significant fixes, and there’s still doubt that this is needed beyond being an upgrade mechanism for older code which hasn’t fully moved to modern C++.
