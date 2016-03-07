@@ -1,0 +1,129 @@
+================
+Happy with C++17
+================
+A Jacksonville trip report
+--------------------------
+
+:Author: JF Bastien
+:Contact: jfb@google.com
+:Date: 2016-03-06
+:URL: https://github.com/jfbastien/papers/blob/master/source/2016-02.rst
+
+I just came back from the C++ standards committee in Jacksonville, and I’m not surprised by what the committee voted into C++17. In fact, I’m quite enthused by what we got, and what we’ll get in subsequent C++ version. C++17 will have filesystem_, parallelism_, `library fundamentals`_, `special math`_, a bunch of `library fixes`_ and `language fixes`_.
+
+ .. _filesystem: http://open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0218r0.html
+ .. _parallelism: http://open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0024r1.html
+ .. _`library fundamentals`: http://open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0220r0.html
+ .. _`special math`: http://open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0226r0.pdf
+ .. _`library fixes`: http://libcxx.llvm.org/cxx1z_status.html
+ .. _`language fixes`: http://clang.llvm.org/cxx_status.html#cxx17
+
+It’s not a major release but neither is it a minor release: it’s a release of what the committee deemed ready to ship because C++ now releases on a “train” schedule.
+
+I’m happy, so why is the internet angry_? You were promised_ more in multiple web publications as well as conferences such as CppCon_. Or rather, the committee was overly optimistic when it publicly stated what *could* be in C++17, and the internet rightfully interpreted this as what *would* be in C++17. Sure reddit is angry. You know what? It always has a base of anger, and they have a right to be angry because they were promised something!
+
+ .. _angry: https://www.reddit.com/r/cpp/comments/48zp05/what_we_added_to_the_c17_working_draft/
+ .. _promised: http://www.infoq.com/news/2015/04/stroustrup-cpp17-interview
+ .. _CppCon: https://www.youtube.com/watch?v=p1fqdl6sLMY&list=PLHTh1InhhwT75gykhs7pqcR_uSiG601oh&index=66
+
+C++ doesn’t just need cheerleaders who gets developers enthused: it also needs leaders who focuses the committee to ship great features. Anything else leads to disappointment and discord as we have now. I hope this has taught all of us a lesson and brings the committee together.
+
+What’s in C++17 is great, and I find it insulting to say C++17 has nothing. Consider the parallelism TS: NVIDIA and Intel, who you’d think aren’t best buds, came together on that one and delivered. *You* may not care much for it, but the high-performance computing people love it. They also love the special math functions. Same thing for filesystem which, despite TOCTOU_ security concerns for multi-user systems, made it to C++17. All of these are incremental steps, future C++ releases will build on them. It’s not perfect but it’s pretty damn good.
+
+ .. _TOCTOU: https://en.wikipedia.org/wiki/Time_of_check_to_time_of_use
+
+Many experts voted against the features that didn’t get through. Concepts not getting through shouldn’t be a surprise to anyone on the committee. Consider:
+
+* The author of ranges—which uses concepts extensively—is `surprised anyone wants to ship it`_.
+* The technical specification was only published late last year.
+* A single not-yet-released compiler implements concepts, and was driven by the proposal authors.
+* The core languages working group sent concepts back to the language evolution group.
+* The experts in the room voted against it.
+* Multiple national bodies objected to it.
+
+All signs that something was wrong with concepts. If you were paying attention to the standards committee then you knew this was coming. Unfortunately, if you were paying attention to interviews and conferences then you’re disappointed because your expectations were set on getting concepts. For that the committee should be sorry.
+
+ .. _`surprised anyone wants to ship it`: https://twitter.com/ericniebler/status/702871869435711488
+
+We don’t just want shiny features in C++, we want features which will mature well instead of adding more gotchas. This release helps dampen the old gotchas *and* it adds functionality without, I hope, adding new gotchas.
+
+Compare to Chrome which also does release trains. You miss the train: too bad, wait for the next one in 6 weeks. Chrome still manages to release significant features and trains are `usually on time`_. People don’t get angry when a Chrome feature slips by a release or two. Actually that’s not true, people still get angry because internet. But you know what? People get angrier when we ship something that’s broken.
+
+ .. _`usually on time`: https://www.chromium.org/developers/calendar
+
+C++ may move to a 2-year train, down from its current 3-year target. C++19 hold a lot of promise if people actually collaborate instead of staking their honor on promised features. Let’s not disappoint the internet again!
+
+More and more people are participating in the committee. I’m enthused to see that ARM is now represented, and AMD started attending at the previous meeting. They’re joining hardware vendors such as IBM, NVIDIA and Intel who care because C++ allows developers to better use their hardware, which is becoming critical as Moore’s law dies off. Similarly we’ve got increased participation from the US national labs who work on Exascale and high-performance computing problems. Same for gaming folks, who are joining forces with the finance industry in making C++ shine for low-latency usecases. C++ is you, if your industry isn’t represented you should consider sending a representative!
+
+The committee failed you in setting the wrong expectations. Let’s not do that again. As `ISO Trump++`_ says, ``let’s make C++ operator > again``! Thank you Jacksonville, FL, you did it!
+
+ .. _`ISO Trump++`: https://twitter.com/isotrumpp
+
+
+A few details from the concurrency and parallelism sub-group
+------------------------------------------------------------
+
+This is the sub-group I attended during the entire week. Here’s an overview of what we discussed. Look for the follow-up papers in the post-Jacksonville mailing, which should come out in about 3 weeks.
+
+* We’re going to work on concurrency TS2, which will extend what’s already in `concurrency TS1`_, as well as parallelism TS2 to follow up what we just shipped in C++17.
+* `std::thread and RAII`_ creates a new “safe” thread function which joins when an exception is thrown.
+* `Initialization and thread ids`_ wording was improved. This is full of ill-specified corner cases around thread IDs, static constructors, initialization order, the ID of `main`, and has implications with dynamic linking.
+* We’re making significant progress in fixing `memory_order_consume`_, which is especially useful for concurrent datastructures on ARM and Power. Most importantly we’re now trying to restrict it to only pointers being allowed to carry dependencies which meets the usecase Linux has for consume. Pointer tagging won’t be met in the first version because the C++ language itself needs to support it before consume can. Paul had a great start on defining the semantics of consume, and I’ll work with him to move this forward.
+* `Light-weight execution agents`_ also made good progress here as well as with the core working group. It’ll make it easier to standardize execution agents which don’t offer strong forward-progress guarantees by clarifying blocking and obstruction-freedom.
+* We removed `plain old function` from the language and improved compatibility with signals_ by defining which functionality can be used from a signal handler.
+* Extensive discussion on `vectorization in C++`_, which has gotten interest from the gaming and low-latency group as well.
+  - `Parallel for loop`_ and Wavefront_ made progress, allowing developers to express parallelism and dependencies with the goal of getting some vectorization. There are still issues around gather / scatter memory operation ordering, but we’re otherwise moving this to the next parallelism TS.
+  - `Vector types`_ and extra considerations_ for their design is in a great shape. We’re still worried about what shuffles will look like, we’re adding some math functions to the specification, and are getting close to putting this into a TS.
+* `Concurrent queue`_ and `distributed counters`_ had quite long API design discussions, trying to find what a minimal API could be and whether memory ordering was required in the API.
+* `Abstract execution`_ and executors_ were briefly discussed, as neither of the authors for executors were present. We’re still hoping to get executors into a TS soon, but have to reconcile both designs.
+* `Atomic view`_ saw significant fixes, and there’s still doubt that this is needed beyond being an upgrade mechanism for older code which hasn’t fully moved to modern C++.
+* `Floating-point atomics`_ are being moved to the library working groups, and we’re receiving collaboration from ARM on the paper. The new revision will be exciting!
+* Synchronic_ moved to the library working groups, with the goal of being in the new concurrency TS.
+* `Concurrency toolkit`_ was an entertaining read and a good introduction to `Hazard pointers`_, RCU_, and the `Linux memory model`_. The papers still have a “C” feel to them, and we’re working with the authors to bring these to C++ in a better API.
+* There was an entire evening session on massive parallelism with HPX_ and OpenCL_.
+* We fixed a bunch of issues reported through the core working group.
+
+Ain’t that a train that we’re setting up future C++ releases! And that’s just from the concurrency and parallelism sub-group, one of `14 sub-groups`_.
+
+ .. _`concurrency TS1`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4399.html
+ .. _`std::thread and RAII`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0206r0.html
+ .. _`Initialization and thread ids`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0250r0.html
+ .. _`memory_order_consume`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0190r0.pdf
+ .. _`Light-weight execution agents`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0072r1.pdf
+ .. _signals: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0270r0.html
+ .. _`vectorization in C++`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0193r0.html
+ .. _`parallel for loop`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0075r1.pdf
+ .. _Wavefront: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0076r1.pdf
+ .. _`Vector types`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0214r0.pdf
+ .. _considerations: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0203r0.html
+ .. _`Concurrent queue`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0260r0.html
+ .. _`distributed counters`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0261r0.html
+ .. _`Abstract execution`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0058r1.pdf
+ .. _executors: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0285r0.html
+ .. _`Atomic view`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0019r1.html
+ .. _`Floating-point atomics`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0020r1.html
+ .. _Synchronic: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0126r1.pdf
+ .. _`Concurrency toolkit`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0232r0.pdf
+ .. _`Hazard pointers`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0233r0.pdf
+ .. _RCU: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0279r0.html
+ .. _`Linux memory model`: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0124r1.html
+ .. _HPX: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0234r0.pdf
+ .. _OpenCL: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0236r0.pdf
+ .. _`14 sub-groups`: https://isocpp.org/std/the-committee
+
+
+Upcoming gaming and low-latency sub-group meeting
+-------------------------------------------------
+
+I’m hosting_ the gaming and low-latency sub-group at the Google San-Francisco office on March 14th, during GDC_. Let me or Michael Wong know if you’re interested in attending.
+
+ .. _hosting: https://groups.google.com/a/isocpp.org/d/topic/sg14/qnbWDK9t0gY/discussion
+ .. _GDC: http://www.gdconf.com
+
+
+Next meeting
+------------
+
+The next meeting_ is in Oulu, Finland, at the end of June. It’s so far North during the summer solstice that no evening sessions will be held as there will be no evenings.
+
+ .. _meeting: https://isocpp.org/std/meetings-and-participation/upcoming-meetings
