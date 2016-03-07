@@ -34,14 +34,14 @@ What’s in C++17 is great, and I find it insulting to say C++17 has nothing. Co
 
 Many experts voted against the features that didn’t get through. Concepts not getting through shouldn’t be a surprise to anyone on the committee. Consider:
 
-* The author of ranges—which uses concepts extensively—is `surprised anyone wants to ship it`_.
+* The author of ranges—which uses concepts extensively—is `surprised anyone wants to ship it`_ (despite his reservation, Eric voted *for* concepts because his experience told him C++ was better with them than without).
 * The technical specification was only published late last year.
 * A single not-yet-released compiler implements concepts, and was driven by the proposal authors.
 * The core languages working group sent concepts back to the language evolution group.
 * The experts in the room voted against it.
 * Multiple national bodies objected to it.
 
-All signs that something was wrong with concepts. If you were paying attention to the standards committee then you knew this was coming. Unfortunately, if you were paying attention to interviews and conferences then you’re disappointed because your expectations were set on getting concepts. For that the committee should be sorry.
+All signs that something was wrong with concepts. Everyone on the committee *wants* concepts in the language, but the voting shows that a substantial number of experts didn't deem them ready to ship. If you were paying attention to the standards committee then you knew this was coming. Unfortunately, if you were paying attention to interviews and conferences then you’re disappointed because your expectations were set on getting concepts. For that the committee should be sorry.
 
  .. _`surprised anyone wants to ship it`: https://twitter.com/ericniebler/status/702871869435711488
 
