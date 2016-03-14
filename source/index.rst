@@ -11,13 +11,19 @@ to github_.
   :maxdepth: 1
 
   N4455
-  N4509
-  P0152R0
   P0152R1
-  N4523
-  P0154R0
   P0154R1
-  N4522
   P0153R0
   P0193R0
   2016-02
+
+Previous revisions of the above papers:
+
+.. toctree::
+  :maxdepth: 1
+
+  N4509
+  P0152R0
+  N4523
+  P0154R0
+  N4522
