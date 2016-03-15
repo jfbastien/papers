@@ -156,6 +156,9 @@ Some of the following papers are explored in more details in the next sections.
   - `Light-Weight Execution Agents`_ discusses forward progress guarantees, with
     special attention to the Parralelism TS.
 
+    * `Forward progress guarantees: Base definitions`_ provides some wording.
+    * `Forward progress guarantees for the Parallelism TS v2`_ provides more.
+
 * The Parallelism TS2 hasn't been published yet but is expected to contain
   follow-ups to the Parallelism TS1.
 
@@ -182,7 +185,7 @@ Some of the following papers are explored in more details in the next sections.
  .. _`Should be Standardized`: http://wg21.link/p0024r0
  .. _`Template Library for Index-Based Loops`: http://wg21.link/p0075r0
  .. _`Vector and wavefront policies`: http://wg21.link/p0076r0
- .. _`Light-Weight Execution Agents`: http://wg21.link/p0072r0
+ .. _`Light-Weight Execution Agents`: http://wg21.link/p0072r1
  .. _`The Vector Type & Operations`: http://wg21.link/n4184
  .. _`The Mask Type & Write-Masking`: http://wg21.link/n4185
  .. _`ABI Considerations`: http://wg21.link/n4395
@@ -190,6 +193,8 @@ Some of the following papers are explored in more details in the next sections.
  .. _`A Proposal to add Single Instruction Multiple Data Computation to the Standard Library`: http://wg21.link/n3571
  .. _`Dynamic memory allocation for over-aligned data`: http://wg21.link/p0035r0
  .. _`Considerations for the design of expressive portable SIMD vectors`: http://wg21.link/P0203R0
+ .. _`Forward progress guarantees: Base definitions`: http://wg21.link/P0296R0
+ .. _`Forward progress guarantees for the Parallelism TS v2`: http://wg21.link/P0299R0
 
 
 ----------------------
@@ -344,8 +349,8 @@ The following APIs are supported:
 
 * Unary ``+`` and ``-``.
 * Binary arithmetic, comparison, bitwise, and shift.
-* Subscripting. It's open whether subscripting should be an lvalue reference or
-  a smart reference, though smart reference is currently slightly preferred.
+* Subscripting. It's open whether subscripting should be an `lvalue` reference
+  or a smart reference, though smart reference is currently slightly preferred.
 * Gather and scatter.
 * At the Jacksonville meeting there was strong support for adding `sqrt`, `abs`,
   `min`, `max`, `minnum`, `maxnum`, `copysign`, `modf`, and similar to the
