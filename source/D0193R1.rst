@@ -6,6 +6,7 @@ D0193R1 Where is Vectorization in C++‽
 :Contact: jfb@google.com
 :Author: Hans Boehm
 :Contact: hboehm@google.com
+:Audience: SG1, SG14
 :Date: 2016-03-14
 :URL: https://github.com/jfbastien/papers/blob/master/source/D0193R1.rst
 
@@ -136,22 +137,27 @@ transformations which are suitable to their algorithms and target architectures.
 Latest Papers
 -------------
 
-The following papers are the latest ones being considered by SG1 with respect to
-vector programming. Other papers are obsolete, have been abandoned, or haven't
-been presented to SG1 recently.
+The following papers are the latest ones being considered by SG1 as of the
+`pre-Jacksonville mailing`_ with respect to vector programming. Other papers are
+obsolete, have been abandoned, or haven't been presented to SG1 recently.
 
 Some of the following papers are explored in more details in the next sections.
 
-* The Parallelism TS has a similar API as the STL's ``<algorithm>``
-  header. These algorithms are composable by the developer, who provides
-  iterators to the data and, in some cases, function objects.
+* The Parallelism TS1 has a similar API as the STL's ``<algorithm>`` header and
+  was voted for inclusing into C++17. These algorithms are composable by the
+  developer, who provides iterators to the data and, in some cases, function
+  objects.
 
   - `DTS Ballot Document`_.
   - `Should be Standardized`_.
   - `Template Library for Index-Based Loops`_.
-  - `Vector and wavefront policies`_.
+  - `Vector and wavefront policies`_ is moving to LEWG with the expectation of
+    being in the Parallelism TS2 with a few modifications.
   - `Light-Weight Execution Agents`_ discusses forward progress guarantees, with
     special attention to the Parralelism TS.
+
+* The Parallelism TS2 hasn't been published yet but is expected to contain
+  follow-ups to the Parallelism TS1.
 
 * The SIMD Types proposal exposes types which are fixed-width as well as
   ``typedef`` for wider vectors as appropriate for the target architecture.
@@ -160,6 +166,8 @@ Some of the following papers are explored in more details in the next sections.
   - `The Mask Type & Write-Masking`_.
   - `ABI Considerations`_.
   - `Example: Matrix Multiplication`_.
+  - `Considerations for the design of expressive portable SIMD vectors`_ raises
+    design questions on the above papers.
   - `A Proposal to add Single Instruction Multiple Data Computation to the
     Standard Library`_ pre-dates the The Vector Type & Operations proposal and
     has similar API principles with different API choices and naming. The
@@ -169,6 +177,7 @@ Some of the following papers are explored in more details in the next sections.
 * `Dynamic memory allocation for over-aligned data`_ allows allocating aligned
   data.
 
+ .. _`pre-Jacksonville mailing`: http://open-std.org/jtc1/sc22/wg21/docs/papers/2016#mailing2016-02
  .. _`DTS Ballot Document`: http://wg21.link/N4354
  .. _`Should be Standardized`: http://wg21.link/p0024r0
  .. _`Template Library for Index-Based Loops`: http://wg21.link/p0075r0
@@ -180,6 +189,7 @@ Some of the following papers are explored in more details in the next sections.
  .. _`Example: Matrix Multiplication`: http://wg21.link/n4454
  .. _`A Proposal to add Single Instruction Multiple Data Computation to the Standard Library`: http://wg21.link/n3571
  .. _`Dynamic memory allocation for over-aligned data`: http://wg21.link/p0035r0
+ .. _`Considerations for the design of expressive portable SIMD vectors`: http://wg21.link/P0203R0
 
 
 ----------------------
@@ -239,8 +249,11 @@ Vector and wavefront policies Details
 
 The proposal adds two new execution policies to the Parallelism TS:
 
-* ``unseq_execution_policy``.
-* ``vec_execution_policy``.
+* ``unsequenced_execution_policy``.
+* ``vector_execution_policy``.
+
+Data races
+''''''''''
 
 This paper is contentious in SG1 because examples such as the following have
 ``par_vec`` data races:
@@ -302,6 +315,13 @@ time.
    the problems with (2). But there wasn't much enthusiasm for trying to invent
    something new at this stage.
 
+Scatter ordering
+''''''''''''''''
+
+Another contentious point was whether scatter operations should be ordered by
+default or not. The committee currently leans towards *not* being ordered by
+default.
+
 ------------------------------------
 The Vector Type & Operations Details
 ------------------------------------
@@ -324,8 +344,13 @@ The following APIs are supported:
 
 * Unary ``+`` and ``-``.
 * Binary arithmetic, comparison, bitwise, and shift.
-* Subscripting.
+* Subscripting. It's open whether subscripting should be an lvalue reference or
+  a smart reference, though smart reference is currently slightly preferred.
 * Gather and scatter.
+* At the Jacksonville meeting there was strong support for adding `sqrt`, `abs`,
+  `min`, `max`, `minnum`, `maxnum`, `copysign`, `modf`, and similar to the
+  initial published TS. There was little support for trigonometric functions,
+  these would therefore come in a later revision.
 
 ---------------
 Acknowledgement
