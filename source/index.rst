@@ -14,7 +14,7 @@ to github_.
   P0152R1
   P0154R1
   P0153R0
-  P0193R0
+  P0193R1
   2016-02
 
 Previous revisions of the above papers:
@@ -27,3 +27,4 @@ Previous revisions of the above papers:
   N4523
   P0154R0
   N4522
+  P0193R0
