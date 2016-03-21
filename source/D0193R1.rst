@@ -38,7 +38,8 @@ A similar design approach was taken for the ``<atomic>`` library (as was the
 original motivation for a library-only design for coroutines). In the
 ``<atomic>`` case, interoperability with C was a strong design consideration,
 allowing ``std::atomic`` to be implemented in terms of ``_Atomic`` or vice
-versa, and allowing a program to use both correctly. A library approach allowed
+versa, and allowing a program to use both correctly (despite ``_Atomic`` being
+added to C after ``std::atomic`` was added to C++). A library approach allowed
 the Standard to reason in terms of objects and their lifetime instead of C's
 more error-prone per-access specification where each access has to be consistent
 lest it cause undefined behavior. It also allows implementations to specify
@@ -126,7 +127,7 @@ in time. For example:
 A core optimization which hasn't directly been addressed directly by current
 vector programming proposals is how to restructure data structures and
 algorithms to better fit the current architecture's SIMD width and memory
-hierarchy. C++ data structures have a fixed layout at a very stage in the
+hierarchy. C++ data structures have a fixed layout at every stage in the
 compiler's pipeline, yet in many cases it is beneficial to change
 Array-of-Structures to Structures-of-Arrays. Low-level vector types as well as
 proposed reflection features (c.f. WG21/SG7) can be used to synthesize optimal
@@ -356,6 +357,13 @@ The following APIs are supported:
   `min`, `max`, `minnum`, `maxnum`, `copysign`, `modf`, and similar to the
   initial published TS. There was little support for trigonometric functions,
   these would therefore come in a later revision.
+
+here has been much discussion on how to handle ABI compatibility issues, given
+that machines otherwise considered ABI-compatible routinely support different
+vector instruction sets, and even different vector lengths. They will want to
+use different default vector lengths, and pass vectors in different registers.
+The current SIMD vector types proposal lets the programmer trade off best
+performance from the latest hardware against compatibility with older hardware.
 
 ---------------
 Acknowledgement
