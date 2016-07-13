@@ -65,10 +65,15 @@ Add the following note:
   [Note: Memory orders have the following relative strengths implied by their
   definitions:
 
-<pre>
-    relaxed →       release →   acq_rel → seq_cst
-            ↘                  ↗
-              consume → acquire
+<pre class="railroad-diagram">
+    T: relaxed
+    Choice:
+        T: release
+        Sequence:
+            T: consume
+            T: acquire
+    T: acq_rel
+    T: seq_cst
 </pre>
 
 —end note]
