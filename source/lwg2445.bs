@@ -25,9 +25,8 @@ LWG issue #2445 {#issue}
 
 <blockquote>
 
-  The definitions of compare and exchange in 20.11.2.6
-  [util.smartptr.shared.atomic] p32 and 29.6.5 [atomics.types.operations.req]
-  p20 state:
+  The definitions of compare and exchange in [util.smartptr.shared.atomic] ¶32
+  and [atomics.types.operations.req] ¶21 state:
 
   <blockquote>
 
@@ -39,7 +38,7 @@ LWG issue #2445 {#issue}
 
   The term "stronger" isn't defined by the standard.
 
-  It is hinted at by 29.6.5 [atomics.types.operations.req] p21:
+  It is hinted at by [atomics.types.operations.req] ¶22:
 
   <blockquote>
 
