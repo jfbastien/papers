@@ -1,0 +1,140 @@
+<pre class='metadata'>
+Title: Atomic Failure and Atomic Success
+Shortname: D???
+!Revision: 1
+!Audience: SG1
+Status: FINDING
+Group: WG21
+URL: http://wg21.link/d????
+Editor: JF Bastien, Google, jfb@google.com
+Abstract: Resolve LWG issue #2445 and then some.
+Date: 2016-07-12
+Markup Shorthands: markdown yes
+</pre>
+
+<article hightlight="c++">
+
+Background {#bg}
+==========
+
+<a href="http://wg21.link/lwg2445">LWG issue #2445</a> was discussed and
+resolved by SG1 in Urbana.
+
+LWG issue #2445 {#issue}
+---------------
+
+<blockquote>
+
+  The definitions of compare and exchange in 20.11.2.6
+  [util.smartptr.shared.atomic] p32 and 29.6.5 [atomics.types.operations.req]
+  p20 state:
+
+  <blockquote>
+
+    Requires: The failure argument shall not be `memory_order_release` nor
+    `memory_order_acq_rel`. The failure argument shall be no stronger than the
+    success argument.
+
+  </blockquote>
+
+  The term "stronger" isn't defined by the standard.
+
+  It is hinted at by 29.6.5 [atomics.types.operations.req] p21:
+
+  <blockquote>
+
+    When only one `memory_order` argument is supplied, the value of `success` is
+    `order`, and the value of `failure` is `order` except that a value of
+    `memory_order_acq_rel` shall be replaced by the value `memory_order_acquire`
+    and a value of `memory_order_release` shall be replaced by the value
+    `memory_order_relaxed`.
+
+  </blockquote>
+
+  Should the standard define a partial ordering for memory orders, where consume
+  and acquire are incomparable with release?
+
+</blockquote>
+
+Proposed SG1 resolution from Urbana {#old-res}
+-----------------------------------
+
+Add the following note:
+
+<blockquote><ins>
+
+  [Note: Memory orders have the following relative strengths implied by their
+  definitions:
+
+<pre>
+    relaxed →       release →   acq_rel → seq_cst
+            ↘                  ↗
+              consume → acquire
+</pre>
+
+—end note]
+
+</ins></blockquote>
+
+Further issue {#moar}
+-------------
+
+Nonetheless:
+
+* The resolution isn't on the LWG tracker.
+* The proposed note was never moved to the draft Standard.
+
+Furthermore, the resolution which SG1 came to in Urbana resolves what "stronger"
+means by specifying a lattice, but isn't not clear on what "The failure argument
+shall be no stronger than the success argument" means given the lattice.
+
+There is no relationship, "stronger" or otherwise, between release and
+consume/acquire. The current wording says "shall be no stronger" which isn't the
+same as "shall not be stronger" in this context. Is that on purpose? At a
+minimum it's not clear and should be clarified.
+
+Should the following be valid:
+
+```
+  compare_exchange_strong(x, y, z, memory_order_release, memory_order_acquire);
+```
+
+Or does the code need to be:
+
+```
+  compare_exchange_strong(x, y, z, memory_order_acq_rel, memory_order_acquire);
+```
+
+Similar questions can be asked for `memory_order_consume` ordering on `failure`.
+
+Is there even a point in restricting `success`/`failure` orderings? On
+architectures with load-linked/store-conditional instructions the load and store
+are distinct instructions which can each have their own memory ordering (with
+appropriate leading/trailing fences if required), whereas architectures with
+compare-and-exchange already have a limited set of instructions to choose
+from. The current limitation (assuming LWG #2445 is resolved) only seems to
+restrict compilers on load-linked/store-conditional architectures.
+
+The following code could be valid if the stored data didn't need to be published
+nor ordered, whereas any retry needs to read additional data:
+
+```
+  compare_exchange_strong(x, y, z, memory_order_relaxed, memory_order_acquire);
+```
+
+Even if—for lack of clever instruction—architectures cannot take advantage of
+such code, <a href="http://wg21.link/n4455">compiler are able to optimize
+atomics</a> in all sorts of clever ways.
+
+Updated proposal {#new-res}
+================
+
+TODO
+
+Acknowledgement {#ack}
+===============
+
+Thanks to John McCall for pointing out that the proposed resolution was still
+insufficient, and for providing ample feedback.
+
+</article>
