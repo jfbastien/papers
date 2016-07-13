@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Fail or succeed: there is no atomic lattice
 Shortname: D0418
-!Revision: 1
+Revision: 1
 !Audience: SG1, LWG
 Status: FINDING
 Group: WG21
