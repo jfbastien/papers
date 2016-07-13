@@ -1,11 +1,11 @@
 <pre class='metadata'>
 Title: Fail or succeed: there is no atomic lattice
-Shortname: D???
+Shortname: D0418
 !Revision: 1
 !Audience: SG1, LWG
 Status: FINDING
 Group: WG21
-URL: http://wg21.link/d????
+URL: http://wg21.link/p0418r1
 Editor: JF Bastien, Google, jfb@google.com
 Abstract: Try to resolve LWG issue #2445.
 Date: 2016-07-12
