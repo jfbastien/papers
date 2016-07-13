@@ -128,34 +128,33 @@ atomics</a> in all sorts of clever ways.
 Updated proposal {#new-res}
 ================
 
-This paper proposes removing all restrictions between compare-exchange's
-`success` and `failure` ordering.
+This paper proposes removing the "stronger" restrictions between
+compare-exchange's `success` and `failure` ordering, and doesn't add a lattice
+to order atomic orderings. The only remaining restriction is that
+`memory_order_release` and `memory_order_acq_rel` for `failure` are still
+disallowed: a failed compare-exchange doesn't store, the current model is
+therefore not sensible with these orderings.
 
-Delete [util.smartptr.shared.atomic] ¶32 as follows:
+There have been discussions about `memory_order_release` loads, e.g. for
+seqlock. Such potential changes are left up to future papers.
+
+Modify [util.smartptr.shared.atomic] ¶32 as follows:
 
 <blockquote>
 
-  <del>
-
   Requires: The failure argument shall not be `memory_order_release` nor
-  `memory_order_acq_rel`. The failure argument shall be no stronger than the
-  success argument.
-
-  </del>
+  `memory_order_acq_rel`.<del> The failure argument shall be no stronger than
+  the success argument.</del>
 
 </blockquote>
 
-Delete [atomics.types.operations.req] ¶21 as follows:
+Modify [atomics.types.operations.req] ¶21 as follows:
 
 <blockquote>
 
-  <del>
-
   Requires: The failure argument shall not be `memory_order_release` nor
-  `memory_order_acq_rel`. The failure argument shall be no stronger than the
-  success argument.
-
-  </del>
+  `memory_order_acq_rel`.<del> The failure argument shall be no stronger than
+  the success argument.</del>
 
 </blockquote>
 
@@ -182,10 +181,6 @@ Leave [atomics.types.operations.req] ¶22 as-is:
   operations (1.10). Otherwise, these operations are atomic load operations.
 
 </blockquote>
-
-This paper doesn't propose modifying the above paragraph because it provides
-intuitive default behavior, and any modification would be an unexpected behavior
-change when recompiling existing code.
 
 Acknowledgement {#ack}
 ===============
