@@ -128,7 +128,64 @@ atomics</a> in all sorts of clever ways.
 Updated proposal {#new-res}
 ================
 
-TODO
+This paper proposes removing all restrictions between compare-exchange's
+`success` and `failure` ordering.
+
+Delete [util.smartptr.shared.atomic] ¶32 as follows:
+
+<blockquote>
+
+  <del>
+
+  Requires: The failure argument shall not be `memory_order_release` nor
+  `memory_order_acq_rel`. The failure argument shall be no stronger than the
+  success argument.
+
+  </del>
+
+</blockquote>
+
+Delete [atomics.types.operations.req] ¶21 as follows:
+
+<blockquote>
+
+  <del>
+
+  Requires: The failure argument shall not be `memory_order_release` nor
+  `memory_order_acq_rel`. The failure argument shall be no stronger than the
+  success argument.
+
+  </del>
+
+</blockquote>
+
+Leave [atomics.types.operations.req] ¶22 as-is:
+
+<blockquote>
+
+  Effects: Atomically, compares the contents of the memory pointed to by
+  `object` or by `this` for equality with that in `expected`, and if `true`,
+  replaces the contents of the memory pointed to by `object` or by `this` with
+  that in `desired`, and if `false`, updates the contents of the memory in
+  `expected` with the contents of the memory pointed to by `object` or by
+  `this`. Further, if the comparison is `true`, memory is affected according to
+  the value of `success`, and if the comparison is `false`, memory is affected
+  according to the value of `failure`.
+
+  When only one `memory_order` argument is supplied, the value of `success` is
+  `order`, and the value of `failure` is `order` except that a value of
+  `memory_order_acq_rel` shall be replaced by the value `memory_order_acquire`
+  and a value of `memory_order_release` shall be replaced by the value
+  `memory_order_relaxed`.
+
+  If the operation returns `true`, these operations are atomic read-modify-write
+  operations (1.10). Otherwise, these operations are atomic load operations.
+
+</blockquote>
+
+This paper doesn't propose modifying the above paragraph because it provides
+intuitive default behavior, and any modification would be an unexpected behavior
+change when recompiling existing code.
 
 Acknowledgement {#ack}
 ===============
