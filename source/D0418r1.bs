@@ -12,6 +12,7 @@ Editor: Hans Boehm, Google, hboehm@google.com
 Abstract: Try to resolve LWG issue #2445.
 Date: 2016-07-15
 Markup Shorthands: markdown yes
+Toggle Diffs: yes
 </pre>
 
 Background {#bg}
