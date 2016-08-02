@@ -9,7 +9,7 @@ URL: http://wg21.link/p0418r1
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0418r1.bs">github.com/jfbastien/papers/blob/master/source/P0418r1.bs</a>
 Editor: JF Bastien, Google, cxx@jfbastien.com
 Editor: Hans Boehm, Google, hboehm@google.com
-Abstract: Try to resolve LWG issue #2445.
+Abstract: Try to resolve [[LWG2445]].
 Date: 2016-07-15
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
@@ -18,8 +18,7 @@ Toggle Diffs: yes
 Background {#bg}
 ==========
 
-<a href="http://wg21.link/lwg2445">LWG issue #2445</a> was discussed and
-resolved by SG1 in Urbana.
+[[LWG2445]] was discussed and resolved by SG1 in Urbana.
 
 LWG issue #2445 {#issue}
 ---------------
@@ -117,7 +116,7 @@ architectures with load-linked/store-conditional instructions the load and store
 are distinct instructions which can each have their own memory ordering (with
 appropriate leading/trailing fences if required), whereas architectures with
 compare-and-exchange already have a limited set of instructions to choose
-from. The current limitation (assuming LWG #2445 is resolved) only seems to
+from. The current limitation (assuming [[LWG2445]] is resolved) only seems to
 restrict compilers on load-linked/store-conditional architectures.
 
 The following code could be valid if the stored data didn't need to be published
@@ -128,8 +127,8 @@ nor ordered, whereas any retry needs to read additional data:
 ```
 
 Even if—for lack of clever instruction—architectures cannot take advantage of
-such code, <a href="http://wg21.link/n4455">compiler are able to optimize
-atomics</a> in all sorts of clever ways.
+such code, compiler are able to optimize atomics in all sorts of clever ways as
+discussed in [[N4455]].
 
 Updated proposal {#new-res}
 ================
