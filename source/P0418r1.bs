@@ -3,14 +3,14 @@ Title: Fail or succeed: there is no atomic lattice
 Shortname: P0418
 Revision: 1
 Audience: SG1, LWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/p0418r1
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0418r1.bs">github.com/jfbastien/papers/blob/master/source/P0418r1.bs</a>
 Editor: JF Bastien, Google, cxx@jfbastien.com
 Editor: Hans Boehm, Google, hboehm@google.com
 Abstract: Try to resolve [[LWG2445]].
-Date: 2016-07-15
+Date: 2016-08-02
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
