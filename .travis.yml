@@ -4,7 +4,10 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install Sphinx
+  - pip install sphinx pygments lxml
+  - git clone https://github.com/tabatkins/bikeshed.git
+  - export PATH=$PATH:$PWD/bikeshed/
+  - bikeshed update
 script:
   - make html
   - ./linkcheck.sh
