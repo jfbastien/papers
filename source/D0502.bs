@@ -70,6 +70,24 @@ This paper follows the guidance from *straw poll A*: there is no behavior change
 Proposed Wording {#word}
 ================
 
+Apply the following edits to section 15.5.1 ❡1 note, bullet 1.13:
+
+<blockquote>
+
+  15.5.1 The `std::terminate()` function [**except.terminate**]
+
+  1. In some situations exception handling must be abandoned for less subtle error handling techniques. [ *Note:* These situations are:
+
+  […]
+
+  (1.13) — <ins>for parallel algorithms whose `ExecutionPolicy` specify such behavior (20.19.4, 20.19.5, 20.19.6), </ins>when execution of an element access function (25.2.1) of a parallel algorithm exits via an exception (25.2.4), or
+
+  […]
+
+  *— end note* ]
+
+</blockquote>
+
 Apply the following edits to section 20.19:
 
 <blockquote>
@@ -101,7 +119,7 @@ Apply the following edits to section 25.2.4 [**algorithms.parallel.exceptions**]
 
 <blockquote>
 
-  During the execution of a parallel algorithm, if the invocation of an element access function exits via an uncaught exception, <ins>the behavior is specified by the `ExecutionPolicy`.</ins><del>`terminate()` is called.</del>
+  During the execution of a parallel algorithm, if the invocation of an element access function exits via an uncaught exception, <ins>the behavior is determined by the `ExecutionPolicy`.</ins><del>`terminate()` is called.</del>
 
 </blockquote>
 
