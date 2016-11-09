@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: Throwing out of a parallel algorithm terminates—but how?
-Shortname: D0502
+Shortname: P0502
 Revision: 0
-Audience: SG1, LEWG, LWG
-Status: D
+Audience: SG1, LWG
+Status: P
 Group: WG21
-URL: http://wg21.link/P0502
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0502.bs">github.com/jfbastien/papers/blob/master/source/D0502.bs</a>
+URL: http://wg21.link/P0502r0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0502r0.bs">github.com/jfbastien/papers/blob/master/source/P0502r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Bryce Adelstein Lelbach, Lawrence Berkeley National Laboratory, balelbach@lbl.gov
 Editor: H. Carter Edwards, Sandia National Laboratory, hcedwar@sandia.gov
