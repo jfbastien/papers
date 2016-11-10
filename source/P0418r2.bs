@@ -1,16 +1,16 @@
 <pre class='metadata'>
 Title: Fail or succeed: there is no atomic lattice
 Shortname: P0418
-Revision: 1
+Revision: 2
 Audience: SG1, LWG
 Status: P
 Group: WG21
-URL: http://wg21.link/p0418r1
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0418r1.bs">github.com/jfbastien/papers/blob/master/source/P0418r1.bs</a>
-Editor: JF Bastien, Google, cxx@jfbastien.com
+URL: http://wg21.link/p0418r2
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0418r2.bs">github.com/jfbastien/papers/blob/master/source/P0418r2.bs</a>
+Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Hans Boehm, Google, hboehm@google.com
 Abstract: Try to resolve [[LWG2445]].
-Date: 2016-08-02
+Date: 2016-11-09
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
@@ -20,13 +20,16 @@ Background {#bg}
 
 [[LWG2445]] was discussed and resolved by SG1 in Urbana.
 
+This revision updates [[P0418r1]] with accurate wording for
+[util.smartptr.shared.atomic] ¶32, to be deleted from [[N4606]].
+
 LWG issue #2445 {#issue}
 ---------------
 
 <blockquote>
 
-  The definitions of compare and exchange in [util.smartptr.shared.atomic] ¶32
-  and [atomics.types.operations.req] ¶21 state:
+  The definitions of compare and exchange in [util.smartptr.shared.atomic]
+  ¶32 and [atomics.types.operations.req] ¶21 state:
 
   <blockquote>
 
@@ -62,7 +65,7 @@ Add the following note:
 
 <blockquote><ins>
 
-  [Note: Memory orders have the following relative strengths implied by their
+  [ *Note:* Memory orders have the following relative strengths implied by their
   definitions:
 
 <pre class="railroad-diagram">
@@ -76,7 +79,7 @@ Add the following note:
     T: seq_cst
 </pre>
 
-—end note]
+*—end note* ]
 
 </ins></blockquote>
 
@@ -147,9 +150,9 @@ Modify [util.smartptr.shared.atomic] ¶32 as follows:
 
 <blockquote>
 
-  Requires: The failure argument shall not be `memory_order_release` nor
-  `memory_order_acq_rel`.<del> The failure argument shall be no stronger than
-  the success argument.</del>
+  Requires: <ins>The </ins>failure <ins>argument </ins>shall not be
+  `memory_order_release`<del>,</del><ins> nor</ins> `memory_order_acq_rel`<del>,
+  or stronger than success</del>.
 
 </blockquote>
 
