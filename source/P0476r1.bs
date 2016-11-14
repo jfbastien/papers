@@ -15,6 +15,10 @@ Markup Shorthands: markdown yes
 </pre>
 
 
+This paper is a revision of [[P0476r0]], addressing LEWG comments from the 2016
+Issaquah meeting. See [[#rev]] for details.
+
+
 Background {#bg}
 ==========
 
@@ -26,20 +30,20 @@ rules yet these are the intuitive solutions developers mistakenly turn to.
 Attuned developers use `aligned_storage` with `memcpy`, avoiding alignment
 pitfalls and allowing them to bit-cast non-default-constructible types.
 
-We propose using appropriate concepts to prevent misuse. As our sample
+This proposal uses appropriate concepts to prevent misuse. As the sample
 implementation demonstrates we could as well use `static_assert` or template
 SFINAE, but the timing of this library feature will likely coincide with
 concept's standardization.
 
 Furthermore, it is currently impossible to implement a `constexpr` bit-cast
-function, as `memcpy` itself isn't `constexpr`. Marking our proposed function as
+function, as `memcpy` itself isn't `constexpr`. Marking the proposed function as
 `constexpr` doesn't require or prevent `memcpy` from becoming `constexpr`. This
 leaves implementations free to use their own internal solution (e.g. LLVM has <a
 href="http://llvm.org/docs/LangRef.html#bitcast-to-instruction">a `bitcast`
 opcode</a>).
 
-We propose to standardize this oft-used idiom, and avoid the pitfalls once and
-for all.
+We should standardize this oft-used idiom, and avoid the pitfalls once and for
+all.
 
 
 Proposed Wording {#word}
@@ -151,7 +155,7 @@ The paper was reviewed by LEWG at the 2016 Issaquah meeting:
 
 Straw polls:
 
-* Do we want to see [[P0476R0]] again? unanimous consent.
+* Do we want to see [[P0476r0]] again? unanimous consent.
 * `bit_cast` should allow pointer types in `To` and `From`. **SF F N A SA** 4 5 4 2 1
 * `bit_cast` should be `constexpr`? **SF F N A SA** 4 3 7 2 3
 
