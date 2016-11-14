@@ -119,7 +119,7 @@ Conclusion 1. above is addressable by developers, but the authors believe that
 this Standard should prevent this dangerous usage of compare-and-exchange. This
 is better handled as a requirement of the methods than as a QoI warning.
 
-The authors therefore propose adding a `requires` clause to all the
+The authors therefore propose using concepts' `requires` clause to all the
 compare-and-exchange functions, forbidding their usage on a type which has
 padding bits. All other `std::atomic` operations would remain valid, only
 compare-and-exchange would become a compilation error if used.
@@ -185,8 +185,9 @@ Standards Can Only Be Understood Backward, they Must Lived Forward {#life}
 ------------------------------------------------------------------
 
 We find ourselves unable to use `has_unique_object_representations`, which was
-intended for `std::hash` but was hoped to also be usable for our present
-usecase. We thus propose a new type trait, tentatively named `has_padding_bits`.
+intended for future `std::hash` proposals but was hoped to also be usable for
+our present usecase. We thus propose a new type trait, tentatively named
+`has_padding_bits`.
 
 If this sounds familar, that's because it is:
 
@@ -206,7 +207,7 @@ The reader now also understands this paper's Benjamin Button theme.
 Proposed Wording {#word}
 ================
 
-Issue: add proposed wording. What should it be based on?
+Issue: add proposed wording. What should it be based on? Probably based on the size of each member. `(sizeof(leaf_members_pack<T>) + ...) == sizeof(T)`
 
 
 Sample Program {#sample}
