@@ -14,6 +14,10 @@ Date: 2016-11-12
 Markup Shorthands: markdown yes
 </pre>
 
+This issue has been discussed by the authors at every recent Standards meetings,
+yet a solution has been elusive. We believe that this proposal can fix this
+oft-encountered problem once and for all.
+
 
 Story Time {#story}
 ==========
