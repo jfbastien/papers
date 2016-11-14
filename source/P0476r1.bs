@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Bit-casting object representations
 Shortname: P0476
-Revision: 0
+Revision: 1
 Audience: LEWG, LWG, CWG
 Status: P
 Group: WG21
