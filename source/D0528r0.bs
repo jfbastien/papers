@@ -203,7 +203,7 @@ has_unique_object_representations_v<T>` on the compare-and-exchange members of
 `std::atomic<T>` would—among other things—forbid using compare-and-exchange on
 complex numbers. The authors believe this is unacceptable.
 
-Standards Can Only Be Understood Backward, they Must Lived Forward {#life}
+Standards Can Only Be Understood Backward, they Must Be Lived Forward {#life}
 ------------------------------------------------------------------
 
 We find ourselves unable to use `has_unique_object_representations`, which was
