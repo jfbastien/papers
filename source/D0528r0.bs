@@ -207,8 +207,67 @@ The reader now also understands this paper's Benjamin Button theme.
 Proposed Wording {#word}
 ================
 
-Issue: add proposed wording. What should it be based on? Probably based on the size of each member. `(sizeof(leaf_members_pack<T>) + ...) == sizeof(T)`
+Add a new typetrait:
 
+Header <type_traits> synopsis [meta.type.synop] {#word-trait-synop}
+----------------
+
+<blockquote>
+<ins>
+  `template <class T> struct has_padding_bits;`
+</ins>
+</blockquote>
+
+Type properties [meta.unary.prop] {#word-trait-prop}
+----------------
+
+Add to table - Type property predicates.
+
+<blockquote>
+<ins>
+<table>
+  <thead>
+    <tr>
+      <th>Template</th>
+      <th>Condition</th>
+      <th>Preconditions</th>
+    </tr>
+  </thead>
+  <tr>
+    <td>`template <class T> struct has_padding_bits;`</td>
+    <td>For an array type `T`, the same result as
+        `has_padding_bits<remove_all_extents_t<T>>::value`, otherwise
+        <em>see below</em></td>
+    <td>`T` shall be a complete type, (possibly cv-qualified) `void`, or an
+        array of unknown bound.</td>
+  </tr>
+</table>
+</ins>
+</blockquote>
+
+Add a paragraph.
+
+<blockquote>
+<ins>
+The predicate condition for a template specialization
+`has_padding_bits<T>::value` shall be satisfied if and only if:
+
+T is trivially copyable, and
+
+the object representation of any object of type T contains no bits which do not
+participate in its value representation.
+  
+</ins>
+</blockquote>
+
+[<strong>atomics.types.operations.req</strong>] - compare_exchange_* {#word-cmpxchg}
+---------------
+
+<blockquote>
+  <em>Requires:</em> The `failure` argument shall not be `memory_order_release`
+  nor `memory_order_acq_rel`. The `failure` argument shall be no stronger than
+  the `success` argument. <ins>`has_padding_bits<C>::value` shall be false.</ins>
+</blockquote>
 
 Sample Program {#sample}
 ==============
