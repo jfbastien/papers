@@ -82,22 +82,39 @@ The common example where this happens is when signaling `NaN`s are present: some
 platforms canonicalize them to quiet a `NaN`. This is a similar problem to
 padding bits: copying can change the object representation.
 
+You Never Know What's Storing {#store}
+-----------------------------
+
+Another surprising case is when atomic `store` or `exchange` operations are
+implemented using compare-and-exchange. This happens when the target
+architecture doesn't have a suitably-sized `store` or `exchange` instructions,
+but has an appropriate `cmpxchg` or load-linked / store-conditional. To
+guarantee lock-freedom, implementations rely on compare-and-exchange. This is
+transparent to the developer, but can lead to permanent failure to `store` or
+`exchange` if padding bits are present.
+
+The same implementation approach is possible for `load`s, but failure to perform
+an idempotent compare-and-exchange is the same as a `load`, regardless of
+padding bits since it yields the previous value.
+
 Defining the Opportunities We'll Miss {#miss}
 -------------------------------------
 
-While the problem is valid for `union` and some scalar representations, the
-authors believe that it is separate from that of padding bits on
-`struct`s. Indeed, all `struct` with padding bits exhibit this problem, whereas
-only limited scalar values are affected. The same applies for `union`: the issue
-can only surface when the widest member isn't the active member (though `union`s
-do suffer of the padding problem). We don't believe `std::atomic<bool>` suffers
-from this problem.
+This problem is valid for `union`, some scalar representations, and some `store`
+/ `exchange` implementations. The authors nonetheless believe that it is a
+separable from that of padding bits on `struct`s. Indeed, all `struct` with
+padding bits exhibit this problem, whereas only limited scalar values are
+affected. The same applies for `union`: the issue can only surface when the
+widest member isn't the active member (though `union`s do suffer of the padding
+problem). Only some `store` / `exchange` implementations are affected, in which
+case their `struct`s with padding bits are also affected. We don't believe
+`std::atomic<bool>` suffers from this problem.
 
 Put another way: compare-and-exchange of a `struct` with padding bits is
 <strong>always</strong> wrong, whereas the other similar issues are
 <strong>sometimes</strong> wrong.
 
-This leads us to two conclusions:
+This leads us to the following conclusions:
 
   1. For types with padding bits a simple solution exists using the existing
      Standard: developers should explicitly define padding members if they
@@ -110,7 +127,12 @@ This leads us to two conclusions:
      multiple object representations. All other values of that type can be
      compare-and-exchanged without issue.
 
-This paper only addresses the former.
+  3. Implementations which rely on compare-and-exchange for the `store` and
+     `exchange` functions of certain instantiations of `atomic<T>` could apply a
+     similar solution to that proposed in this paper. The authors are interested
+     in writing a separate paper to address the issue.
+
+This paper only addresses the first conclusion.
 
 Making the Greatest Impression {#impression}
 ------------------------------
