@@ -284,8 +284,19 @@ Add the following paragraph:
     `has_padding_bits<T>::value` shall be satisfied if and only if:</ins>
 
   * <ins>`T` is trivially copyable, and</ins>
-  * <ins>the object representation of any object of type `T` contains no bits
-    which do not participate in its value representation.</ins>
+  * <ins>there exists at least one bit in the object representations of an
+    object of type `T` which never participates in the value representation.
+    </ins>
+    
+</blockquote>
+    
+Or alternatively for the 2nd bullet:
+
+<blockquote>
+
+  * <ins>given two objects of type `T`, for each bit in their object
+    representations that bit does not participate in their value
+    representations.</ins>
 
 </blockquote>
 
