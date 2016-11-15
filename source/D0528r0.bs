@@ -207,24 +207,18 @@ The reader now also understands this paper's Benjamin Button theme.
 Proposed Wording {#word}
 ================
 
+Header `<type_traits>` synopsis [<strong>meta.type.synop</strong>] {#word-meta-type-synop}
+------------------------------------------------------------------
+
 Add a new typetrait:
 
-Header <type_traits> synopsis [meta.type.synop] {#word-trait-synop}
-----------------
+<pre><ins>template &lt;class T&gt; struct has_padding_bits;</ins></pre>
 
-<blockquote>
-<ins>
-  `template <class T> struct has_padding_bits;`
-</ins>
-</blockquote>
+Type properties [<strong>meta.unary.prop</strong>] {#word-mta-unary-prop}
+--------------------------------------------------
 
-Type properties [meta.unary.prop] {#word-trait-prop}
-----------------
+Add to Table — Type property predicates:
 
-Add to table - Type property predicates.
-
-<blockquote>
-<ins>
 <table>
   <thead>
     <tr>
@@ -234,40 +228,104 @@ Add to table - Type property predicates.
     </tr>
   </thead>
   <tr>
-    <td>`template <class T> struct has_padding_bits;`</td>
-    <td>For an array type `T`, the same result as
-        `has_padding_bits<remove_all_extents_t<T>>::value`, otherwise
-        <em>see below</em></td>
-    <td>`T` shall be a complete type, (possibly cv-qualified) `void`, or an
-        array of unknown bound.</td>
+    <td>᠁</td>
+    <td>᠁</td>
+    <td>᠁</td>
+  </tr>
+  <tr>
+    <td><pre><ins>template &lt;class T&gt; struct has_padding_bits;</ins></pre></td>
+    <td>
+    <ins>
+      For an array type `T`, the same result as
+      `has_padding_bits<remove_all_extents_t<T>>::value`, otherwise
+      <em>see below</em></td>
+    </ins>
+    <td>
+    <ins>
+      `T` shall be a complete type, (possibly cv-qualified) `void`, or an
+      array of unknown bound.
+    </ins>
+    </td>
+  </tr>
+  <tr>
+    <td>᠁</td>
+    <td>᠁</td>
+    <td>᠁</td>
   </tr>
 </table>
-</ins>
-</blockquote>
 
-Add a paragraph.
+Add the following paragraph:
 
 <blockquote>
-<ins>
-The predicate condition for a template specialization
-`has_padding_bits<T>::value` shall be satisfied if and only if:
 
-T is trivially copyable, and
+  <ins>The predicate condition for a template specialization
+    `has_padding_bits<T>::value` shall be satisfied if and only if:</ins>
 
-the object representation of any object of type T contains no bits which do not
-participate in its value representation.
-  
-</ins>
+  * <ins>`T` is trivially copyable, and</ins>
+  * <ins>the object representation of any object of type `T` contains no bits
+    which do not participate in its value representation.</ins>
+
 </blockquote>
 
-[<strong>atomics.types.operations.req</strong>] - compare_exchange_* {#word-cmpxchg}
----------------
+Requirements for operations on atomic types [<strong>atomics.types.operations.req</strong>] {#word-atomics-types-operations-req}
+-------------------------------------------------------------------------------------------
+
+Precede each of the following functions:
+
+* `atomic_compare_exchange_weak`
+* `atomic_compare_exchange_strong`
+* `atomic_compare_exchange_weak_explicit`
+* `atomic_compare_exchange_strong_explicit`
+* `A::atomic_compare_exchange_weak`
+* `A::atomic_compare_exchange_strong`
+
+With this concept: <ins>requires `has_padding_bits<C>::value`</ins>.
+
+Update the following paragraph:
 
 <blockquote>
+
   <em>Requires:</em> The `failure` argument shall not be `memory_order_release`
-  nor `memory_order_acq_rel`. The `failure` argument shall be no stronger than
-  the `success` argument. <ins>`has_padding_bits<C>::value` shall be false.</ins>
+  nor `memory_order_acq_rel`. <ins>`has_padding_bits<C>::value` shall be
+  `false`.</ins>
+
 </blockquote>
+
+Update the following note:
+
+<blockquote>
+
+  [ <em>Note:</em>
+
+  The `memcpy` and `memcmp` semantics of the compare-and-exchange operations may
+  result in failed comparisons for values that compare equal with `operator==`
+  if the underlying type has padding bits, trap bits, or alternate
+  representations of the same value. Thus, <del>`compare_exchange_strong`</del>
+  <ins>compare-and-exchange operations</ins> should be used with extreme
+  care.<del> On the other hand, `compare_exchange_weak` should converge
+  rapidly.</del>
+
+  <em>— end note</em> ]
+
+</blockquote>
+
+Atomic types [<strong>atomics.types.generic</strong>] {#word-atomics-types-generic}
+-----------------------------------------------------
+
+For all functions modified in [[#word-atomics-types-operations-req]], add the
+same concepts to `atomic<T>`'s `compare_exchange_weak` and
+`compare_exchange_strong` and all its specializations.
+
+Header `<atomic>` synopsis [<strong>atomics.syn</strong>] {#word-atomics.syn}
+---------------------------------------------------------
+
+Add the same concept for all overloads of the following free function:
+
+* `atomic_compare_exchange_weak`
+* `atomic_compare_exchange_strong`
+* `atomic_compare_exchange_weak_explicit`
+* `atomic_compare_exchange_strong_explicit`
+
 
 Sample Program {#sample}
 ==============
