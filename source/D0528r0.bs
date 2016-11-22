@@ -236,6 +236,10 @@ Add a new typetrait:
 
 <pre><ins>template &lt;class T&gt; struct has_padding_bits;</ins></pre>
 
+and:
+
+<pre><ins>template &lt;class T&gt; constexpr bool has_padding_bits_v = has_padding_bits&lt;T&gt;::value;</ins></pre>
+
 Type properties [<strong>meta.unary.prop</strong>] {#word-mta-unary-prop}
 --------------------------------------------------
 
@@ -312,14 +316,14 @@ Precede each of the following functions:
 * `A::atomic_compare_exchange_weak`
 * `A::atomic_compare_exchange_strong`
 
-With this concept: <ins>requires `has_padding_bits<C>::value`</ins>.
+With this concept: <ins>requires `has_padding_bits_v<C>`</ins>.
 
 Update the following paragraph:
 
 <blockquote>
 
   <em>Requires:</em> The `failure` argument shall not be `memory_order_release`
-  nor `memory_order_acq_rel`. <ins>`has_padding_bits<C>::value` shall be
+  nor `memory_order_acq_rel`. <ins>`has_padding_bits_v<C>` shall be
   `false`.</ins>
 
 </blockquote>
@@ -332,11 +336,12 @@ Update the following note:
 
   The `memcpy` and `memcmp` semantics of the compare-and-exchange operations may
   result in failed comparisons for values that compare equal with `operator==`
-  if the underlying type has padding bits, trap bits, or alternate
-  representations of the same value. Thus, <del>`compare_exchange_strong`</del>
-  <ins>compare-and-exchange operations</ins> should be used with extreme
-  care.<del> On the other hand, `compare_exchange_weak` should converge
-  rapidly.</del>
+  if the underlying type has <del>padding bits</del><ins>bits which don't
+  participate in active member's value representation</ins>, trap bits, or
+  alternate representations of the same value. Thus,
+  <del>`compare_exchange_strong`</del><ins>compare-and-exchange operations</ins>
+  should be used with extreme care.<del> On the other hand,
+  `compare_exchange_weak` should converge rapidly.</del>
 
   <em>— end note</em> ]
 
