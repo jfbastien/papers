@@ -64,7 +64,7 @@ sign bit regardless of NaN-ness.
 `Math.sign` {#sign}
 -----------
 
-JavaScript provides `math.sign` which is specified as follows:
+JavaScript provides `Math.sign` which is specified as follows:
 
 <blockquote>
 
