@@ -2,17 +2,19 @@
 Title: Math.signbit
 Shortname: Math.signbit
 Revision: 0
-Status: DREAM
+Status: Stage1
 Group: TC39
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/Math.signbit.bs">github.com/jfbastien/papers/blob/master/source/Math.signbit.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
+ED:
 Abstract:
-Date: 2017-01-20
+Date: 2017-01-26
 Markup Shorthands: markdown yes
 </pre>
 
-IEEE 754 has a precise meaning sign bit. JavaScript's `Math.sign` falls short on
-`-0.0` and `+0.0`.
+IEEE 754 has a precise meaning for *sign bit*. JavaScript's `Math.sign` falls
+short on `-0.0` and `+0.0`. This is a shortcoming of a "batteries included"
+approach to language design.
 
 Correctly obtaining the sign bit of a Number in JavaScript is somewhat
 unintuitive: the naïve `x < 0` approach fails if `x` is `-0.0` because `0.0` and
@@ -20,12 +22,23 @@ unintuitive: the naïve `x < 0` approach fails if `x` is `-0.0` because `0.0` an
 
 One can instead rely on division by zero returning one of `-Infinity` or
 `+Infinity`: `1.0 / x < 0`. This now has the interesting caveat of returning
-`NaN` if `x` was `NaN`. It's also highly counter-intuitive, and is a shortcoming
-of a "batteries included" approach to language design.
+`NaN` if `x` was `NaN`. It's also highly counter-intuitive.
+
+JavaScript aficionado will know that `Object.is(-0, x)` will return `true` when
+`x` is `-0` but not when it's `0`. This is surprising for developers who are
+more numerics-oriented than object-—dare I say prototype-?—oriented. These
+developers just want the sign bit, IEEE 754 has a very precise definition of
+what the sign bit is, and why can't JavaScript just give them the sign bit?
 
 This issue [has been discussed previously](https://esdiscuss.org/topic/math-sign-vs-0)
 but was never addressed. We believe that this proposal can fix this
 oft-encountered problem once and for all.
+
+
+Revision History {#rev}
+================
+
+* Presented at the [2017-01](https://github.com/tc39/agendas/blob/master/2017/01.md) TC39 meeting and moved to Stage 1.
 
 
 Background {#bg}
@@ -48,10 +61,10 @@ The following operations are defined:
 C / C++ {#cpp}
 -------
 
-[[C]] and [[Cpp]] define `signbit` in `<math.h>` and `<cmath>`
-respectively. It returns a nonzero `int` value if and only if the sign of its
-argument value is negative. The signbit macro reports the sign of all values,
-including infinities, zeros, and NaNs.
+[[C]] and [[Cpp]] define `signbit` in `<math.h>` and `<cmath>` respectively. It
+returns a nonzero `int` value if and only if the sign of its argument value is
+negative. The `signbit` macro reports the sign of all values, including
+infinities, zeros, and NaNs.
 
 Go {#go}
 ---
