@@ -1,0 +1,169 @@
+<pre class='metadata'>
+Title: Tearable Atomics
+Shortname: P????
+Revision: 0
+Audience: SG1
+Status: D
+Group: WG21
+URL: http://wg21.link/P????
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/tearable-atomics.bs">github.com/jfbastien/papers/blob/master/source/tearable-atomics.bs</a>
+Editor: JF Bastien, Apple, jfbastien@apple.com
+Abstract: Atomics which can tear—which are more relaxed than relaxed—seem useless. This paper shows otherwise.
+Date: 2017-06-14
+Markup Shorthands: markdown yes
+</pre>
+
+Advanced concurrency and parallelism users will sometimes find a need for
+objects which are accessed by multiple threads, yet either:
+
+  1. Rely on separate atomic objects to provide inter-thread observability
+     guarantees; or
+  2. Use lock-free accesses on a memory locations on which they would also like
+     to speculate.
+
+These types of issue are discussed in the concurrency and parallelism group from
+time to time, and so far only one-off solutions have been proposed, or the
+problem has been punted. We believe that this proposal can fix this interesting
+problem problem once and for all.
+
+Is it useful for C++ to support "tearable" atomic memory ordering, where the
+access participates in atomic ordering as strongly as `memory_order_relaxed`
+accesses, but where the memory is allowed to tear (i.e. isn't single-copy
+atomic). In C++ standards speak: particular atomic object are **not**
+indivisible with respect to all other atomic accesses to that object.
+
+To assembly programmers, or to those used to memory models such as
+[Linux's memory model](https://wg21.link/p0124), the distinction we're making
+seems overly complex. Their code simply defines atomicity as a property or
+*code* rather than C++'s definition of atomicity as a property of *particular
+memory locations*. Indeed, in assembly a memory location can be concurrently
+accessed with a regular non-atomic memory instruction as well as an atomic
+memory instruction.
+
+Usecases {#usecases}
+========
+
+Sample usecases include:
+
+  1. Sequence locks
+  2. Work-stealing deque
+
+Others exist, but we will focus on these two.
+
+Seqlock {#seqlock}
+-------
+
+In the case of sequence locks, the data being protected can be accessed
+non-atomically and is known to be race-free if the sequence number hasn't
+changed before and after the data was retrieved, and if it isn't "tagged" as
+being modified (below, by being odd):
+
+<xmp>
+template<typename T>
+struct Data {
+  std::atomic<unsigned> sequence_number = 0;
+  std::atomic<T> value0;
+  std::atomic<T> value1;
+};
+
+std::tuple<T, T> reader(const Data& data) {
+  T value0, value1;
+  unsigned sequence_before, sequence_after;
+  do {
+    sequence_before = data.sequence_number.load(std::memory_order_acquire);
+    value0 = data.value0.load(std::memory_order_relaxed);
+    value1 = data.value1.load(std::memory_order_relaxed);
+    std::atomic_thread_fence(std::memory_order_acquire);
+    sequence_after = data.sequence_number.load(std::memory_order_relaxed);
+  } while (sequence_before != sequence_after || sequence_before & 1);
+  return {value0, value1};
+}
+
+void writer(Data& data, T value0, T value1) {
+  auto sequence_start = data.sequence_number.load(std::memory_order_relaxed);
+  data.sequence_number.store(sequence_start + 1, std::memory_order_relaxed);
+  data.value0.store(value0, std::memory_order_release);
+  data.value1.store(value1, std::memory_order_release);
+  data.sequence_number.store(sequence_start + 2, std::memory_order_release);
+}
+</xmp>
+
+Notice that in C++ the values being protected must be atomic because this
+algorithm doesn't use more common acquire / release patterns which C++
+encourages. One would need to add fences for non-atomic accesses to not be racy.
+
+A more in-depth
+[discussion of seqlock](http://safari.ece.cmu.edu/MSPC2012/slides_posters/boehm-slides.pdf)
+is available.
+
+For the purpose of our discussion, it is especially interesting to consides
+value types `T` which are never lock-free.
+
+Work-Stealing Deque {#wsdeque}
+-------------------
+
+Issue: FIXME Billy! Include some code, and explain speculation.
+
+In this example, all lock-free operations (including load/store) *must* be
+implemented as a compare-and-exchange or load-linked/store-conditional:
+
+  * On recent x86 using `cmpxchg16b`.
+  * On A32 without LPAE using `ldrexd`, `clrex`, and `strexd`.
+
+This memory access can then be used as a tearable load / store, potentially
+cheaper than a compare-and-exchange, as long as a compare-and-exchange retry
+loop follows it to handle races. If tearing occurs then the compare-and-exchange
+does the right thing.
+
+  * On x86 using two `movq` instructions (two instructions are never locked and
+    can tear).
+  * On A32 using `ldrd` (without LPAE the instruction isn't single-copy atomic).
+
+Further Considerations {#moar}
+----------------------
+
+Extrapolating from the above examples, it is also useful to consider a few extra
+usecases where:
+
+  * Alignment of the datastructures is purposefully *not* natural. `std::atomic`
+    is specified as always being suitably aligned by the implementation.
+  * Padding of the datastructure isn't the same as that mandated by
+    `std::atomic`.
+  * The datastructure isn't always accessed by memory operations of the same
+    byte-size. This could occur without dangerous type aliasing by using
+    properly type-punned `union` or `std::variant`, as well as with SIMD types
+    that sometimes perform element accesses.
+  * The datastructure being accessed is large, making it non-lock-free and
+    requiring an implementation-provided lock. Many implementations rely on lock
+    sharding for this, but some embed a lock in every large `std::atomic`
+    object.
+
+Solutions {#solutions}
+=========
+
+There are many solutions to this problem. This paper hopes to round up what has
+been suggested before, leading to a discussion in the concurrency and
+parallelism group. This discussion should end in straw polls which provide
+guidance on where the committee would like to go next with this issue.
+
+  1. [Atomic views](https://wg21.link/p0019r5) tackle some of the issues
+     discussed here, but in an environment where data access patterns follow
+     *epochs*. For parts of runtime the view are accessed non-atomically, and
+     for other parts of runtime they are accessed atomically.
+  2. A paper on [thin air values](https://wg21.link/n3710) discussed adding
+     `non_atomic_load()`, `non_atomic_store()`, and `race_or<T>` type (similar
+     to `std::optional` or `std::expected` but for racy / indeterminate
+     results).
+  3. [Safe memcpy](https://wg21.link/p0603r0) proposes addressing the seqlock
+     example with `nonatomic_load()` and `nonatomic_store()` functions.
+  4. We also offer a new approach: a new memory order type,
+     `memory_order_tearing`, which has the same semantics as
+     `memory_order_relaxed` but which is allowed to tear. And, of course,
+     `memory_order_tearing` has the neat properly of being spelled with the same
+     number of characters as the other 6 memory orderings.
+
+Not all of these approaches address all the issues discussed
+previously—e.g. `memory_order_tearing` does not address the issue of large
+non-lock-free `T`—we therefore hope that the concurency and parallelism's group
+will find the wisdom required to weigh each issue and decide which solution fits
+them best.
