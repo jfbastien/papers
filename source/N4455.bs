@@ -179,7 +179,7 @@ ticket changed or data was being modified by the writer:
     } while (seq0 != seq1 || seq0 &amp; 1);
     return {d1, d2};
   }
-  
+
   void writer(T d1, T d2) {
     unsigned seq0 = seq.load(std::memory_order_relaxed);
     seq.store(seq0 + 1, std::memory_order_relaxed);
@@ -228,7 +228,7 @@ This rewritten code then generates the following x86 assembly:
 This x86 assembly reduces contention by replacing <code>fetch_add</code>—an
 instruction requiring exclusive cache line access—to a simple
 <code>movl</code>. This optimization is currently only known to be correct on
-x86, is probably correct for other architectures, and is <a href="http://reviews.llvm.org/D5091">currently implemented
+x86, is probably correct for other architectures, and is <a href="https://reviews.llvm.org/D5091">currently implemented
 in LLVM</a>.
 
 Similar to the above <code>release</code> fetch-add of zero serving as a
@@ -286,7 +286,7 @@ Fence instructions are generated as a consequence of C++'s
 operations. Fence instructions tend to be expensive, and removing redundant ones
 as well as positioning them optimally leads to great performance gains, while
 keeping the code correct and simple. This is <a
-href="http://reviews.llvm.org/D5758">currently under review in LLVM</a>.
+href="https://reviews.llvm.org/D5758">currently under review in LLVM</a>.
 
 Not all compiler optimizations are valid on atomics, this topic is still under
 <a href="http://www.di.ens.fr/~zappa/readings/c11comp.pdf">active research</a>.
@@ -296,7 +296,7 @@ Optimizations Around Atomics {#opt-around}
 
 Compilers can optimize non-atomic memory accesses before and after atomic
 accesses. A somewhat surprising example is that the following code can be (<a
-href="http://reviews.llvm.org/D4845">and is</a>!) transformed as shown, where
+href="https://reviews.llvm.org/D4845">and is</a>!) transformed as shown, where
 <code>x</code> is a non-atomic global.
 
 <pre highlight="c++">

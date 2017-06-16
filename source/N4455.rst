@@ -186,7 +186,7 @@ ticket changed or data was being modified by the writer:
     } while (seq0 != seq1 || seq0 & 1);
     return {d1, d2};
   }
-  
+
   void writer(T d1, T d2) {
     unsigned seq0 = seq.load(std::memory_order_relaxed);
     seq.store(seq0 + 1, std::memory_order_relaxed);
@@ -236,7 +236,7 @@ requiring exclusive cache line access—to a simple ``movl``. This optimization 
 currently only known to be correct on x86, is probably correct for other
 architectures, and is `currently implemented in LLVM`_.
 
-.. _`currently implemented in LLVM`: http://reviews.llvm.org/D5091
+.. _`currently implemented in LLVM`: https://reviews.llvm.org/D5091
 
 Similar to the above ``release`` fetch-add of zero serving as a ``release``
 load, one could also use an ``acquire`` exchange when an ``acquire`` store is
@@ -295,7 +295,7 @@ operations. Fence instructions tend to be expensive, and removing redundant ones
 as well as positioning them optimally leads to great performance gains, while
 keeping the code correct and simple. This is `currently under review in LLVM`_.
 
-.. _`currently under review in LLVM`: http://reviews.llvm.org/D5758
+.. _`currently under review in LLVM`: https://reviews.llvm.org/D5758
 
 Not all compiler optimizations are valid on atomics, this topic is still under
 `active research`_.
@@ -309,7 +309,7 @@ Compilers can optimize non-atomic memory accesses before and after atomic
 accesses. A somewhat surprising example is that the following code can be (`and
 is`_!) transformed as shown, where ``x`` is a non-atomic global.
 
-.. _`and is`: http://reviews.llvm.org/D4845
+.. _`and is`: https://reviews.llvm.org/D4845
 
 .. code::
 
