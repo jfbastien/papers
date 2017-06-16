@@ -8,6 +8,7 @@ Group: WG21
 URL: http://wg21.link/P????
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/tearable-atomics.bs">github.com/jfbastien/papers/blob/master/source/tearable-atomics.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
+Editor: Billy Robert O'Neal III, Microsoft, bion@microsoft.com
 Abstract: Atomics which can tear—which are more relaxed than relaxed—seem useless. This paper shows otherwise.
 Date: 2017-06-14
 Markup Shorthands: markdown yes
