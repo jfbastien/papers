@@ -8,6 +8,7 @@ Group: WG21
 URL: http://wg21.link/P????
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/tearable-atomics.bs">github.com/jfbastien/papers/blob/master/source/tearable-atomics.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
+Editor: Billy Robert O'Neal III, Microsoft, bion@microsoft.com
 Abstract: Atomics which can tear—which are more relaxed than relaxed—seem useless. This paper shows otherwise.
 Date: 2017-06-14
 Markup Shorthands: markdown yes
@@ -96,13 +97,72 @@ A more in-depth
 [discussion of seqlock](http://safari.ece.cmu.edu/MSPC2012/slides_posters/boehm-slides.pdf)
 is available.
 
-For the purpose of our discussion, it is especially interesting to consides
+For the purpose of our discussion, it is especially interesting to considers
 value types `T` which are never lock-free.
 
 Work-Stealing Deque {#wsdeque}
 -------------------
 
-Issue: FIXME Billy! Include some code, and explain speculation.
+It appears intended that implementations of the parallelism TS back scheduling
+of partitioned work using an ABP work-stealing scheduler, originally described
+in ["Thread Scheduling for Multiprogrammed Microprocessors" by Nimar S. Arora,
+Robert D. Blumofe, and C. Greg Plaxton](https://www.eecis.udel.edu/~cavazos/cisc879-spring2008/papers/arora98thread.pdf).
+
+Under this model, each thread has a local deque of work where it can access the
+"bottom" of the deque without any synchronization overhead, but other threads
+can concurrently remove work from the "top". A similar data structure was
+presented implementable on hardware without double-wide CAS instructions in
+["Dynamic Circular Work-Stealing Deque" by David Chase and Yossi Lev](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.170.1097&rep=rep1&type=pdf).
+
+In the Chase-Lev deque, the "top" counter is used to track concurrent access to
+the top of the deque; and access to the actual elements in the top of the deque
+is unsynchronized. From the original paper:
+
+<xmp>
+public Object steal() {
+11.     long t = this.top;
+12.     long b = this.bottom;
+13.     CircularArray a = this.activeArray;
+14.     long size = b - t;
+15.     if (size <= 0) return Empty;
+16.     Object o = a.get(t);
+17.     if (! casTop(t, t+1))
+18.         return Abort;
+19.     return o;
+}
+</xmp>
+
+or translated to C++:
+
+<xmp>
+variant<empty_t, abort_t, T> steal() {
+11.     int64_t t = top.load();
+12.     int64_t b = bottom.load();
+13.     T * a = activeArray.load();
+14.     int64_t size = b - t;
+15.     if (size <= 0) return empty_t{};
+16.     T o = a[t % aSize];
+17.     if (! top.compare_exchange_strong(t, t+1))
+18.         return abort_t{};
+19.     return o;
+}
+</xmp>
+
+If the deque contains only one element, this causes undefined behavior in C++'
+memory model, because the element accessed on line 16 may be concurrently
+written by the owning thread of the deque. However, if a data race occurs,
+the CAS on line 17 fails, and the result of this speculative read is never
+observed. Only one thread can win the CAS race to increment top.
+
+Of note, imposing that `T` be an atomic type in this instance defeats the entire
+purpose of using the work-stealing deque, as it would require the owning
+"bottom" thread to use synchronized access to read from the bottom (including
+potentially taking a lock of `T` is large; egregious for a data structure whose
+purpose is to be lock-free) in the uncontended cases, even though the
+correctness of the algorithm is maintained by discarding any potentially torn
+results.
+
+Issue: FIXME JF! The below looks like its own section
 
 In this example, all lock-free operations (including load/store) *must* be
 implemented as a compare-and-exchange or load-linked/store-conditional:
