@@ -170,33 +170,33 @@ In the Chase-Lev deque, the "top" counter is used to track concurrent access to
 the top of the deque; and access to the actual elements in the top of the deque
 is unsynchronized. From the original paper:
 
-<xmp>
+<xmp line-numbers line-start=10>
 public Object steal() {
-    long t = this.top;                  // 11.
-    long b = this.bottom;               // 12.
-    CircularArray a = this.activeArray; // 13.
-    long size = b - t;                  // 14.
-    if (size <= 0) return Empty;        // 15.
-    Object o = a.get(t);                // 16.
-    if (! casTop(t, t+1))               // 17.
-        return Abort;                   // 18.
-    return o;                           // 19.
+    long t = this.top;
+    long b = this.bottom;
+    CircularArray a = this.activeArray;
+    long size = b - t;
+    if (size <= 0) return Empty;
+    Object o = a.get(t);
+    if (! casTop(t, t+1))
+        return Abort;
+    return o;
 }
 </xmp>
 
 or translated to C++:
 
-<xmp>
+<xmp line-numbers line-start=10>
 variant<empty_t, abort_t, T> steal() {
-    int64_t t = top.load();                    // 11.
-    int64_t b = bottom.load();                 // 12.
-    T * a = activeArray.load();                // 13.
-    int64_t size = b - t;                      // 14.
-    if (size <= 0) return empty_t{};           // 15.
-    T o = a[t % aSize];                        // 16.
-    if (! top.compare_exchange_strong(t, t+1)) // 17.
-        return abort_t{};                      // 18.
-    return o;                                  // 19.
+    int64_t t = top.load();
+    int64_t b = bottom.load();
+    T * a = activeArray.load();
+    int64_t size = b - t;
+    if (size <= 0) return empty_t{};
+    T o = a[t % aSize];
+    if (! top.compare_exchange_strong(t, t+1))
+        return abort_t{};
+    return o;
 }
 </xmp>
 
