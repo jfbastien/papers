@@ -268,28 +268,37 @@ private:
 //   — end note ]
 class dependency {
 public:
+    template<typename T> dependency(T);
+    dependency() = delete;
+
     // Dependency combination.
     dependency operator|(dependency d);
     template<typename T> friend dependency operator|(dependency, dependent_ptr<T>);
     template<typename T> friend dependency operator|(dependent_ptr<T>, dependency);
 
-private:
-    dependency() = delete;
+    // Pointer tagging.
+    friend uintptr_t operator|(dependency, uintptr_t);
+    friend uintptr_t operator|(uintptr_t, dependency);
+    friend intptr_t operator|(dependency, intptr_t);
+    friend intptr_t operator|(intptr_t, dependency);
 
     // Exposition only:
     typedef unsigned dependency_type;
-    template<typename T, typename std::enable_if<sizeof(T) == 8>::type* = nullptr> dependency(T value);
-    template<typename T, typename std::enable_if<sizeof(T) == 4>::type* = nullptr> dependency(T value);
-    template <typename T, typename std::enable_if<sizeof(T) == 2>::type* = nullptr> dependency(T value);
-    template <typename T, typename std::enable_if<sizeof(T) == 1>::type* = nullptr> dependency(T value);
+
+private:
+    // Exposition only:
     dependency_type dep;
-    template<typename> friend class dependent_ptr;
-    template<typename, typename> friend struct dependent;
 };
 
 // Free-function dependency combination.
 template<typename T> dependency operator|(dependency, dependent_ptr<T>);
 template<typename T> dependency operator|(dependent_ptr<T>, dependency);
+
+// Free-function pointer tagging with dependency.
+uintptr_t operator|(dependency, uintptr_t);
+uintptr_t operator|(uintptr_t, dependency);
+intptr_t operator|(dependency, intptr_t);
+intptr_t operator|(intptr_t, dependency);
 
 // Beginning of dependency chain.
 template<typename T> dependent_ptr<T> consume_load(const std::atomic<T*>&);
