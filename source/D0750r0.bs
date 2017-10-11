@@ -20,20 +20,56 @@ Background {#bg}
 Memory order consume as specified in C++11 hasn't been implemented by any
 compiler. The main reason for this shortcoming is that the specification creates
 a fundamental mismatch between the model of "dependency" at the C++ source code
-level and "dependency" at the ISA-specific assembly level. The goal of consume
-was to expose what ARM calls the "address dependency rule" as explained in
+level and "dependency" at the ISA-specific assembly level.
+
+Programmers targeting large systems have been using "consume" under different
+names since at least the mid-90's. As hardware evolved what used to be an
+esoteric memory detail of large systems has become commonplace. For example,
+Linux gained support for Read Copy Update [[RCU]] in October 2002 and usage has
+steadily increased since then [[RCUUsage]]. Memory order consume is the key to
+RCU's scalability.
+
+This proposal continues work from:
+
+  1. Towards Implementation and Use of `memory order consume` [[p0098R1]] lists
+     a plethora of manners in which C++ could expose consume. In particular,
+     section 7.11 is the root of the current proposal.
+  2. Marking memory order consume Dependency Chains [[p0462r1]] expands on the
+     previous paper. Of particular interest is section 3.2 which proposes
+     `depending_ptr`, which the current proposal's API derives from.
+  3. Proposal for New memory order consume Definition [[p0190r3]] has
+     comprehensive details on each operation which RCU supports. That list was
+     critical in crafting the precise semantics which the current proposal has.
+
+The current proposal is different from prior proposals in that it contains a
+single proposed API, which is known to work for at least one code base. Indeed,
+it is based on work in WebKit [[Atomics]] which has been successfully using
+consume memory ordering in C++ on ARM platforms for over a year.
+
+The WebKit API was written by low-level compiler experts for their own use, with
+limited applicability compared to RCU, and isn't necessarily user-friendly. The
+current proposal therefore differs as follows:
+
+ - Fewer sharp edges than the WebKit one; and
+ - Attempt to support more usecases as documented by [[p0462r1]]
+
+
+What is `consume`? {#wat}
+==================
+
+Consume exposes what ARM calls the "address dependency rule" as explained in
 section 6.3 of the ARM Barrier Litmus Tests and Cookbook [[Litmus]]. POWER has a
-similar ISA feature. On ISAs such as ARM and POWER consume allows writing
-release / acquire style code, where the reader side doesn't need extra
+similar ISA feature. On weak memory ISAs such as ARM and POWER consume allows
+writing release / acquire style code, where the reader side doesn't need extra
 fences. Ordering is guaranteed by creating dependencies on the reader side
 between the released location and the subsequent reads that should be observed
 to happen after that location's value was written by the writer. A "dependency"
 at the ISA level means that computation of the value of the address of
 subsequent loads depend on the value loaded from the release location.
 
-Despite not being implemented by any C++11 compiler, consume-style code is
-widely used in software. The best known example of such usage is Linux's Read
-Copy Update [[RCU]]. To maintain correctness, these uses rely on:
+Despite being used extensively in multiple systems, crafting a consume API which
+is easy to use correctly remains a difficult task because it requires very
+precise assembly generation. To maintain correctness, current uses rely on:
 
   - A gentleperson's agreement with compiler authors to avoid breaking code;
   - Human inspection of compiled code disassembly;
@@ -41,20 +77,11 @@ Copy Update [[RCU]]. To maintain correctness, these uses rely on:
   - Judicious application of inline assembly; and
   - Luck 🍀.
 
-This proposal continuing work from:
-
-  - Proposal for New memory order consume Definition [[p0190r3]]
-  - Marking memory order consume Dependency Chains [[p0462r1]]
-
-It is different from prior proposals in that it contains a single proposed API,
-which is known to work for at least one code base. Indeed, it is based on work
-in WebKit [[Atomics]] which has been successfully using consume ordering in C++
-on ARM platforms for a while.
-
-The proposed API for C++ is substantially different from the WebKit API:
-
- - The proposal has fewer sharp edges than the WebKit one; and
- - The proposal attempts to support more usecases as documented by [[p0462r1]]
+This proposal is no different, except that it offloads this burden on the
+compiler and standard library authors. These people are in a much better
+position to ensure correctness: they rely on more engineering than luck to
+maintain the language's correctness because it's literally the main purpose of
+their software.
 
 
 Wording as of C++17 {#old-word}
@@ -288,6 +315,12 @@ template<typename T> dependent<T> consume_load(T*, dependency);
         "title": "What is RCU?",
         "authors": ["Paul McKenney"],
         "date": "August 17, 2017"
+    },
+    "RCUUsage": {
+        "href": "http://www.rdrop.com/users/paulmck/RCU/linuxusage.html",
+        "title": "RCU Linux Usage",
+        "authors": ["Paul McKenney"],
+        "date": "July 2, 2017"
     },
     "Atomics": {
         "href": "https://trac.webkit.org/browser/webkit/trunk/Source/WTF/wtf/Atomics.h?rev=+217722#L342",
