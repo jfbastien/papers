@@ -23,7 +23,7 @@ a fundamental mismatch between the model of "dependency" at the C++ source code
 level and "dependency" at the ISA-specific assembly level.
 
 Programmers targeting large systems have been using "consume" under different
-names since at least the mid-90's. As hardware evolved what used to be an
+names since at least the mid-90's. As hardware evolved, what used to be an
 esoteric memory detail of large systems has become commonplace. For example,
 Linux gained support for Read Copy Update [[RCU]] in October 2002 and usage has
 steadily increased since then [[RCUUsage]]. Memory order consume is the key to
@@ -57,15 +57,20 @@ current proposal therefore differs as follows:
 What is `consume`? {#wat}
 ==================
 
-Consume exposes what ARM calls the "address dependency rule" as explained in
-section 6.3 of the ARM Barrier Litmus Tests and Cookbook [[Litmus]]. POWER has a
-similar ISA feature. On weak memory ISAs such as ARM and POWER consume allows
-writing release / acquire style code, where the reader side doesn't need extra
-fences. Ordering is guaranteed by creating dependencies on the reader side
-between the released location and the subsequent reads that should be observed
-to happen after that location's value was written by the writer. A "dependency"
-at the ISA level means that computation of the value of the address of
-subsequent loads depend on the value loaded from the release location.
+Consume exposes low-level architecture dependencies as available in weak memory
+multicore systems. For example, it maps to what ARM calls the "address
+dependency rule" as explained in section 6.3 of the ARM Barrier Litmus Tests and
+Cookbook [[Litmus]]. POWER has a similar ISA feature. On weak memory ISAs,
+consume allows writing release / acquire style code, where the reader side
+doesn't need extra fences. Ordering is guaranteed by creating dependencies on
+the reader side between the released location and the subsequent reads that
+should be observed to happen after that location's value was written by the
+writer. A "dependency" at the ISA level means that computation of the value of
+the address of subsequent loads depend on the value loaded from the release
+location.
+
+It is always valid for an implementation to "promote" consume to acquire, but in
+most cases this adds an extra fence.
 
 Despite being used extensively in multiple systems, crafting a consume API which
 is easy to use correctly remains a difficult task because it requires very
@@ -148,10 +153,23 @@ operations need to be added:
   - xchg
   - cmpxchg
   - read-modify-write
+  - dependent member pointers, returning `&(ptr1->*ptr2)`
 
 It seems like the easiest way to go about is to try out the API in a
 from-scratch C++ codebase. An obvious candidate would be a user-space RCU
 implementation in C++ using this API.
+
+It is also worth considering whether consumable types should be restricted
+somehow. `atomic` requires trivially-copyable types, but doesn't restrict the
+size of `T`. Should consume require the same restriction? Is it useful to
+consume very large values? In the author's experience it isn't, but it could be
+useful in other fields, and at a minimum what qualifies as "large" is
+ISA-dependent.
+
+Generated assembly needs to be inspected on multiple implementations to make
+sure various compilers and ISAs can support the proposed design. Already the
+sample implementation has been observed spilling dependencies to the stack on
+ARM64 using GCC, which happens to be valid but might be brittle.
 
 
 Proposed API {#api}
@@ -164,6 +182,7 @@ on GitHub under [[StdConsume]].
 class dependency;
 
 // A value and its dependency.
+// FIXME: should this be opaque, to allow T to carry the dependency implicitly?
 template<typename T, typename Dependency = dependency>
 struct dependent {
     T value;
@@ -189,7 +208,7 @@ public:
 
     // No dependency yet.
     dependent_ptr() = default;
-    dependent_ptr(T*);
+    dependent_ptr(T*); // FIXME: should this automatically create a dependency as well?
     dependent_ptr(std::nullptr_t);
 
     // With dependency.
