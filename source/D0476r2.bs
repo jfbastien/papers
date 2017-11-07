@@ -80,19 +80,33 @@ Under 20.2.`�` Bit-casting [**utility.bitcast**]:
   constexpr To bit_cast(const From& from) noexcept;
 </xmp>
 
-1. *Remarks*: This function shall not participate in overload resolution unless:
-
-    * `sizeof(To) == sizeof(From)` is `true`;
-    * `is_trivially_copyable_v<To>` is `true`; and
-    * `is_trivially_copyable_v<From>` is `true`.
-
-2. Returns: an object of type `To` whose <em>object representation</em> is equal
-            to the object representation of `From`. If multiple <em>object
-            representations</em> could represent the <em>value
-            representation</em> of `From`, then it is unspecified which `To`
-            value is returned. If no <em>value representation</em> corresponds
-            to `To`'s <em>object representation</em> then the returned value is
-            unspecified.
+<ol>
+<li>*Remarks*:
+  This function shall not participate in overload resolution unless:
+  <ul>
+    <li>`sizeof(To) == sizeof(From)` is `true`;</li>
+    <li>`is_trivially_copyable_v<To>` is `true`; and</li>
+    <li>`is_trivially_copyable_v<From>` is `true`.</li>
+  </ul>
+  This function shall be `constexpr` if and only if:
+  <ul>
+    <li>`is_union_v<To>` is `false`;</li>
+    <li>`is_union_v<From>` is `false`;</li>
+    <li>`is_pointer_v<To>` is `false`;</li>
+    <li>`is_pointer_v<From>` is `false`;</li>
+    <li>`is_member_pointer_v<To>` is `false`; and</li>
+    <li>`is_member_pointer_v<From>` is `false`.</li>
+  </ul>
+</li>
+<li>*Returns*:
+    an object of type `To` whose <em>object representation</em> is equal to the
+    object representation of `From`. If multiple <em>object representations</em>
+    could represent the <em>value representation</em> of `From`, then it is
+    unspecified which `To` value is returned. If no <em>value
+    representation</em> corresponds to `To`'s <em>object representation</em>
+    then the returned value is unspecified.
+</li>
+</ol>
 
 Feature testing {#test}
 ---------------
@@ -141,22 +155,24 @@ Revision History {#rev}
 r1 ➡ r2 {#r1r2}
 --------
 
-The paper was reviewed by LEWG at the 2017 Toronto meeting, and in the 2017
-Albuquerque meeting provided feedback regarding usage of concepts while
-discussing [[P0802r0]]:
+The paper was reviewed by LEWG at the 2017 Toronto meeting and feedback was
+provided. In the 2017 Albuquerque meeting LEWG provided feedback regarding usage
+of concepts while discussing [[P0802r0]], and EWG reviewed the paper:
 
   * Use "shall not participate in overload resolution" wording instead of a
     requires clause.
   * The author was asked to explore naming, in particular `byte_cast` or
     `mem_cast`. Various members and users have expressed various interests,
     without a particular name standing out. `pod_cast` seems to be a
-    particularly appropriate name. A straw poll therefore seems desirable.
+    particularly appropriate name. An LEWG straw poll therefore seems desirable.
   * LEWG would like exploration of which header this lives in: `<memory>` or
     `<utility>` or something fine-grained such as `<bit_cast>`. LEWG has since
     created guidance towards using fine-grained headers, but an informal
     conversation with the LEWG chair points out that this feature might be too
     small for its own header, and that LWG may be in a better position to judge.
   * Call out that `constexpr` requires compiler support.
+  * Make `constexpr` conditional, similar to variant's [variant.ctor] wording,
+    based on an EWG straw poll in Albuquerque.
 
 r0 ➡ r1 {#r0r1}
 --------
