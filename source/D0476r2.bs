@@ -149,8 +149,8 @@ discussing [[P0802r0]]:
     requires clause.
   * The author was asked to explore naming, in particular `byte_cast` or
     `mem_cast`. Various members and users have expressed various interests,
-    without a particular name standing out. A straw poll therefore seems
-    desirable.
+    without a particular name standing out. `pod_cast` seems to be a
+    particularly appropriate name. A straw poll therefore seems desirable.
   * LEWG would like exploration of which header this lives in: `<memory>` or
     `<utility>` or something fine-grained such as `<bit_cast>`. LEWG has since
     created guidance towards using fine-grained headers, but an informal
