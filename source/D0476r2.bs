@@ -10,7 +10,7 @@ URL: http://wg21.link/D0476r2
 !Implementation: <a href="https://github.com/jfbastien/bit_cast/">github.com/jfbastien/bit_cast/</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Obtaining equivalent object representations The Right Way™.
-Date: 2017-11-06
+Date: 2017-11-09
 Markup Shorthands: markdown yes
 </pre>
 
@@ -50,19 +50,19 @@ all.
 Proposed Wording {#word}
 ================
 
-Below, substitute the `�` character with a number the editor finds appropriate
-for the sub-section.
+Below, substitute the `�` character with a number or name the editor finds
+appropriate for the sub-section.
 
 Synopsis {#syn}
 --------
 
-Under 21.2 Header `<cstddef>` synopsis [**cstddef.syn**]:
+Under �.� Header `<bit>` synopsis [**�.�**]:
 
 <xmp>
 namespace std {
   // ...
   
-  // 21.2.� bit-casting:
+  // �.�.� bit-casting:
   template<typename To, typename From>
   constexpr To bit_cast(const From& from) noexcept;
   
@@ -73,7 +73,7 @@ namespace std {
 Details {#det}
 -------
 
-Under 21.2.`�` Bit-casting [**support.bitcast**]:
+Under �.�.`�` Bit-casting [**�.bitcast**]:
 
 <xmp>
   template<typename To, typename From>
@@ -161,21 +161,14 @@ of concepts while discussing [[P0802r0]], and EWG reviewed the paper:
 
   * Use "shall not participate in overload resolution" wording instead of a
     requires clause.
-  * The author was asked to explore naming, in particular `byte_cast` or
-    `mem_cast`. Various members and users have expressed various interests,
-    without a particular name standing out. `pod_cast` seems to be a
-    particularly appropriate name. An LEWG straw poll therefore seems desirable.
-  * LEWG would like exploration of which header this lives in: `<memory>` or
-    `<utility>` or something fine-grained such as `<bit_cast>`. LEWG has since
-    created guidance towards using fine-grained headers, but an informal
-    conversation with the LEWG chair points out that this feature might be too
-    small for its own header, and that LWG may be in a better position to judge.
-    Members have expressed a desire for availability in freestanding
-    implementations. This severely limits which header can be reused. Discussion
-    with Stephan T. Lavavej finds that the best header for this to live in is
-    likely `<cstddef>`, which is freestanding and contains `ptrdiff_t`,
-    `size_t`, `max_align_t`, `nullptr_t`, `std::byte`, `to_integer`, `NULL`, and
-    `offsetof`.
+  * The author was asked to explore naming. LEWG took a poll in Albuquerque and
+    voted to keep `bit_cast`.
+  * There was strong sentiment that this facility should be available in
+    freestanding implementations. LEWG is changing its guidance regarding
+    freestanding header granularity, but until guidance is actually changed it
+    was decided that a currently freestanding header should be used. LEWG took a
+    poll in Albuquerque, and the new `<bit>` header was chosen instead of
+    `<cstddef>`.
   * Call out that `constexpr` requires compiler support.
   * Make `constexpr` conditional, similar to variant's [variant.ctor] wording,
     based on an EWG straw poll in Albuquerque.
