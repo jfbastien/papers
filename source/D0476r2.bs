@@ -16,7 +16,8 @@ Markup Shorthands: markdown yes
 
 
 This paper is a revision of [[P0476r1]], addressing LEWG comments from the 2017
-Toronto meeting. See [[#rev]] for details.
+Toronto meeting as well as comments from LEWG and LWG from the 2017 Albuquerque
+meeting. See [[#rev]] for details.
 
 
 Background {#bg}
@@ -53,27 +54,38 @@ Proposed Wording {#word}
 Below, substitute the `�` character with a number or name the editor finds
 appropriate for the sub-section.
 
-Synopsis {#syn}
---------
+In 20.5.1.2 [**headers**] add the header `<bit>` to:
 
-Under �.� Header `<bit>` synopsis [**�.�**]:
+  * Table 16 — C++ library headers
+  * Table 19 — C++ headers for freestanding implementations
+
+In the numerics section, add the following:
+
+<ins>
+29.� Bit manipulation library [**bit**] {#bit}
+---------------------------------------
+
+29.�.1 General [**bit.general**] {#bitgen}
+--------------------------------
+
+The header `<bit>` provides components to access, manipulate and process both
+individual bits and bit sequences.
+
+29.�.2 Header `<bit>` synopsis [**bit.syn**] {#bitsyn}
+--------------------------------------------
 
 <xmp>
 namespace std {
-  // ...
   
-  // �.�.� bit-casting:
+  // 29.�.3 bit_cast
   template<typename To, typename From>
   constexpr To bit_cast(const From& from) noexcept;
   
-  // ...
 }
 </xmp>
 
-Details {#det}
--------
-
-Under �.�.`�` Bit-casting [**�.bitcast**]:
+29.�.3 Function template `bit_cast` [**bit.cast**] {#bitcast}
+--------------------------------------------------
 
 <xmp>
   template<typename To, typename From>
@@ -82,6 +94,7 @@ Under �.�.`�` Bit-casting [**�.bitcast**]:
 
 <ol>
 <li>*Remarks*:
+
   This function shall not participate in overload resolution unless:
   <ul>
     <li>`sizeof(To) == sizeof(From)` is `true`;</li>
@@ -94,19 +107,20 @@ Under �.�.`�` Bit-casting [**�.bitcast**]:
   
   <ul>
     <li>`is_union_v<T>` is `false`;</li>
-    <li>`is_pointer_v<T>` is `false`;</li>
-    <li>`is_member_pointer_v<T>` is `false`; and</li>
+    <li>`is_pointer_v<T>` is `false`; and</li>
+    <li>`is_member_pointer_v<T>` is `false`.</li>
   </ul>
 </li>
 <li>*Returns*:
 
-    an object of type `To`. Each bit of the <em>value representation</em> of the
+    An object of type `To`. Each bit of the <em>value representation</em> of the
     result is equal to the corresponding bit in the <em>object
     representation</em> of `from`. Padding bits of the `To` object are
     unspecified.
 
 </li>
 </ol>
+</ins>
 
 Feature testing {#test}
 ---------------
@@ -138,7 +152,7 @@ The Standard's [**basic.types**] section explicitly blesses `memcpy`:
 
 </blockquote>
 
-Whereas section [class.union] says:
+Whereas section [**class.union**] says:
 
 <blockquote>
 
@@ -174,6 +188,8 @@ of concepts while discussing [[P0802r0]], and EWG reviewed the paper:
     based on an EWG straw poll in Albuquerque.
   * LWG review made the `constexpr` remark recursive, and tuned the return
     wording, asking CWG to review the changes.
+  * LWG review requested that this paper also add the `<bit>` header, and let
+    the editor resolve races if multiple papers add the header concurrently.
 
 r0 ➡ r1 {#r0r1}
 --------
