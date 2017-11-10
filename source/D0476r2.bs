@@ -88,23 +88,23 @@ Under �.�.`�` Bit-casting [**�.bitcast**]:
     <li>`is_trivially_copyable_v<To>` is `true`; and</li>
     <li>`is_trivially_copyable_v<From>` is `true`.</li>
   </ul>
-  This function shall be `constexpr` if and only if:
+
+  This function shall be `constexpr` if and only if `To`, `From`, and all
+  sub-objects of `To` and `From` have types `T` such that:
+  
   <ul>
-    <li>`is_union_v<To>` is `false`;</li>
-    <li>`is_union_v<From>` is `false`;</li>
-    <li>`is_pointer_v<To>` is `false`;</li>
-    <li>`is_pointer_v<From>` is `false`;</li>
-    <li>`is_member_pointer_v<To>` is `false`; and</li>
-    <li>`is_member_pointer_v<From>` is `false`.</li>
+    <li>`is_union_v<T>` is `false`;</li>
+    <li>`is_pointer_v<T>` is `false`;</li>
+    <li>`is_member_pointer_v<T>` is `false`; and</li>
   </ul>
 </li>
 <li>*Returns*:
-    an object of type `To` whose <em>object representation</em> is equal to the
-    object representation of `From`. If multiple <em>object representations</em>
-    could represent the <em>value representation</em> of `From`, then it is
-    unspecified which `To` value is returned. If no <em>value
-    representation</em> corresponds to `To`'s <em>object representation</em>
-    then the returned value is unspecified.
+
+    an object of type `To`. Each bit of the <em>value representation</em> of the
+    result is equal to the corresponding bit in the <em>object
+    representation</em> of `from`. Padding bits of the `To` object are
+    unspecified.
+
 </li>
 </ol>
 
@@ -172,6 +172,8 @@ of concepts while discussing [[P0802r0]], and EWG reviewed the paper:
   * Call out that `constexpr` requires compiler support.
   * Make `constexpr` conditional, similar to variant's [variant.ctor] wording,
     based on an EWG straw poll in Albuquerque.
+  * LWG review made the `constexpr` remark recursive, and tuned the return
+    wording, asking CWG to review the changes.
 
 r0 ➡ r1 {#r0r1}
 --------
