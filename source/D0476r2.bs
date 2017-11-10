@@ -10,7 +10,7 @@ URL: http://wg21.link/D0476r2
 !Implementation: <a href="https://github.com/jfbastien/bit_cast/">github.com/jfbastien/bit_cast/</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Obtaining equivalent object representations The Right Way™.
-Date: 2017-11-09
+Date: 2017-11-10
 Markup Shorthands: markdown yes
 </pre>
 
@@ -102,21 +102,25 @@ namespace std {
     <li>`is_trivially_copyable_v<From>` is `true`.</li>
   </ul>
 
-  This function shall be `constexpr` if and only if `To`, `From`, and all
-  sub-objects of `To` and `From` have types `T` such that:
+  This function shall be `constexpr` if and only if `To`, `From`, and the types
+  of all subobjects of `To` and `From` are types `T` such that:
   
   <ul>
     <li>`is_union_v<T>` is `false`;</li>
-    <li>`is_pointer_v<T>` is `false`; and</li>
-    <li>`is_member_pointer_v<T>` is `false`.</li>
+    <li>`is_pointer_v<T>` is `false`;</li>
+    <li>`is_member_pointer_v<T>` is `false`;</li>
+    <li>`is_volatile_v<T>` is `false`; and</li>
+    <li>`T` has no non-static data members of reference type.</li>
   </ul>
 </li>
 <li>*Returns*:
 
-    An object of type `To`. Each bit of the <em>value representation</em> of the
-    result is equal to the corresponding bit in the <em>object
-    representation</em> of `from`. Padding bits of the `To` object are
-    unspecified.
+    An object of type `To`. Each bit of the value representation of the result
+    is equal to the corresponding bit in the object representation of
+    `from`. Padding bits of the `To` object are unspecified. If there is no
+    value of type `To` corresponding to the value representation produced, the
+    behavior is undefined. If there are multiple such values, which value is
+    produced is unspecified.
 
 </li>
 </ol>
@@ -190,6 +194,7 @@ of concepts while discussing [[P0802r0]], and EWG reviewed the paper:
     wording, asking CWG to review the changes.
   * LWG review requested that this paper also add the `<bit>` header, and let
     the editor resolve races if multiple papers add the header concurrently.
+  * CWG substantially tuned the wording.
 
 r0 ➡ r1 {#r0r1}
 --------
