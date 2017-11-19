@@ -847,7 +847,7 @@ otherwise, if `is_nothrow_constructible_v<T, U&&>`
   * destroys the unexpected value by calling `unexpect.~unexpected<E>() `,
   * initializes the contained value as if direct-non-list-initializing an object
     of type `T` with `forward<U>(v)` and
-  * set `has_value`to `true`;
+  * set `has_val`to `true`;
 
 otherwise as `is_nothrow_constructible_v<E>`
 
@@ -876,6 +876,7 @@ otherwise as `is_nothrow_constructible_v<E>`
 
 This function shall not participate in overload resolution unless:
 
+- `is_same_v<T,void>` is `false` and
 - `is_same_v<expected<T,E>, decay_t<U>>` is `false` and
 - `conjunction_v<is_scalar<T>, is_same<T, decay_t<U>>>` is `false`,
 - `is_constructible_v<T, U>` is `true`,
@@ -893,7 +894,7 @@ unexpected value `unexpect`;
 
 otherwise,
 
-  * destroys the contained value by calling `val.~T()`,
+  * destroys the contained value by calling `val.~T()` if `T` is not `void`,
   * initializes the unexpected value as if direct-non-list-initializing an object
     of type `unexpected<E>` with `unexpected(forward<expected<T, E>>(rhs))` and
     set `has_val` to `false`.
@@ -918,7 +919,7 @@ the unexpected value `unexpect`;
 
 otherwise,
 
-  * destroys the contained value by calling `val.~T()`,
+  * destroys the contained value by calling `val.~T()` if `T` is not `void`,
   * initializes the unexpected value as if direct-non-list-initializing an object
     of type `unexpected<E>` with `unexpected(move(forward<expected<T,
     E>>(rhs)))` and set `has_val` to `false`.
@@ -933,14 +934,29 @@ This signature shall not participate in overload resolution unless
 `is_nothrow_move_constructible_v<E>` and `is_move_assignable_v<E&, E>`.
 
 ```c++
+  void expected<void,E>::emplace();
+```
+
+*Effects*:
+
+If `*this` doesn't contains a value 
+
+  * destroys the unexpected value by calling `unexpect.~unexpected<E>() `,
+  * set `has_val`to `true`
+
+*Postconditions*: `*this` contains a value.
+
+*Throws*: nothing
+
+```c++
 template <class... Args>
   void emplace(Args&&... args);
 ```
 
 *Effects*:
 
-If `*this` contains a value, assigns `forward<U>(v)` to the contained value
-`val` as if constructing an object of type `T` with the arguments
+If `*this` contains a value, assigns the contained value `val` as if
+constructing an object of type `T` with the arguments
 `std::forward<Args>(args)...`
 
 otherwise, if `is_nothrow_constructible_v<T, Args&&...>`
@@ -948,29 +964,30 @@ otherwise, if `is_nothrow_constructible_v<T, Args&&...>`
   * destroys the unexpected value by calling `unexpect.~unexpected<E>() `,
   * initializes the contained value as if direct-non-list-initializing an object
     of type `T` with `std::forward<Args>(args)...` and
-  * set `has_value`to `true`;
+  * set `has_val` to `true`;
 
-otherwise as `is_nothrow_constructible_v<T, U&&>`
+otherwise if `is_nothrow_move_constructible_v<T>`
 
-  * move constructs a new `unexpected<E> tmp` on the stack from
-    `unexpected(this->error())` (which can't throw as `E` is
-    nothrow-move-constructible),
+  * constructs a new `T tmp` on the stack from
+    `std::forward<Args>(args)...` (which can throw),
   * destroys the unexpected value by calling `unexpect.~unexpected<E>()`,
   * initializes the contained value as if direct-non-list-initializing an object
-    of type `T` with `forward<U>(v)`. Either,
+    of type `T` with `move(tmp)` (which can not throw) and
+  * set `has_val` to `true`;
+   
+otherwise as `is_nothrow_move_constructible_v<E>`
+
+  * move constructs a new `unexpected<E> tmp` on the stack from
+    `unexpected(this->error())` (which can't throw),
+  * destroys the unexpected value by calling `unexpect.~unexpected<E>()`,
+  * initializes the contained value as if direct-non-list-initializing an object
+    of type `T` with `std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, so mark the expected as holding a `T`
-        (which can't throw), that is set `has_value`to `true`, or
+        (which can't throw), that is set `has_val` to `true`, or
       * the constructor did throw, so move-construct the `unexpected<E>` from
         the stack `tmp` back into the expected storage (which can't throw as `E`
         is nothrow-move-constructible), and re-throw the exception.
-
-if `*this` contains a value, assigns the contained value `val` as if
-constructing an object of type `T` with the arguments
-`std::forward<Args>(args)...`; otherwise, destroys the contained value by
-calling `unexpect.~unexpected<E>() ` and initializes the contained value as if
-constructing an object of type `T` with the arguments
-`std::forward<Args>(args)...`.
 
 *Postconditions*: `*this` contains a value.
 
@@ -1003,7 +1020,7 @@ std::forward<Args>(args)...`.
 changes.
 
 The function shall not participate in overload resolution unless:
-`is_no_throw_constructible_v<T, initializer_list<U>&, Args&&...>`.
+`T` is not `void` and `is_no_throw_constructible_v<T, initializer_list<U>&, Args&&...>`.
 
 �.�.4.4 Swap [*expected.object.swap*] {#expected.object.swap}
 -------------------------------------
