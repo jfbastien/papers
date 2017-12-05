@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: Bit-casting object representations
-Shortname: D0476
+Shortname: P0476
 Revision: 2
-Audience: LEWG, LWG, CWG
-Status: D
+Audience: LWG
+Status: P
 Group: WG21
-URL: http://wg21.link/D0476r2
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0476r2.bs">github.com/jfbastien/papers/blob/master/source/D0476r2.bs</a>
+URL: http://wg21.link/P0476r2
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0476r2.bs">github.com/jfbastien/papers/blob/master/source/P0476r2.bs</a>
 !Implementation: <a href="https://github.com/jfbastien/bit_cast/">github.com/jfbastien/bit_cast/</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Obtaining equivalent object representations The Right Way™.
