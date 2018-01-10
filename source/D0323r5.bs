@@ -65,7 +65,6 @@ inline namespace fundamentals_v3 {
 A program that necessitates the instantiation of template `unexpected` for a 
 non-object type or an object type cv-qualified is ill-formed.
 
-
 �.�.3 Unexpected object type [*unexpected.object*] {#unexpected.object}
 --------------------------------------------------
 
@@ -215,7 +214,7 @@ inline namespace fundamentals_v3 {
       constexpr bool operator!=(const expected<T, E>&, const U&);
     template <class U, class T, class E>
       constexpr bool operator!=(const U&, const expected<T, E>&);
-
+      
     // �.�.10, Comparison with unexpected<E>
     template <class T, class E, class G>
       constexpr bool operator==(const expected<T, E>&, const unexpected<G>&);
@@ -810,7 +809,6 @@ otherwise `!bool(*this)` and `bool(rhs)`,
 back into the expected storage (which can't throw as `E` is 
 nothrow-move-constructible), and rethrow the exception.
 
-
 *Returns*: `*this`.
 
 *Postconditions*: `bool(rhs) == bool(*this)`.
@@ -1073,7 +1071,6 @@ this, `this` does not contain a value; and `bool(rhs)` .
 `rhs.unexpect->unexpected<E>::~unexpected<E>()`,
     * `val` is direct-initialized from `std::move(tmp)`, after this, `this` does not
 contain a value; and `bool(rhs)` . 
-
 
 *Throws*: Any exceptions that the expressions in the Effects clause throw.
 
