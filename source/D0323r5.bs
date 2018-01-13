@@ -1370,7 +1370,7 @@ template <class G, class T, class E> constexpr bool operator==(const unexpected<
 *Requires*: The expression `unexpected(x.error()) == e` shall be well-formed and
 its result shall be convertible to `bool`. 
 
-*Effects*: Equivalent to: `return bool(x) ? true : unexpected(x.error()) == e;`.
+*Effects*: Equivalent to: `return bool(x) ? false : unexpected(x.error()) == e;`.
 
 ```c++
 template <class T, class E, class G> constexpr bool operator!=(const expected<T, E>& x, const unexpected<G>& e);
