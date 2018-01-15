@@ -10,7 +10,7 @@ URL: http://wg21.link/D0323r5
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2017-12-16
+Date: 2018-01-10
 Markup Shorthands: markdown yes
 </pre>
 
@@ -49,22 +49,21 @@ inline namespace fundamentals_v3 {
       class unexpected;
 
     // �.�.4, Unexpected equality operators
-    template <class E>
+    template <class E1, class E2>
         constexpr bool
-        operator==(const unexpected<E>&, const unexpected<E>&);
-    template <class E>
+        operator==(const unexpected<E1>&, const unexpected<E2>&);
+    template <class E1, class E2>
         constexpr bool
-        operator!=(const unexpected<E>&, const unexpected<E>&);
+        operator!=(const unexpected<E1>&, const unexpected<E2>&);
+        
+    // �.�.5,  Specialized algorithms 
+    void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));;
 
 }}}
 ```
 
 A program that necessitates the instantiation of template `unexpected` for a 
-non-object type is ill-formed.
-
-A program that necessitates the instantiation of template `unexpected` for a 
-reference type or for possibly cv-qualified `void` type is ill-formed.
-
+non-object type or an object type cv-qualified is ill-formed.
 
 �.�.3 Unexpected object type [*unexpected.object*] {#unexpected.object}
 --------------------------------------------------
@@ -74,8 +73,18 @@ template <class E>
 class unexpected {
 public:
     unexpected() = delete;
-    constexpr explicit unexpected(const E&);
-    constexpr explicit unexpected(E&&);
+    constexpr unexpected(const unexpected&) = default;
+    constexpr unexpected(unexpected&&) = default;    
+    constexpr unexpected& operator=(const unexpected&) = default;
+    constexpr unexpected& operator=(unexpected&&) = default;    
+    
+    template <class Err>
+    constexpr explicit unexpected(Err&&);
+
+    template <class Err>
+    constexpr EXPLICIT unexpected(const unexpected<Err>&);
+    template <class Err>
+    constexpr EXPLICIT unexpected(unexpected<Err>&&);
     
     constexpr const E& value() const& noexcept;
     constexpr E& value() & noexcept;
@@ -88,27 +97,49 @@ private:
 
 
 ```c++
-constexpr explicit unexpected(const E& e);
+template <class Err>
+constexpr explicit unexpected(Err&& e);
 ```
 
-*Effects*: Initializes `val` with `e`.
+*Effects*: Initializes `val` as if direct-non-list-initializing an
+object of type `E` with the expression `std::forward<Err>(e)`.
+
+*Remark*: This constructor participates in overload resolution if and only if `std::is_constructible_v<E, Err&&>`
 
 ```c++
-constexpr explicit unexpected(E&& e);
+template <class Err>
+constexpr EXPLICIT unexpected(const unexpected<Err>& e);
 ```
 
-*Effects*: Initializes `val` with `std::forward<E>(e)`.
+*Effects*: Initializes `val` as if direct-non-list-initializing an
+object of type `E` with the expression `e.val`.
+
+*Remarks*: This constructor participates in overload resolution if and only if
+`std::is_constructible_v<E, Err>`. This constructor is `explicit` if and only if
+`std::is_convertible_v<Err, E>` is `false`.
 
 ```c++
-    constexpr const E& value() const &;
-    constexpr E& value() &;
+template <class Err>
+constexpr EXPLICIT unexpected(unexpected<Err> && e);
+```
+
+*Effects*: Initializes `val` as if direct-non-list-initializing an
+object of type `E` with the expression `std::move(e.val)`.
+
+*Remarks*: This constructor participates in overload resolution if and only if
+`std::is_constructible_v<E, Err&&>`. This constructor is `explicit` if and only if
+`std::is_convertible_v<Err&&, E>` is `false`
+
+```c++
+constexpr const E& value() const &;
+constexpr E& value() &;
 ```
 
 *Returns*: `val`.
 
 ```c++
-    constexpr E&& value() &&;
-    constexpr E const&& value() const&&;
+constexpr E&& value() &&;
+constexpr E const&& value() const&&;
 ```
 
 *Returns*: `std::move(val)`.
@@ -119,16 +150,17 @@ constexpr explicit unexpected(E&& e);
 ------------------------------------------------------------------
 
 ```c++
-    template <class E>
-        constexpr bool operator==(const unexpected<E>& x, const unexpected<E>& y);
+template <class E, class G>
+    constexpr bool operator==(const unexpected<E>& x, const unexpected<G>& y);
 ```
 
 *Effects*: Equivalent to `return x.value() == y.value()`.
 
 ```c++
-    template <class E>
-        constexpr bool operator!=(const unexpected<E>& x, const unexpected<E>& y);
+template <class E, class G>
+    constexpr bool operator!=(const unexpected<E>& x, const unexpected<G>& y);
 ```
+
 *Effects*: Equivalent to `return x.value() != y.value()`.
 
 �.� Expected objects [expected] {#expected}
@@ -153,49 +185,45 @@ inline namespace fundamentals_v3 {
     template <class T, class E>
         class expected;
 
-    // �.�.5, Expected specialization for void
-    template <class E>
-        class expected<void, E>;
-
-    // �.�.6, unexpect tag
+    // �.�.5, unexpect tag
     struct unexpect_t {
        explicit unexpect_t() = default;
     };
     inline constexpr unexpect_t unexpect{};
 
-    // �.�.7, class bad_expected_access
+    // �.�.6, class bad_expected_access
     template <class E>
        class bad_expected_access;
 
-    // �.�.8, Specialization for void
+    // �.�.7, Specialization for void
     template <>
        class bad_expected_access<void>;
 
-    // �.�.9, Expected equality operators
-    template <class T, class E>
-        constexpr bool operator==(const expected<T, E>&, const expected<T, E>&);
-    template <class T, class E>
-        constexpr bool operator!=(const expected<T, E>&, const expected<T, E>&);
+    // �.�.8, Expected equality operators
+    template <class T1, class E1, class T2, class E2>
+        constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
+    template <class T1, class E1, class T2, class E2>
+        constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
 
-    // �.�.10, Comparison with T
-    template <class T, class E>
-      constexpr bool operator==(const expected<T, E>&, const T&);
-    template <class T, class E>
-      constexpr bool operator==(const T&, const expected<T, E>&);
-    template <class T, class E>
-      constexpr bool operator!=(const expected<T, E>&, const T&);
-    template <class T, class E>
-      constexpr bool operator!=(const T&, const expected<T, E>&);
-
+    // �.�.9, Comparison with T
+    template <class T, class E, class U>
+      constexpr bool operator==(const expected<T, E>&, const U&);
+    template <class U, class T, class E>
+      constexpr bool operator==(const U&, const expected<T, E>&);
+    template <class T, class E, class U>
+      constexpr bool operator!=(const expected<T, E>&, const U&);
+    template <class U, class T, class E>
+      constexpr bool operator!=(const U&, const expected<T, E>&);
+      
     // �.�.10, Comparison with unexpected<E>
-    template <class T, class E>
-      constexpr bool operator==(const expected<T, E>&, const unexpected<E>&);
-    template <class T, class E>
-      constexpr bool operator==(const unexpected<E>&, const expected<T, E>&);
-    template <class T, class E>
-      constexpr bool operator!=(const expected<T, E>&, const unexpected<E>&);
-    template <class T, class E>
-      constexpr bool operator!=(const unexpected<E>&, const expected<T, E>&);
+    template <class T, class E, class G>
+      constexpr bool operator==(const expected<T, E>&, const unexpected<G>&);
+    template <class G, class T, class E>
+      constexpr bool operator==(const unexpected<G>&, const expected<T, E>&);
+    template <class T, class E, class G>
+      constexpr bool operator!=(const expected<T, E>&, const unexpected<G>&);
+    template <class G, class T, class E>
+      constexpr bool operator!=(const unexpected<G>&, const expected<T, E>&);
 
     // �.�.11, Specialized algorithms
     template <class T, class E>
@@ -432,7 +460,7 @@ The constructor is explicit if and only if `T` is not `void` and
 
 
 ```c++
-    template <class U, class G>
+template <class U, class G>
     EXPLICIT constexpr expected(expected<U, G>&& rhs);
 ```
 
@@ -468,7 +496,7 @@ The constructor is explicit if and only if `is_convertible_v<U, T>` is `false`
 or `is_convertible_v<G, E>` is `false`.
 
 ```c++
-    template <class U = T>
+template <class U = T>
     EXPLICIT constexpr expected(U&& v);
 ```
 
@@ -489,7 +517,7 @@ and only if `is_convertible_v<U&&, T>` is `false`.
 
 ```c++
 template <class... Args>
-  constexpr explicit expected(in_place_t, Args&&... args);
+    constexpr explicit expected(in_place_t, Args&&... args);
 ```
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
@@ -506,7 +534,7 @@ constructor shall not participate in overload resolution unless `T` is
 
 ```c++
 template <class U, class... Args>
-  constexpr explicit expected(in_place_t, initializer_list<U> il, Args&&... args);
+    constexpr explicit expected(in_place_t, initializer_list<U> il, Args&&... args);
 ```
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
@@ -523,7 +551,7 @@ constructor shall not participate in overload resolution unless `T` is not
 
 ```c++
 template <class G = E>
-EXPLICIT constexpr expected(unexpected<G> const& e);
+    EXPLICIT constexpr expected(const unexpected<G>& e);
 ```
 
 *Effects*: Initializes `unexpect` as if direct-non-list-initializing
@@ -541,7 +569,7 @@ constructor is explicit if and only if `is_convertible_v<const G&, E>` is `false
 
 ```c++
 template <class G = E>
-EXPLICIT constexpr expected(unexpected<G>&& e);
+    EXPLICIT constexpr expected(unexpected<G>&& e);
 ```
 
 *Effects*: Initializes `unexpect` as if direct-non-list-initializing
@@ -561,7 +589,7 @@ constructor shall not participate in overload resolution unless
 
 ```c++
 template <class... Args>
-  constexpr explicit expected(unexpect_t, Args&&... args);
+    constexpr explicit expected(unexpect_t, Args&&... args);
 ```
 
 *Effects*: Initializes `unexpect` as if direct-non-list-initializing
@@ -579,7 +607,7 @@ constructor shall not participate in overload resolution unless
 
 ```c++
 template <class U, class... Args>
-  constexpr explicit expected(unexpect_t, initializer_list<U> il, Args&&... args);
+    constexpr explicit expected(unexpect_t, initializer_list<U> il, Args&&... args);
 ```
 
 *Effects*: Initializes `unexpect` as if direct-non-list-initializing
@@ -608,7 +636,7 @@ constructor shall not participate in overload resolution unless
 `.
 
 *Remarks*: If `T` is `void` or `is_trivially_destructible_v<T>` is `true` and
-is_trivially_destructible_v<E>` is `true` then this destructor shall be a
+`is_trivially_destructible_v<E>` is `true` then this destructor shall be a
 trivial destructor.
 
 �.�.4.3 Assignment [*expected.object.assign*] {#expected.object.assign}
@@ -666,11 +694,6 @@ otherwise
     
     * destroys `unexpect` by calling `unexpect.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`;
-
-  * otherwise if `is_nothrow_copy_constructible_v<T>`
-
-    * destroys `unexpect` by calling `unexpect.~unexpected<E>() `
-    * initializes `val` as if direct-non-list-initializing an object of type `T` with `move(*rhs)`;
 
   * otherwise if `is_nothrow_move_constructible_v<T>`
 
@@ -758,8 +781,7 @@ otherwise `!bool(*this)` and `bool(rhs)`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`. Either,
 
       * The constructor didn't throw, set `has_val` to `true`, or
-      * The constructor did throw, so move-construct the `unexpected<E>` from `tmp` back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and rethrow the exception.
-
+      * The constructor did throw, so move-construct the `unexpected<E>` from `tmp`  back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and rethrow the exception.
 
 *Returns*: `*this`.
 
@@ -778,18 +800,15 @@ the exception safety guarantee of `E`'s copy assignment.
 
 This operator shall be defined as deleted unless 
 
-* `T` is `void` and `is_nothrow_move_constructible_v<E>` and
-`is_nothrow_move_assignable_v<E>`.
+* `T` is `void` and `is_nothrow_move_constructible_v<E>` and `is_nothrow_move_assignable_v<E>`.
 
 or
 
-* `T` is not `void` and `is_move_constructible_v<T>`
-and `is_move_assignable_v<T>` and `is_nothrow_move_constructible_v<E>` and
-`is_nothrow_move_assignable_v<E>`.
+* `T` is not `void` and `is_move_constructible_v<T>` and `is_move_assignable_v<T>` and `is_nothrow_move_constructible_v<E>` and `is_nothrow_move_assignable_v<E>`.
 
 ```c++
-template <class U>
-  expected<T, E>& operator=(U&& v);
+template <class U = T>
+    expected<T, E>& operator=(U&& v);
 ```
 
 *Effects*:
@@ -831,7 +850,8 @@ This function shall not participate in overload resolution unless:
   * `is_nothrow_move_constructible_v<E>` is `true`.
 
 ```c++
-expected<T, E>& operator=(unexpected<E> const& e) noexcept(see below);
+template <class G = E>
+    expected<T, E>& operator=(const unexpected<G>& e);
 ```
 
 *Effects*:
@@ -853,7 +873,7 @@ This signature shall not participate in overload resolution unless
 `is_nothrow_copy_constructible_v<E>` and `is_move_assignable_v<E>`.
 
 ```c++
-expected<T, E>& operator=(unexpected<E> && e);
+expected<T, E>& operator=(unexpected<G> && e);
 ```
 
 *Effects*:
@@ -875,7 +895,7 @@ This signature shall not participate in overload resolution unless
 `is_nothrow_move_constructible_v<E>` and `is_move_assignable_v<E>`.
 
 ```c++
-  void expected<void,E>::emplace();
+void expected<void,E>::emplace();
 ```
 
 *Effects*:
@@ -891,7 +911,7 @@ If `!bool(*this)`
 
 ```c++
 template <class... Args>
-  void emplace(Args&&... args);
+    void emplace(Args&&... args);
 ```
 
 *Effects*:
@@ -926,8 +946,8 @@ otherwise
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
-*Remarks*: If an exception is thrown during the call to `T`'s assignment,
-nothing changes.
+*Remarks*: If an exception is thrown during the call to `T`'s assignment, nothing
+changes.
 
 This signature shall not participate in overload resolution unless
 `is_nothrow_constructible_v<T, Args&&...>`.
@@ -935,7 +955,7 @@ This signature shall not participate in overload resolution unless
 
 ```c++
 template <class U, class... Args>
-  void emplace(initializer_list<U> il, Args&&... args);
+    void emplace(initializer_list<U> il, Args&&... args);
 ```
 
 *Effects*: if `bool(*this)`, assigns `val` as if
@@ -1001,7 +1021,6 @@ otherwise
     * followed by destruction of `unexpect` as if by `rhs.unexpect->unexpected<E>::~unexpected<E>()`,
     * `val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)` . 
 
-
 *Throws*: Any exceptions that the expressions in the Effects clause throw.
 
 Issue: Adapt `swap` Remarks once Effects are good.
@@ -1065,7 +1084,7 @@ constexpr explicit operator bool() noexcept;
 *Remarks*: This operator shall be a constexpr function.
 
 ```c++
-    constexpr bool has_value() const noexcept;
+constexpr bool has_value() const noexcept;
 ```
 
 *Returns*: `has_val`.
@@ -1129,7 +1148,7 @@ constexpr const E&& error() const &&;
 
 ```c++
 template <class U>
-  constexpr T value_or(U&& v) const&;
+    constexpr T value_or(U&& v) const&;
 ```
 
 *Effects*: Equivalent to `return bool(*this) ? **this :
@@ -1140,7 +1159,7 @@ template <class U>
 
 ```c++
 template <class U>
-  constexpr T value_or(U&& v) &&;
+    constexpr T value_or(U&& v) &&;
 ```
 
 *Effects*: Equivalent to `return bool(*this) ? std::move(**this) :
@@ -1149,7 +1168,7 @@ static_cast<T>(std::forward<U>(v));`.
 *Remarks*: If `is_move_constructible_v<T>` and `is_convertible_v<U&&, T>` is
  `false` the program is ill-formed.
 
-�.�.6 `unexpect` tag [*expected.unexpect*] {#expected.unexpect}
+�.�.5 `unexpect` tag [*expected.unexpect*] {#expected.unexpect}
 ------------------------------------------
 
 ```c++
@@ -1159,10 +1178,10 @@ struct unexpect_t {
 inline constexpr unexpect_t unexpect{};
 ```
 
-�.�.7 Template Class `bad_expected_access` [*expected.bad_expected_access*] {#expected.bad_expected_access}
+�.�.6 Template Class `bad_expected_access` [*expected.bad_expected_access*] {#expected.bad_expected_access}
 ---------------------------------------------------------------------------
 
-```
+```c++
 template <class E>
 class bad_expected_access : public bad_expected_access<void> {
 public:
@@ -1192,16 +1211,16 @@ bad_expected_access::bad_expected_access(E e);
 *Postconditions*: `what()` returns an implementation-defined NTBS.
 
 ```c++
-    const E& error() const&;
-    E& error() &;
+const E& error() const&;
+E& error() &;
  ```
 
 *Effects*: Equivalent to: `return val;`
 
 
 ```c++
-    E&& error() &&;
-    const E&& error() const &&;
+E&& error() &&;
+const E&& error() const &&;
  ```
 
 *Effects*: Equivalent to: `return std::move(val);`
@@ -1216,7 +1235,7 @@ virtual const char* what() const noexcept override;
 �.�.7 Class `bad_expected_access<void>` [*expected.bad_expected_access_base*] {#expected.bad_expected_access_base}
 --------------------------------------------------------------------------------------
 
-```
+```c++
 template <>
 class bad_expected_access<void> : public exception {
 public:
@@ -1230,26 +1249,29 @@ public:
 --------------------------------------------------------------
 
 ```c++
-    template <class T, class E>
-        constexpr bool operator==(const expected<T, E>& x, const expected<T, E>& y);
+template <class T1, class E1, class T2, class E2>
+    constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Requires*: The expressions `*x == *y` and `unexpected(x.error()) == unexpected(y.error())` shall be well-formed and its result shall be convertible to `bool`.
+*Requires*: The expressions `*x == *y` and
+`unexpected(x.error()) == unexpected(y.error())` shall be well-formed and its result
+shall be convertible to `bool`. 
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
 `x.error() == y.error()`; otherwise `true` if `T` is
 `void` or `*x == *y` otherwise.
 
 *Remarks*: Specializations of this function template, for which `T` is `void` or
-`*x == *y` and `x.error() == y.error()` are core
-constant expression, shall be constexpr functions.
+`*x == *y` and `x.error() == y.error()` are core constant expression, shall be
+`constexpr` functions.
 
 ```c++
-    template <class T, class E>
-        constexpr bool operator!=(const expected<T, E>& x, const expected<T, E>& y);
+template <class T1, class E1, class T2, class E2>
+    constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Requires*: The expressions `*x != *y` and `x.error() != y.error()` shall be well-formed and its result shall be convertible to `bool`.
+*Requires*: The expressions `*x != *y` and `x.error() != y.error()` shall be
+well-formed and its result shall be convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `true`; otherwise if `bool(x) == false`,
 `x.error() != y.error()`; otherwise `true` if `T` is
@@ -1263,8 +1285,8 @@ constant expression, shall be constexpr functions.
 ---------------------------------------------------
 
 ```c++
-    template <class T, class E> constexpr bool operator==(const expected<T, E>& x, const T& v);
-    template <class T, class E> constexpr bool operator==(const T& v, const expected<T, E>& x);
+template <class T, class E, class U> constexpr bool operator==(const expected<T, E>& x, const U& v);
+template <class U, class T, class E> constexpr bool operator==(const U& v, const expected<T, E>& x);
 ```
 
 *Requires*: `T` is not `void` and the expression `*x == v` shall be well-formed
@@ -1275,8 +1297,8 @@ and its result shall be convertible to
 
 
 ```c++
-    template <class T, class E> constexpr bool operator!=(const expected<T, E>& x, const T& v);
-    template <class T, class E> constexpr bool operator!=(const T& v, const expected<T, E>& x);
+template <class T, class E, class U> constexpr bool operator!=(const expected<T, E>& x, const U& v);
+template <class U, class T, class E> constexpr bool operator!=(const U& v, const expected<T, E>& x);
 ```
 
 *Requires*: `T` is not `void` and the expression `*x == v` shall be well-formed
@@ -1290,26 +1312,23 @@ and its result shall be convertible to
 ---------------------------------------------------------------------------
 
 ```c++
-    template <class T, class E> constexpr bool operator==(const expected<T, E>& x, const unexpected<E>& e);
-    template <class T, class E> constexpr bool operator==(const unexpected<E>& e, const expected<T, E>& x);
+template <class T, class E, class G> constexpr bool operator==(const expected<T, E>& x, const unexpected<G>& e);
+template <class G, class T, class E> constexpr bool operator==(const unexpected<G>& e, const expected<T, E>& x);
 ```
 
 *Requires*: The expression `unexpected(x.error()) == e` shall be well-formed and
-its result shall be convertible to `bool`. [ Note: `E` need not be
-*EqualityComparable*. - end note]
+its result shall be convertible to `bool`. 
 
-*Effects*: Equivalent to: `return bool(x) ? true : unexpected(x.error()) == e;`.
+*Effects*: Equivalent to: `return bool(x) ? false : unexpected(x.error()) == e;`.
 
 ```c++
-    template <class T, class E> constexpr bool operator!=(const expected<T, E>& x, const unexpected<E>& e);
-    template <class T, class E> constexpr bool operator!=(const unexpected<E>& e, const expected<T, E>& x);
+template <class T, class E, class G> constexpr bool operator!=(const expected<T, E>& x, const unexpected<G>& e);
+template <class G, class T, class E> constexpr bool operator!=(const unexpected<G>& e, const expected<T, E>& x);
 ```
 
 *Requires*: The expression `unexpected(x.error()) != e` shall be well-formed and
-its result shall be convertible to `bool`. [ Note: `E` need not be
-*EqualityComparable*. - end note]
-
-*Effects*: Equivalent to: `return bool(x) ? false : unexpected(x.error()) != e;`.
+its result shall be convertible to `bool`. 
+*Effects*: Equivalent to: `return bool(x) ? true : unexpected(x.error()) != e;`.
 
 
 �.�.11 Specialized algorithms [*expected.specalg*] {#expected.specalg}
@@ -1361,7 +1380,7 @@ Ergonomics {#ergo}
 
   1. Is `E` a salient property of `expected`?
   1. Is `expected<void, E>` clear on what it expresses as a return type?
-  1. Would it make sense for `expected` to support containing *both* `T` and `E` (in some designs, either one of them being optional), or is this usecase better handled by a separate proposal?
+  1. Would it make sense for `expected` to support containing *both* `T` and `E` (in some designs, either one of them being optional), or is this use case better handled by a separate proposal?
   1. Is the order of parameters `<T, E>` appropriate?
   1. Is usage of `expected` "viral" in a codebase, or can it be adopted incrementally?
   1. Comparisons:
@@ -1383,7 +1402,7 @@ Ergonomics {#ergo}
   1. Does usage of this class cause a meaningful performance impact compared to using error codes?
   1. The accessor design offers a terse unchecked dereference operator (expected to be used alongside the implicit `bool` conversion), as well as `value()` and `error()` accessors which are checked. Is that a gotcha, or is it similar enough to classes such as `optional` to be unsurprising?
   1. Is `bad_expected_access` the right thing to throw?
-  1. Should some members be `[[nodiscard]]`?
+  1. Should some members be `nodiscard`?
 
 
 Disappointment {#dis}
