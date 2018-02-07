@@ -42,68 +42,60 @@ Purposefully not addressed in this paper:
 Proposed Wording {#word}
 ================
 
-In Operations on atomic types [**atomics.types.operations**].
-
-❡3:
-
-<blockquote>
-
-<xmp>constexpr atomic(T desired) noexcept;</xmp>
-
-*Effects:* Initializes the object with the value `desired`<ins>, replacing bits
-which never participate in the object's representation with an
-implementation-defined value</ins>. Initialization is not an atomic
-operation.
-
-[*Note:* It is possible to have an access to an atomic object `A` race with its
-construction, for example by communicating the address of the just-constructed
-object `A` to another thread via `memory_order::relaxed` operations on a
-suitable atomic pointer variable, and then immediately accessing `A` in the
-receiving thread. This results in undefined behavior. —*end note*]
-
-</blockquote>
-
-❡4 and ❡5:
+In Operations on atomic types [**atomics.types.operations**], insert a new
+paragraph after the note in ❡1:
 
 <blockquote>
+
+[*Note:* Many operations are volatile-qualified. The "volatile as device
+register" semantics have not changed in the standard. This qualification means
+that volatility is preserved when applying these operations to volatile objects.
+It does not mean that operations on non-volatile objects become volatile. —*end
+note*]
+
+<ins>
+
+Atomic operations, both through `atomic<T>` and free-functions, can be performed
+on types `T` which contain bits that never participate in the object's
+representation. In such cases an implementation shall ensure that
+initialization, assignment, store, exchange, and read-modify-write operations
+replace bits which never participate in the object's representation with an
+implementation-defined value. A compatible implementation-defined value shall be
+used for compare-and-exchange operations' copy of the `expected` value.
+
+As a consequence, the following code is guaranteed to avoid spurious failure:
 
 <xmp>
-  void store(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
-  void store(T desired, memory_order order = memory_order::seq_cst) noexcept;
+
+struct padded {
+  char c = 0x42;
+  // Padding here.
+  unsigned i = 0xC0DEFEFE;
+};
+atomic<padded> pad = ATOMIC_VAR_INIT({});
+
+bool success() {
+  padded expected, desired { 0, 0 };
+  return pad.compare_exchange_strong(expected, desired);
+}
+
 </xmp>
 
-*Requires:* The `order` argument shall not be
-`memory_order::consume`, `memory_order::acquire`, nor
-`memory_order::acq_rel`.
+[*Note:*
 
-*Effects:* Atomically replaces the value pointed to by `this` with the value of
-`desired`<ins>, replacing bits which never participate in the object's
-representation with an implementation-defined value</ins>. Memory is affected
-according to the value of `order`.
+  Types which contain bits that sometimes participate in the object's
+  representation, such as a `union` containing a type with padding bits and a
+  type without, may always fail compare-and-exchange when these bits are not
+  participating in the object's representation because they have an
+  indeterminate value. Such a program is ill-formed, no diagnostic required.
+
+—*end note*]
+
+</ins>
 
 </blockquote>
 
-❡15 and ❡16:
-
-<blockquote>
-
-<xmp>
-  T exchange(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
-  T exchange(T desired, memory_order order = memory_order::seq_cst) noexcept;
-</xmp>
-
-*Effects:* Atomically replaces the value pointed to by `this` with
-`desired`<ins>, replacing bits which never participate in the object's
-representation with an implementation-defined value</ins>. Memory is affected
-according to the value of `order`. These operations are atomic read-modify-write
-operations.
-
-*Returns:* Atomically returns the value pointed to by `this` immediately
-before the effects.
-
-</blockquote>
-
-❡17 and onwards:
+Edit ❡17 and onwards as follows:
 
 <blockquote>
 
@@ -112,7 +104,7 @@ before the effects.
 
 *Effects:* Retrieves the value in `expected`. <ins>Bits in the retrieved value
 which never participate in the object's representation are set to a value
-consistent to that previously stored in the atomic object.</ins> It then
+compatible to that previously stored in the atomic object.</ins> It then
 atomically compares the contents of the memory pointed to by `this` for equality
 with that previously retrieved from `expected`, and if true, replaces the
 contents of the memory pointed to by `this` with that in `desired`. If and only
@@ -206,29 +198,11 @@ were originally there.
 
   The `memcpy` and `memcmp` semantics of the compare-and-exchange operations may
   result in failed comparisons for values that compare equal with `operator==`
-  if the underlying type has padding bits<ins> which may participate in the
-  object's representation (such as a `union` containing a type with padding
-  bits)</ins>, trap bits, or alternate representations of the same value.
+  if the underlying type has padding bits<ins> which sometimes participate in
+  the object's representation</ins>, trap bits, or alternate representations of
+  the same value<ins> other than those caused by padding bits which never
+  participate in the object's representation</ins>.
 
 —*end note*]
-
-</blockquote>
-
-
-In Non-member functions [**atomics.nonmembers**], ❡2:
-
-<blockquote>
-
-<xmp>
-  template<class T>
-    void atomic_init(volatile atomic<T>* object, typename atomic<T>::value_type desired) noexcept;
-  template<class T>
-    void atomic_init(atomic<T>* object, typename atomic<T>::value_type desired) noexcept;
-</xmp>
-
-*Effects:* Non-atomically initializes `*object` with value `desired`<ins>,
-replacing bits which never participate in the object's representation with an
-implementation-defined value</ins>. This function shall only be applied to
-objects that have been default constructed, and then only once.
 
 </blockquote>
