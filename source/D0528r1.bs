@@ -2,7 +2,7 @@
 Title: The Curious Case of Padding Bits, Featuring Atomic Compare-and-Exchange
 Shortname: D0528
 Revision: 1
-Audience: SG1, LEWG, LWG, CWG
+Audience: SG1, EWG, CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D0528r1
