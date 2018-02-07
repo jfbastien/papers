@@ -5,7 +5,7 @@ Revision: 5
 Audience: LWG
 Status: D
 Group: WG21
-URL: http://wg21.link/D0323r5
+URL: https://wg21.link/D0323r5
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0323r5.bs">github.com/jfbastien/papers/blob/master/source/D0323r5.bs</a>
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
@@ -1291,7 +1291,7 @@ template <class U, class T, class E> constexpr bool operator==(const U& v, const
 
 *Requires*: `T` is not `void` and the expression `*x == v` shall be well-formed
 and its result shall be convertible to
-`bool`. [ Note: `T` need not be *EqualityComparable*. - end note]
+`bool`. [ *Note:* `T` need not be *EqualityComparable*. - *end note*]
 
 *Effects*: Equivalent to: `return bool(x) ? *x == v : false;`.
 
@@ -1303,7 +1303,7 @@ template <class U, class T, class E> constexpr bool operator!=(const U& v, const
 
 *Requires*: `T` is not `void` and the expression `*x == v` shall be well-formed
 and its result shall be convertible to
-`bool`. [ Note: `T` need not be *EqualityComparable*. - end note]
+`bool`. [ *Note:* `T` need not be *EqualityComparable*. - *end note*]
 
 *Effects*: Equivalent to: `return bool(x) ? *x != v : false;`.
 
@@ -1417,7 +1417,6 @@ kind of error handling.
   1. Is debuggability any harder?
   1. Is it easy to teach C++ as a whole with a third type of error handling?
      
-
 
 STL Usage {#stl}
 ---------
