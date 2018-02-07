@@ -2,11 +2,11 @@
 Title: Offsetof for Pointers to Members
 Shortname: Doffsetof
 Revision: 1
-Audience: SG1, EWG, CWG
+Audience: EWG
 Status: D
 Group: WG21
 Editor: Eddie Kohler, Harvard, kohler@seas.harvard.edu
-URL: http://wg21.link/Doffsetofr1
+URL: https://wg21.link/Doffsetofr1
 Abstract: The `offsetof` macro should support pointers to members.
 Markup Shorthands: markdown yes
 </pre>
@@ -83,7 +83,7 @@ size_t link_offset = offsetof(Container, .*member);
 </xmp>
 
 
-Questions
+Questions {#qq}
 =========
 
 Must a pointer-to-member expression in an `offsetof` member-designator be a
@@ -134,8 +134,8 @@ the prefix operator is omitted, `.` is assumed. </ins>
 </blockquote>
 
 
-Example online discussions of the issue
+Example online discussions of the issue {#disc}
 =======================================
 
-https://groups.google.com/forum/#!topic/llvm-dev/l78RQ9zJR64
-https://gist.github.com/graphitemaster/494f21190bb2c63c5516
+* https://groups.google.com/forum/#!topic/llvm-dev/l78RQ9zJR64
+* https://gist.github.com/graphitemaster/494f21190bb2c63c5516
