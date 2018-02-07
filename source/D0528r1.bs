@@ -42,29 +42,92 @@ Purposefully not addressed in this paper:
 Proposed Wording {#word}
 ================
 
-In Operations on atomic types [**atomics.types.operations**], ❡17 and onwards:
+In Operations on atomic types [**atomics.types.operations**].
+
+❡3:
+
+<blockquote>
+
+<xmp>constexpr atomic(T desired) noexcept;</xmp>
+
+*Effects:* Initializes the object with the value `desired`<ins>, replacing bits
+which never participate in the object's representation with an
+implementation-defined value</ins>. Initialization is not an atomic
+operation.
+
+[*Note:* It is possible to have an access to an atomic object `A` race with its
+construction, for example by communicating the address of the just-constructed
+object `A` to another thread via `memory_order::relaxed` operations on a
+suitable atomic pointer variable, and then immediately accessing `A` in the
+receiving thread. This results in undefined behavior. —*end note*]
+
+</blockquote>
+
+❡4 and ❡5:
+
+<blockquote>
+
+<xmp>
+  void store(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  void store(T desired, memory_order order = memory_order::seq_cst) noexcept;
+</xmp>
+
+*Requires:* The `order` argument shall not be
+`memory_order::consume`, `memory_order::acquire`, nor
+`memory_order::acq_rel`.
+
+*Effects:* Atomically replaces the value pointed to by `this` with the value of
+`desired`<ins>, replacing bits which never participate in the object's
+representation with an implementation-defined value</ins>. Memory is affected
+according to the value of `order`.
+
+</blockquote>
+
+❡15 and ❡16:
+
+<blockquote>
+
+<xmp>
+  T exchange(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  T exchange(T desired, memory_order order = memory_order::seq_cst) noexcept;
+</xmp>
+
+*Effects:* Atomically replaces the value pointed to by `this` with
+`desired`<ins>, replacing bits which never participate in the object's
+representation with an implementation-defined value</ins>. Memory is affected
+according to the value of `order`. These operations are atomic read-modify-write
+operations.
+
+*Returns:* Atomically returns the value pointed to by `this` immediately
+before the effects.
+
+</blockquote>
+
+❡17 and onwards:
 
 <blockquote>
 
 *Requires:* The `failure` argument shall not be `memory_order::release` nor
 `memory_order::acq_rel`.
 
-*Effects:* Retrieves the value in `expected`. It then atomically compares the
-contents of the memory pointed to by `this` for equality with that previously
-retrieved from `expected`, and if true, replaces the contents of the memory
-pointed to by `this` with that in `desired`. If and only if the comparison is
-true, memory is affected according to the value of `success`, and if the
-comparison is false, memory is affected according to the value of `failure`.
-When only one `memory_order` argument is supplied, the value of `success` is
-`order`, and the value of `failure` is `order` except that a value of
-`memory_order::acq_rel` shall be replaced by the value `memory_order::acquire`
-and a value of `memory_order::release` shall be replaced by the value
-`memory_order::relaxed`. If and only if the comparison is false then, after the
-atomic operation, the contents of the memory in `expected` are replaced by the
-value read from the memory pointed to by `this` during the atomic comparison. If
-the operation returns `true`, these operations are atomic read-modify-write
-operations on the memory pointed to by `this`. Otherwise, these operations are
-atomic load operations on that memory.
+*Effects:* Retrieves the value in `expected`. <ins>Bits in the retrieved value
+which never participate in the object's representation are set to a value
+consistent to that previously stored in the atomic object.</ins> It then
+atomically compares the contents of the memory pointed to by `this` for equality
+with that previously retrieved from `expected`, and if true, replaces the
+contents of the memory pointed to by `this` with that in `desired`. If and only
+if the comparison is true, memory is affected according to the value of
+`success`, and if the comparison is false, memory is affected according to the
+value of `failure`. When only one `memory_order` argument is supplied, the value
+of `success` is `order`, and the value of `failure` is `order` except that a
+value of `memory_order::acq_rel` shall be replaced by the value
+`memory_order::acquire` and a value of `memory_order::release` shall be replaced
+by the value `memory_order::relaxed`. If and only if the comparison is false
+then, after the atomic operation, the contents of the memory in `expected` are
+replaced by the value read from the memory pointed to by `this` during the
+atomic comparison. If the operation returns `true`, these operations are atomic
+read-modify-write operations on the memory pointed to by `this`. Otherwise,
+these operations are atomic load operations on that memory.
 
 *Returns:* The result of the comparison.
 
@@ -102,8 +165,10 @@ atomic load operations on that memory.
   
 [*Example:*
 
-  Because the expected value is updated only on failure, code releasing the memory containing the `expected` value on success will work. E.g. list head insertion will act atomically and would not introduce a data race in the following code:
-
+  Because the expected value is updated only on failure, code releasing the
+  memory containing the `expected` value on success will work. E.g. list head
+  insertion will act atomically and would not introduce a data race in the
+  following code:
   
   <xmp>
 
@@ -141,9 +206,29 @@ were originally there.
 
   The `memcpy` and `memcmp` semantics of the compare-and-exchange operations may
   result in failed comparisons for values that compare equal with `operator==`
-  if the underlying type has padding bits, trap bits, or alternate
-  representations of the same value.
+  if the underlying type has padding bits<ins> which may participate in the
+  object's representation (such as a `union` containing a type with padding
+  bits)</ins>, trap bits, or alternate representations of the same value.
 
 —*end note*]
+
+</blockquote>
+
+
+In Non-member functions [**atomics.nonmembers**], ❡2:
+
+<blockquote>
+
+<xmp>
+  template<class T>
+    void atomic_init(volatile atomic<T>* object, typename atomic<T>::value_type desired) noexcept;
+  template<class T>
+    void atomic_init(atomic<T>* object, typename atomic<T>::value_type desired) noexcept;
+</xmp>
+
+*Effects:* Non-atomically initializes `*object` with value `desired`<ins>,
+replacing bits which never participate in the object's representation with an
+implementation-defined value</ins>. This function shall only be applied to
+objects that have been default constructed, and then only once.
 
 </blockquote>
