@@ -236,35 +236,81 @@ usecases where:
     sharding for this, but some embed a lock in every large `std::atomic`
     object.
 
-Solutions {#solutions}
+Proposal {#proposal}
 =========
 
-There are many solutions to this problem. This paper hopes to round up what has
-been suggested before, leading to a discussion in the concurrency and
-parallelism group. This discussion should end in straw polls which provide
-guidance on where the committee would like to go next with this issue.
+A previous version of this paper [[p0690r0]] considered several
+possible solutions for making the above examples well-formed. Here we
+select one based on SG1 feedback. (We would like to emphasize that
+none of the authors are deeply invested in this particular solution,
+but all of us would like to make progress towards C++ supporting our
+use cases *somehow*; if a different solution would be much more
+acceptable, that is excellent feedback.)  We give strawman wording for
+our definitions, but with no expectation at all that it is final.
 
-  1. Atomic views [[p0019r5]] tackle some of the issues discussed here, but in
-     an environment where data access patterns follow *epochs*. For parts of
-     runtime the view are accessed non-atomically, and for other parts of
-     runtime they are accessed atomically. Atomic views do not solve the general
-     problem discussed here.
-  2. A paper on thin air values [[n3710]] discussed adding `non_atomic_load()`,
-     `non_atomic_store()`, and `race_or<T>` type (similar to `std::optional` or
-     `std::expected` but for racy / indeterminate results).
-  3. Safe `memcpy` [[p0603r0]] proposes addressing the seqlock example with
-     `nonatomic_load()` and `nonatomic_store()` functions.
-  4. We also offer a different approach: a new memory order type,
-     `memory_order_tearing`, which has the same semantics as
-     `memory_order_relaxed` but which is allowed to tear. And—of course—
-     `memory_order_tearing` has the neat properly of being spelled with the same
-     number of characters as the other 6 memory orderings.
+In particular our solution is an adaption of [[p0603r0]]. We define two new member functions for `std::atomic`:
 
-Not all of these approaches address all the issues discussed
-above—e.g. `memory_order_tearing` does not address the issue of large
-non-lock-free `T`—we therefore hope that the concurency and parallelism group
-will find the wisdom required to weigh each issue and decide which solution fits
-them best.
+>
+> `T std::atomic<T>::nonatomic_load(
+                     memory_order order = memory_order_seq_cst) const noexcept;`
+>
+>
+> *Effects*: equivalent to `load(order)`, but if there exists a
+> potentially concurrent conflicting action X (i.e. a modification to A)
+> which neither happens before nor happens after this call, this call
+> returns an indeterminate value.  If this occurs, this call is
+> considered to "read the value written by X" as described in
+> [atomics.fences].
+>
+> *Remarks*: Lock free, irregardless of the value of `is_lock_free()`.
+
+We would also require wording changes to [dcl.init.12]'s definition of
+indeterminate values, allowing expressions like
+<xmp>
+auto a = atomic_var.nonatomic_load();
+</xmp>
+to produce indeterminate values without invoking undefined
+behavior. (We don't provide such wording here.)
+
+This function allows a simple and correct [[#seqlock]] and
+[[#wsdeque]] but does **not** fix [[#spec-load]] without some
+additional work. Even with a relaxation of [dcl.init], an
+indeterminately-valued `Node` is unsafe to use in `action()`. Clearly
+the intention of that code is that any sequence of arbitrary bytes is
+well-defined as a `Node`, but more wording work would be required to
+allow this.
+
+(Note that `race_or<T>` as proposed in [[n3710]] does no better, as
+the speculatively loaded `Node` must be realized from its `race_or`
+holder, even when the value is in fact racy; this was defined in that
+paper as UB.)
+
+We also have the matching write variant:
+
+> `void std::atomic<T>::nonatomic_store(T desired, memory_order order = memory_order_seq_cst)
+  const noexcept;`
+>
+> *Requires*: The `order` argument shall not be `memory_order_consume`,
+> `memory_order_acquire`, nor `memory_order_acq_rel`.
+>
+> *Effects*: Replaces (non-atomically) the value of `this` with the value of
+> `desired`, affecting memory according to the value of `order`. If there
+> exists a potentially concurrent conflicting action X, which neither happens
+> before nor happens after this call, then:
+> - if X is a write, the value pointed to by this is indeterminate.
+> - if X is a read, then X returns an indeterminate value. X is considered to "read the value written by" this call as described in [atomics.fences].
+>
+> If no such action X exists, then this call is exactly equivalent to `store(desired, order)`.
+>
+> *Remarks*: Lock free, irregardless of the value of is_lock_free().
+
+This function optimizes the write-side of a seqlock or deque, but
+isn't strictly necessary for its correctness. (In the seqlock case the
+performance advantage is minor; in the deque case, this is more likely
+to be significant.)  One difficulty here is that we'd need even more
+extensions to the indeterminate value changes, since we can
+effectively "poison" a `std::atomic<T>` with an indeterminate value in
+the case of two racy writes.
 
 <pre class=biblio>
 {
