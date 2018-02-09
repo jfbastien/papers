@@ -31,13 +31,13 @@ RCU's scalability.
 
 This proposal continues work from:
 
-  1. Towards Implementation and Use of `memory order consume` [[p0098R1]] lists
+  1. Towards Implementation and Use of `memory_order_consume` [[p0098R1]] lists
      a plethora of manners in which C++ could expose consume. In particular,
      section 7.11 is the root of the current proposal.
-  2. Marking memory order consume Dependency Chains [[p0462r1]] expands on the
+  2. Marking `memory_order_consume` Dependency Chains [[p0462r1]] expands on the
      previous paper. Of particular interest is section 3.2 which proposes
      `depending_ptr`, which the current proposal's API derives from.
-  3. Proposal for New memory order consume Definition [[p0190r3]] has
+  3. Proposal for New `memory_order_consume` Definition [[p0190r3]] has
      comprehensive details on each operation which RCU supports. That list was
      critical in crafting the precise semantics which the current proposal has.
 
@@ -80,7 +80,7 @@ precise assembly generation. To maintain correctness, current uses rely on:
   - Human inspection of compiled code disassembly;
   - Extensive testing;
   - Judicious application of inline assembly; and
-  - Luck 🍀.
+  - Luck.
 
 This proposal is no different, except that it offloads this burden on the
 compiler and standard library authors. These people are in a much better
@@ -163,7 +163,8 @@ implementation in C++ using this API.
 It is also worth considering whether consumable types should be restricted
 somehow. `atomic` requires trivially-copyable types, but doesn't restrict the
 size of `T`. Should consume require the same restriction? Is it useful to
-consume very large values? In the author's experience it isn't, but it could be
+consume very large values? In the author's experience it isn't, and the Linux
+kernel consumes only pointers, but it could be
 useful in other fields, and at a minimum what qualifies as "large" is
 ISA-dependent.
 
