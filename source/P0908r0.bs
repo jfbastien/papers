@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: Offsetof for Pointers to Members
-Shortname: Doffsetof
+Shortname: P0908
 Revision: 1
 Audience: EWG
 Status: D
 Group: WG21
 Editor: Eddie Kohler, Harvard, kohler@seas.harvard.edu
-URL: https://wg21.link/Doffsetofr1
+URL: https://wg21.link/P0908r0
 Abstract: The `offsetof` macro should support pointers to members.
 Markup Shorthands: markdown yes
 </pre>
