@@ -11,9 +11,19 @@ Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Billy Robert O'Neal III, Microsoft, bion@microsoft.com
 Editor: Andrew Hunter, Google, ahh@google.com
 Abstract: Atomics which can tear—which are more relaxed than relaxed—seem useless. This paper shows otherwise.
-Date: 2017-06-18
+Date: 2018-02-10
 Markup Shorthands: markdown yes
 </pre>
+
+Edit History {#edit}
+============
+
+r0 → r1 {#r0r1}
+-------
+
+In Toronto, SG1 discussed [[p0690r0]], the different approaches that it
+proposed, and didn't really conclude anything. This update proposes a single one
+among all approaches that were proposed in r0.
 
 Background {#bg}
 ==========
@@ -226,7 +236,7 @@ usecases where:
     implementation.
   * Padding of the datastructure isn't the same as that mandated by
     `std::atomic` (although padding bits are their own bag of special
-    [[p0528r0]]).
+    as [[p0528r0]] and [[p0528r1]] show).
   * The datastructure isn't always accessed by memory operations of the same
     byte-size. This could occur without dangerous type aliasing by using
     properly type-punned `union`, `memcpy`, or `std::variant`, as well as with
@@ -250,31 +260,38 @@ our definitions, but with no expectation at all that it is final.
 
 In particular our solution is an adaption of [[p0603r0]]. We define two new member functions for `std::atomic`:
 
->
-> `T std::atomic<T>::nonatomic_load(
-                     memory_order order = memory_order_seq_cst) const noexcept;`
->
->
-> *Effects*: equivalent to `load(order)`, but if there exists a
-> potentially concurrent conflicting action X (i.e. a modification to A)
-> which neither happens before nor happens after this call, this call
-> returns an indeterminate value.  If this occurs, this call is
-> considered to "read the value written by X" as described in
-> [atomics.fences].
->
-> *Remarks*: Lock free, irregardless of the value of `is_lock_free()`.
+<blockquote>
 
-We would also require wording changes to [dcl.init.12]'s definition of
+<xmp>
+T std::atomic<T>::nonatomic_load(
+    memory_order order = memory_order_seq_cst) const noexcept;
+</xmp>
+
+*Effects*: equivalent to `load(order)`, but if there exists a
+potentially concurrent conflicting action X (i.e. a modification to A)
+which neither happens before nor happens after this call, this call
+returns an indeterminate value.  If this occurs, this call is
+considered to "read the value written by X" as described in
+[**atomics.fences**].
+
+*Remarks*: Lock free, regardless of the values of `is_lock_free()` and
+ `is_always_lock_free()`.
+
+</blockquote>
+
+We would also require wording changes to [**dcl.init.12**]'s definition of
 indeterminate values, allowing expressions like
+
 <xmp>
 auto a = atomic_var.nonatomic_load();
 </xmp>
+
 to produce indeterminate values without invoking undefined
 behavior. (We don't provide such wording here.)
 
 This function allows a simple and correct [[#seqlock]] and
 [[#wsdeque]] but does **not** fix [[#spec-load]] without some
-additional work. Even with a relaxation of [dcl.init], an
+additional work. Even with a relaxation of [**dcl.init**], an
 indeterminately-valued `Node` is unsafe to use in `action()`. Clearly
 the intention of that code is that any sequence of arbitrary bytes is
 well-defined as a `Node`, but more wording work would be required to
@@ -283,26 +300,33 @@ allow this.
 (Note that `race_or<T>` as proposed in [[n3710]] does no better, as
 the speculatively loaded `Node` must be realized from its `race_or`
 holder, even when the value is in fact racy; this was defined in that
-paper as UB.)
+paper as undefined behavior).
 
 We also have the matching write variant:
 
-> `void std::atomic<T>::nonatomic_store(T desired, memory_order order = memory_order_seq_cst)
-  const noexcept;`
->
-> *Requires*: The `order` argument shall not be `memory_order_consume`,
-> `memory_order_acquire`, nor `memory_order_acq_rel`.
->
-> *Effects*: Replaces (non-atomically) the value of `this` with the value of
-> `desired`, affecting memory according to the value of `order`. If there
-> exists a potentially concurrent conflicting action X, which neither happens
-> before nor happens after this call, then:
-> - if X is a write, the value pointed to by this is indeterminate.
-> - if X is a read, then X returns an indeterminate value. X is considered to "read the value written by" this call as described in [atomics.fences].
->
-> If no such action X exists, then this call is exactly equivalent to `store(desired, order)`.
->
-> *Remarks*: Lock free, irregardless of the value of is_lock_free().
+<blockquote>
+
+<xmp>
+void std::atomic<T>::nonatomic_store(
+    T desired, memory_order order = memory_order_seq_cst) const noexcept;
+</xmp>
+
+*Requires*: The `order` argument shall not be `memory_order_consume`,
+`memory_order_acquire`, nor `memory_order_acq_rel`.
+
+*Effects*: Replaces (non-atomically) the value of `this` with the value of
+`desired`, affecting memory according to the value of `order`. If there
+exists a potentially concurrent conflicting action X, which neither happens
+before nor happens after this call, then:
+
+  * if X is a write, the value pointed to by this is indeterminate.
+  * if X is a read, then X returns an indeterminate value. X is considered to "read the value written by" this call as described in [**atomics.fences**].
+
+If no such action X exists, then this call is exactly equivalent to `store(desired, order)`.
+
+*Remarks*: Lock free, regardless of the values of `is_lock_free()` and `is_always_lock_free()`.
+
+</blockquote>
 
 This function optimizes the write-side of a seqlock or deque, but
 isn't strictly necessary for its correctness. (In the seqlock case the
@@ -344,6 +368,15 @@ the case of two racy writes.
             "Yossi Lev"
         ],
         "date": "July 2005"
+    },
+    "P0528r1": {
+        "href": "https://wg21.link/p0528r1",
+        "title": "The Curious Case of Padding Bits, Featuring Atomic Compare-and-Exchange",
+        "authors": [
+            "JF Bastien",
+            "Michael Spencer"
+        ],
+        "date": "6 February 2018"
     }
 }
 </pre>
