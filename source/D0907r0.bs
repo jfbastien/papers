@@ -49,8 +49,8 @@ Specifically, the current wording has the following effects:
     checks for two's complement integers. Correct overflow checks are difficult
     to write and equally difficult to read, exponentially so in generic code.
   * Conversion between signed and unsigned are implementation-defined.
-  * There is no portable way to generate an arithmetic right-shift, which every
-    modern CPU supports.
+  * There is no portable way to generate an arithmetic right-shift, or to
+    sign-extend an integer, which every modern CPU supports.
   * `constexpr` is further restrained by this extraneous undefined behavior.
   * Atomic integral are already two's complement and have no undefined results,
     therefore even freestanding implementations already support two's complement
