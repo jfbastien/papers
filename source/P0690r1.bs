@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: Tearable Atomics
-Shortname: D0690
+Shortname: P0690
 Revision: 1
 Audience: SG1
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P0690
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0690r0.bs">github.com/jfbastien/papers/blob/master/source/P0690r0.bs</a>
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0690r1.bs">github.com/jfbastien/papers/blob/master/source/P0690r1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Billy Robert O'Neal III, Microsoft, bion@microsoft.com
 Editor: Andrew Hunter, Google, ahh@google.com
