@@ -368,7 +368,7 @@ A non-comprehensive list of items left purposefully out:
   * Library solution for ones' complement integers.
   * Library solution for signed magnitude integers.
   * Library solution for two's complement integers with trapping or undefined
-    overflow sepantics.
+    overflow semantics.
   * Language support for explicit signed overflow truncation such as Swift's
     (`&+`, `&-`, and `&*`), or complementary trapping overflow operators.
   * Library or language support for saturating arithmetic.
