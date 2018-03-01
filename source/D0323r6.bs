@@ -1010,7 +1010,7 @@ otherwise
    
     * the `unexpect` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`, 
     * followed by destruction of `unexpect` as if by `rhs.unexpect.unexpected<E>::~unexpected<E>()`,
-    * `rhs.val` is direct-initialized from `std::move(*other)`, 
+    * `rhs.val` is direct-initialized from `std::move(*this)`, 
     * followed by destruction of `rhs.val` as if by `rhs.val->~T()`,
     * the `unexpect` of `this` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)` . 
 
