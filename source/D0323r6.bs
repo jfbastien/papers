@@ -1,23 +1,24 @@
 <pre class='metadata'>
 Title: std::expected
 Shortname: D0323
-Revision: 5
+Revision: 6
 Audience: LWG
 Status: D
 Group: WG21
-URL: http://wg21.link/D0323r5
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0323r5.bs">github.com/jfbastien/papers/blob/master/source/D0323r5.bs</a>
+URL: https://wg21.link/D0323r6
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0323r6.bs">github.com/jfbastien/papers/blob/master/source/D0323r6.bs</a>
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2018-01-10
+Date: 2018-03-01
 Markup Shorthands: markdown yes
 </pre>
 
-This paper revises [[P0323r4]] by applying feedback obtained from LEWG and
-EWG. The previous paper contains motivation, design rationale, implementability
-information, sample usage, history, alternative designs and related types. This
-update only contains wording and open questions because its purpose is twofold:
+This paper revises [[P0323r5]], which applied feedback obtained from LEWG and
+EWG. r6 applies more feedback while keeping the r5 design intact. [[P0323r4]]
+contains motivation, design rationale, implementability information, sample
+usage, history, alternative designs and related types. r6 and r5 only contain
+wording and open questions because their purpose is twofold:
 
   * Present appropriate wording for inclusion in the Library Fundamentals TS v3.
   * List open questions which the TS should aim to answer.
@@ -1009,7 +1010,7 @@ otherwise
    
     * the `unexpect` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`, 
     * followed by destruction of `unexpect` as if by `rhs.unexpect.unexpected<E>::~unexpected<E>()`,
-    * `rhs.val` is direct-initialized from `std::move(*other)`, 
+    * `rhs.val` is direct-initialized from `std::move(*this)`, 
     * followed by destruction of `rhs.val` as if by `rhs.val->~T()`,
     * the `unexpect` of `this` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)` . 
 
@@ -1291,7 +1292,7 @@ template <class U, class T, class E> constexpr bool operator==(const U& v, const
 
 *Requires*: `T` is not `void` and the expression `*x == v` shall be well-formed
 and its result shall be convertible to
-`bool`. [ Note: `T` need not be *EqualityComparable*. - end note]
+`bool`. [ *Note:* `T` need not be *EqualityComparable*. - *end note*]
 
 *Effects*: Equivalent to: `return bool(x) ? *x == v : false;`.
 
@@ -1303,7 +1304,7 @@ template <class U, class T, class E> constexpr bool operator!=(const U& v, const
 
 *Requires*: `T` is not `void` and the expression `*x == v` shall be well-formed
 and its result shall be convertible to
-`bool`. [ Note: `T` need not be *EqualityComparable*. - end note]
+`bool`. [ *Note:* `T` need not be *EqualityComparable*. - *end note*]
 
 *Effects*: Equivalent to: `return bool(x) ? *x != v : false;`.
 
@@ -1417,7 +1418,6 @@ kind of error handling.
   1. Is debuggability any harder?
   1. Is it easy to teach C++ as a whole with a third type of error handling?
      
-
 
 STL Usage {#stl}
 ---------
