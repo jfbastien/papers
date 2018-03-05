@@ -1046,8 +1046,8 @@ otherwise
   * otherwise if `is_nothrow_move_constructible_v<E>`, 
    
     * the `unexpect` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`, 
-    * followed by destruction of `unexpect` as if by `rhs.unexpect.unexpected<E>::~unexpected<E>()`,
-    * `rhs.val` is direct-initialized from `std::move(*this)`, either:
+    * followed by destruction of `unexpect` as if by `rhs.unexpect.~unexpected<E>()`,
+    * `rhs.val` is direct-initialized from `std::move(*this)`. Either
         * the constructor didn't throw
             * destroy `val` as if by `this->val.~T()`,
             * the `unexpect` of `this` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
@@ -1057,10 +1057,10 @@ otherwise
 
     * `val` is moved to a temporary variable `tmp` of type `T`, 
     * followed by destruction of `val` as if by `val.~T()`,
-    * the `unexpect` is direct-initialized from `unexpected(std::move(other.error()))`, either:
+    * the `unexpect` is direct-initialized from `unexpected(std::move(other.error()))`. Either     
         * the constructor didn't throw
-            * destroy `rhs.unexpect` as if by `rhs.unexpect->unexpected<E>::~unexpected<E>()`,
-            * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)` . 
+            * destroy `rhs.unexpect` as if by `rhs.unexpect.~unexpected<E>()`,
+            * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`. 
         * the constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `T` is nothrow-move-constructible), and re-throw the exception.
 
   * otherwise, the function is not defined.
