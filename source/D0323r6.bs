@@ -713,15 +713,13 @@ otherwise if `bool(*this)` and `!bool(rhs)`,
   * otherwise if `is_nothrow_copy_constructible_v<E>`
    
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())` 
-and set `has_val` to `false`.
+    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())` and set `has_val` to `false`.
 
   * otherwise if `is_nothrow_move_constructible_v<E>`
 
     * constructs a `unexpected<E> tmp` from `unexpected(rhs.error()) ` (this can throw),
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(tmp)`
-and set `has_val` to `false`.
+    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(tmp)` and set `has_val` to `false`.
 
   otherwise
    
@@ -734,8 +732,7 @@ and set `has_val` to `false`.
 
 otherwise 
 
-  * if `T` is `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()`
-and set `has_val` to `true`,
+  * if `T` is `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
   
   * otherwise if `is_nothrow_copy_constructible_v<T>`
     
@@ -908,8 +905,7 @@ If `!bool(*this)`, assigns `unexpected(e.error())` to `unexpect`;
 otherwise
 
   * destroys `val` by calling `val.~T()` if `T` is not `void`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` 
-and set `has_val` to `false`.
+  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
 
 *Returns*: `*this`.
 
@@ -931,8 +927,7 @@ If `!bool(*this)`, move assign `unexpected(e.error())` to `unexpect`;
 otherwise
 
   * destroys `val` by calling `val.~T()` if `T` is not `void`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` 
-and set `has_val` to `false`.
+  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
 
 *Returns*: `*this`.
 
