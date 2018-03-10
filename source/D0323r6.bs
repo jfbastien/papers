@@ -10,7 +10,7 @@ URL: https://wg21.link/D0323r6
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2018-03-04
+Date: 2018-03-07
 Markup Shorthands: markdown yes
 </pre>
 
@@ -303,9 +303,9 @@ public:
         expected& operator=(unexpected<G>&&);
 
     template <class... Args>
-        void emplace(Args&&...);
+        T& emplace(Args&&...);
     template <class U, class... Args>
-        void emplace(initializer_list<U>, Args&&...);
+        T& emplace(initializer_list<U>, Args&&...);
 
     // �.�.4.4, swap
     void swap(expected&) noexcept(see below);
@@ -567,6 +567,15 @@ constructor, this constructor shall be a constexpr constructor. This
 constructor shall not participate in overload resolution unless `T` is 
 `void` and `sizeof...(Args) == 0` or `T` is not `void` and `is_constructible_v<T, Args...>`.
 
+Issue: Do we want really to support in-place construction for `void`
+
+    ```c++
+        constexpr explicit expected<void, E>::expected(in_place_t);
+    ```
+
+as it has no added value respect the default constructor? 
+
+
 ```c++
 template <class U, class... Args>
     constexpr explicit expected(in_place_t, initializer_list<U> il, Args&&... args);
@@ -704,15 +713,13 @@ otherwise if `bool(*this)` and `!bool(rhs)`,
   * otherwise if `is_nothrow_copy_constructible_v<E>`
    
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())` 
-and set `has_val` to `false`.
+    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())` and set `has_val` to `false`.
 
   * otherwise if `is_nothrow_move_constructible_v<E>`
 
     * constructs a `unexpected<E> tmp` from `unexpected(rhs.error()) ` (this can throw),
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(tmp)`
-and set `has_val` to `false`.
+    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(tmp)` and set `has_val` to `false`.
 
   otherwise
    
@@ -725,8 +732,7 @@ and set `has_val` to `false`.
 
 otherwise 
 
-  * if `T` is `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()`
-and set `has_val` to `true`,
+  * if `T` is `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
   
   * otherwise if `is_nothrow_copy_constructible_v<T>`
     
@@ -899,8 +905,7 @@ If `!bool(*this)`, assigns `unexpected(e.error())` to `unexpect`;
 otherwise
 
   * destroys `val` by calling `val.~T()` if `T` is not `void`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` 
-and set `has_val` to `false`.
+  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
 
 *Returns*: `*this`.
 
@@ -922,8 +927,7 @@ If `!bool(*this)`, move assign `unexpected(e.error())` to `unexpect`;
 otherwise
 
   * destroys `val` by calling `val.~T()` if `T` is not `void`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` 
-and set `has_val` to `false`.
+  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
 
 *Returns*: `*this`.
 
@@ -951,7 +955,7 @@ If `!bool(*this)`
 
 ```c++
 template <class... Args>
-    void emplace(Args&&... args);
+    T& emplace(Args&&... args);
 ```
 
 *Effects*:
@@ -984,13 +988,15 @@ otherwise
 
 *Postconditions*: `bool(*this)` .
 
+*Returns:* A reference to the new contained value `val`.
+
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
 *Remarks*: If an exception is thrown during the call to `T`'s assignment, nothing
 changes.
 
-This signature shall not participate in overload resolution unless
-`is_nothrow_constructible_v<T, Args&&...>`.
+This signature shall not participate in overload resolution unless: 
+`T` is not `void` and `is_nothrow_constructible_v<T, Args&&...>`.
 
 
 ```c++
@@ -1006,6 +1012,8 @@ constructing an object of type `T` with the arguments `il,
 std::forward<Args>(args)...`.
 
 *Postconditions*: `bool(*this)` .
+
+*Returns:* A reference to the new contained value `val`.
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
