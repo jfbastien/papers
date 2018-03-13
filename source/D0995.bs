@@ -1,0 +1,80 @@
+<pre class='metadata'>
+Title: Deprecate atomic_flag
+Shortname: D0995
+Revision: 0
+Audience: SG1
+Status: D
+Group: WG21
+URL: http://wg21.link/D0995r0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0995r0.bs">github.com/jfbastien/papers/blob/master/source/D0995r0.bs</a>
+Editor: JF Bastien, Apple, jfbastien@apple.com
+Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
+Abstract: We propose deprecating atomic_flag.
+Date: 2018-03-13
+Markup Shorthands: markdown yes
+Toggle Diffs: no
+</pre>
+
+Introduction {#intro}
+============
+
+C++11 added `atomic_flag` to the language as the minimally-required class which
+could be used to implement `atomic<>` on hardware which seemed relevant at the
+time. Detailed `atomic_flag` history can be found in [[N2145]], [[N2324]], and
+[[N2393]]. The specification was quite successful at minimalism—the only member
+functions of `atomic_flag` are `test_and_set` and `clear`—but `atomic<>` was
+wildly more successful and to our knowledge has always been implemented with
+compiler support instead of with the very inefficient (but beautifully simple)
+`atomic_flag`. Our experience is that `atomic_flag`'s interface is so minimal as
+to be completely useless, in particular it doesn't have a method which can load
+the flag's value without modifying it.
+
+SG1 tried to salvage `atomic_flag` in [[P0514R0]] by adding `set`, `test`,
+`wait`, `wait_until`, and `wait_for` methods but decided to leave it as-is and
+implement efficient waiting differently, eventually going for [[P0514R3]].
+
+The time has come to thank `atomic_flag` for serving its purpose as an
+implementability stand-in, and let it retire peacefully in Annex D.
+
+
+Wording {#word}
+=======
+
+
+under Header `<atomic>` synopsis [**atomics.syn**] remove as follows:
+
+<blockquote>
+<del>
+<xmp>
+
+// 32.8, flag type and operations
+struct atomic_flag;
+bool atomic_flag_test_and_set(volatile atomic_flag*) noexcept;
+bool atomic_flag_test_and_set(atomic_flag*) noexcept;
+bool atomic_flag_test_and_set_explicit(volatile atomic_flag*, memory_order) noexcept; bool atomic_flag_test_and_set_explicit(atomic_flag*, memory_order) noexcept;
+void atomic_flag_clear(volatile atomic_flag*) noexcept;
+void atomic_flag_clear(atomic_flag*) noexcept;
+void atomic_flag_clear_explicit(volatile atomic_flag*, memory_order) noexcept;
+void atomic_flag_clear_explicit(atomic_flag*, memory_order) noexcept;
+#define ATOMIC_FLAG_INIT see below
+
+</xmp>
+</del>
+</blockquote>
+
+Under Atomic operations library [**atomics**], remove Flag type and operations
+[**atomics.flag**] (gently, save if for safe-keeping).
+
+Under Annex D (normative) Compatibility features [**depr**], insert a new
+section [**depr.atomics.flag**].
+
+Under [**depr.atomics.flag**] insert the following text:
+
+<blockquote>
+
+  <ins>The header `<atomic>` has the following addition:</ins>
+  
+</blockquote>
+
+Follow the new text in [**depr.atomics.flag**] with the original content of
+[**atomics.flag**] (which you saved for safe-keeping as directed above).
