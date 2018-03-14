@@ -15,6 +15,10 @@ Markup Shorthands: markdown yes
 Toggle Diffs: no
 </pre>
 
+<style>
+ins .highlight:not(.idl) { background: rgba(0, 136, 0, 0.2); }
+</style>
+
 Introduction {#intro}
 ============
 
@@ -80,6 +84,8 @@ struct atomic_flag;
 <xmp>
 bool atomic_flag_test(volatile atomic_flag*) noexcept;
 bool atomic_flag_test(atomic_flag*) noexcept;
+bool atomic_flag_test_explicit(volatile atomic_flag*, memory_order) noexcept;
+bool atomic_flag_test_explicit(atomic_flag*, memory_order) noexcept;
 </xmp>
 </ins>
 <xmp>
@@ -153,6 +159,15 @@ template <class T>
                             typename atomic<T>::value_type, memory_order);
 </xmp>
 
+<ins>
+<xmp>
+template <class T>
+  void atomic_wait_explicit(const volatile atomic_flag*, bool, memory_order);
+template <class T>
+  void atomic_wait_explicit(const atomic_flag*, bool, memory_order);
+</xmp>
+</ins>
+
 </blockquote>
 
 In Atomic operations library [**atomics**], under Type aliases
@@ -177,6 +192,118 @@ for which the waiting and notifying functions are most efficient.
 </ins>
 
 </blockquote>
+
+
+In Atomic operations library [**atomics**], under Flag type and operations
+[**atomics.flag**], edit as follows:
+
+<blockquote>
+
+<xmp>
+namespace std {
+  struct atomic_flag {
+</xmp>
+
+<ins>
+<xmp>
+    bool test(memory_order = memory_order_seq_cst) volatile noexcept;
+    bool test(memory_order = memory_order_seq_cst) noexcept;
+</xmp>
+</ins>
+
+<xmp>
+    bool test_and_set(memory_order = memory_order_seq_cst) volatile noexcept;
+    bool test_and_set(memory_order = memory_order_seq_cst) noexcept;
+    void clear(memory_order = memory_order_seq_cst) volatile noexcept;
+    void clear(memory_order = memory_order_seq_cst) noexcept;
+    atomic_flag() noexcept = default;
+    atomic_flag(const atomic_flag&) = delete;
+    atomic_flag& operator=(const atomic_flag&) = delete;
+    atomic_flag& operator=(const atomic_flag&) volatile = delete;
+  };
+
+  bool atomic_flag_test_and_set(volatile atomic_flag*) noexcept;
+  bool atomic_flag_test_and_set(atomic_flag*) noexcept;
+  bool atomic_flag_test_and_set_explicit(volatile atomic_flag*, memory_order) noexcept;
+  bool atomic_flag_test_and_set_explicit(atomic_flag*, memory_order) noexcept;
+  void atomic_flag_clear(volatile atomic_flag*) noexcept;
+  void atomic_flag_clear(atomic_flag*) noexcept;
+  void atomic_flag_clear_explicit(volatile atomic_flag*, memory_order) noexcept;
+  void atomic_flag_clear_explicit(atomic_flag*, memory_order) noexcept;
+  #define ATOMIC_FLAG_INIT see below
+}
+</xmp>
+
+The `atomic_flag` type provides the classic test-and-set functionality. It has
+two states, set and clear.
+
+Operations on an object of type `atomic_flag` shall be lock-free. [ *Note:*
+Hence the operations should also be address-free. *—end note*]
+
+The `atomic_flag` type is a standard-layout struct. It has a trivial default
+constructor and a trivial destructor.
+
+The macro `ATOMIC_FLAG_INIT` shall be defined in such a way that it can be used to initialize an object of
+type `atomic_flag` to the clear state. The macro can be used in the form:
+
+<xmp>atomic_flag guard = ATOMIC_FLAG_INIT;</xmp>
+
+It is unspecified whether the macro can be used in other initialization
+contexts. For a complete static-duration object, that initialization shall be
+static. Unless initialized with `ATOMIC_FLAG_INIT`, it is unspecified whether an
+`atomic_flag` object has an initial state of set or clear.
+
+<ins>
+<xmp>
+   bool atomic_flag_test(volatile atomic_flag* object) noexcept;
+   bool atomic_flag_test(atomic_flag* object) noexcept;
+   bool atomic_flag_test_explicit(volatile atomic_flag* object, memory_order order) noexcept;
+   bool atomic_flag_test_explicit(atomic_flag* object, memory_order order) noexcept;
+   bool atomic_flag::test(memory_order order = memory_order_seq_cst) volatile noexcept;
+   bool atomic_flag::test(memory_order order = memory_order_seq_cst) noexcept;
+</xmp>
+
+*Requires:* The `order` argument shall not be `memory_order_release` nor
+`memory_order_acq_rel`.
+
+*Effects:* Memory is affected according to the value of `order`.
+
+*Returns:* Atomically returns the value pointed to by `object` or `this`.
+
+</ins>
+
+<xmp>
+   bool atomic_flag_test_and_set(volatile atomic_flag* object) noexcept;
+   bool atomic_flag_test_and_set(atomic_flag* object) noexcept;
+   bool atomic_flag_test_and_set_explicit(volatile atomic_flag* object, memory_order order) noexcept;
+   bool atomic_flag_test_and_set_explicit(atomic_flag* object, memory_order order) noexcept;
+   bool atomic_flag::test_and_set(memory_order order = memory_order_seq_cst) volatile noexcept;
+   bool atomic_flag::test_and_set(memory_order order = memory_order_seq_cst) noexcept;
+</xmp>
+
+*Effects:* Atomically sets the value pointed to by `object` or by `this` to
+`true`. Memory is affected according to the value of `order`. These operations
+are atomic read-modify-write operations (4.7).
+
+*Returns:* Atomically, the value of the object immediately before the effects.
+
+<xmp>
+void atomic_flag_clear(volatile atomic_flag* object) noexcept;
+void atomic_flag_clear(atomic_flag* object) noexcept;
+void atomic_flag_clear_explicit(volatile atomic_flag* object, memory_order order) noexcept;
+void atomic_flag_clear_explicit(atomic_flag* object, memory_order order) noexcept;
+void atomic_flag::clear(memory_order order = memory_order_seq_cst) volatile noexcept;
+void atomic_flag::clear(memory_order order = memory_order_seq_cst) noexcept;
+</xmp>
+
+*Requires:* The `order` argument shall not be `memory_order_consume`,
+`memory_order_acquire`, nor `memory_order_acq_rel`.
+
+*Effects:* Atomically sets the value pointed to by `object` or by `this` to
+`false`. Memory is affected according to the value of `order`.
+
+</blockquote>
+
 
 In Atomic operations library [**atomics**], under Waiting and notifying
 functions [**atomics.wait**], edit as follows:
@@ -258,6 +385,23 @@ template <class T>
      Consequently, it may unblock for reasons other than a call to a notifying
      function. *- end note*]
 
+<ins>
+<xmp>
+template <class T>
+  void atomic_wait_explicit(const volatile atomic_flag* object, bool old, memory_order order);
+template <class T>
+  void atomic_wait_explicit(const atomic_flag* object, bool old, memory_order order);
+</xmp>
+
+*Effects:* Repeatedly performs the following steps, in order:
+
+  1. Evaluates `object->test(order) != old` then, if the result is `true`, returns.
+  2. Blocks until an implementation-defined condition has been met. [*Note:*
+     Consequently, it may unblock for reasons other than a call to a notifying
+     function. *- end note*]
+
+</ins>
+
 <xmp>
 template <class T>
   void atomic_wait(const volatile atomic<T>* object,
@@ -267,8 +411,6 @@ template <class T>
                    typename atomic<T>::value_type old);
 </xmp>
 
-*Effects:* Equivalent to: `atomic_wait_explicit(object, old, memory_order_seq_cst);`
-
 <ins>
 <xmp>
 template <class T>
@@ -276,15 +418,9 @@ template <class T>
 template <class T>
   void atomic_wait(const atomic_flag* object, bool old);
 </xmp>
-
-*Effects:* Repeatedly performs the following steps, in order:
-
-  1. Evaluates `object->test() != old` then, if the result is `true`, returns.
-  2. Blocks until an implementation-defined condition has been met. [*Note:*
-     Consequently, it may unblock for reasons other than a call to a notifying
-     function. *- end note*]
-
 </ins>
+
+*Effects:* Equivalent to: `atomic_wait_explicit(object, old, memory_order_seq_cst);`
 
 
 </blockquote>
