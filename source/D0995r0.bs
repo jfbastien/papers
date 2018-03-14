@@ -9,6 +9,7 @@ URL: http://wg21.link/D0995r0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0995r0.bs">github.com/jfbastien/papers/blob/master/source/D0995r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
+Editor: Andrew Hunter, Google, ahh@google.com
 Abstract: atomic_flag is marginally useful. Improve it in light of the new wait / notify APIs.
 Date: 2018-03-13
 Markup Shorthands: markdown yes
