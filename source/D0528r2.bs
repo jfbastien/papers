@@ -330,12 +330,16 @@ were originally there.
 
 [*Note:*
 
-  The `memcpy` and `memcmp` semantics of the compare-and-exchange operations may
-  result in failed comparisons for values that compare equal with `operator==`
-  if the underlying type has padding bits<ins> which sometimes participate in
-  the object's representation</ins>, trap bits, or alternate representations of
-  the same value<ins> other than those caused by padding bits which never
-  participate in the object's representation</ins>.
+  The `memcpy` and `memcmp` semantics of the compare-and-exchange operations
+  may result in failed comparisons for values that compare equal with
+  `operator==` if the underlying type has padding bits<ins> which sometimes
+  participate in the object's representation</ins>, trap bits, or
+  alternate representations of the same value<ins> other than those caused by
+  padding bits which never participate in the object's representation</ins>.
+  Notably, on implementations conforming to ISO/IEC/IEEE 60559, floating-point
+  `-0.0` and `+0.0` will not compare equal with `memcmp` but will compare equal
+  with `operator==`, and NaNs with the same payload will compare equal with
+  `memcmp` but will not compare equal with `operator==`.
 
 —*end note*]
 
@@ -344,7 +348,7 @@ were originally there.
 [*Note:*
 
   Compare-and-exchange acts on an object's value representation, ensuring that
-  padding bits which always participate in the object's representation are ignored.
+  padding bits which never participate in the object's representation are ignored.
 
   As a consequence, the following code is guaranteed to avoid spurious failure:
 
@@ -372,7 +376,7 @@ were originally there.
   representation, such as a `union` containing a type with padding bits and a
   type without, may always fail compare-and-exchange when these bits are not
   participating in the object's representation because they have an
-  indeterminate value. Such a program is ill-formed, no diagnostic required.
+  indeterminate value.
 
 —*end note*]
 
