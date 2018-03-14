@@ -71,8 +71,8 @@ Under Header `<atomic>` synopsis [**atomics.syn**] edit as follows:
 
 <ins>
 <xmp>
-using atomic_signed_lock_free   = atomic<see below>; // optional
-using atomic_unsigned_lock_free = atomic<see below>; // optional
+using atomic_signed_lock_free   = see below; // optional
+using atomic_unsigned_lock_free = see below; // optional
 </xmp>
 </ins>
 
@@ -182,12 +182,13 @@ and `uintptr_t` are defined, respectively.
 <ins>
 
 The type aliases `atomic_signed_lock_free` and `atomic_unsigned_lock_free` are
-parameterized with an implementation-defined integral type other than `bool`,
-respectively signed and unsigned. These type aliases are optional. However, if
-an implementation provides a integral specialization of `atomic` other than
-`bool` for which `is_always_lock_free` is `true`, it shall define the
-aliases. An implementation should choose the integral specialization of `atomic`
-for which the waiting and notifying functions are most efficient.
+defined to be specializations of `atomic` whose template arguments are integral
+types, respectively signed and unsigned, other than `bool`.  These aliases are
+optional. If an implementation provides a integral specialization of `atomic`
+other than `bool` for which `is_always_lock_free` is `true`, it shall define the
+aliases. Otherwise, they shall not be defined. An implementation should choose
+the integral specialization of `atomic` for which the waiting and notifying
+functions are most efficient.
 
 </ins>
 
@@ -422,5 +423,6 @@ template <class T>
 
 *Effects:* Equivalent to: `atomic_wait_explicit(object, old, memory_order_seq_cst);`
 
-
 </blockquote>
+
+The ``__cpp_lib_atomic_flag_test`` feature test macro should be added.
