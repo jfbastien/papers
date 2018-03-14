@@ -1,5 +1,5 @@
 <pre class='metadata'>
-Title: Deprecate atomic_flag
+Title: Deprecate atomic_flag, provide an always-lock-free integral type alias
 Shortname: D0995
 Revision: 0
 Audience: SG1
@@ -9,7 +9,7 @@ URL: http://wg21.link/D0995r0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0995r0.bs">github.com/jfbastien/papers/blob/master/source/D0995r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
-Abstract: We propose deprecating atomic_flag.
+Abstract: We propose deprecating atomic_flag, and offer a guaranteed lock-free integral type alias.
 Date: 2018-03-13
 Markup Shorthands: markdown yes
 Toggle Diffs: no
@@ -36,14 +36,32 @@ implement efficient waiting differently, eventually going for [[P0514R3]].
 The time has come to thank `atomic_flag` for serving its purpose as an
 implementability stand-in, and let it retire peacefully in Annex D.
 
+Peter Dimov bemoaned the loss of the only guaranteed always-lock-free type with
+the loss of `atomic_flag`. We therefore propose adding an always-lock-free
+integral type alias. Such a type is guaranteed to exist because `atomic_flag` is
+its proof of existence.
+
 
 Wording {#word}
 =======
 
-
-under Header `<atomic>` synopsis [**atomics.syn**] remove as follows:
+Under Header `<atomic>` synopsis [**atomics.syn**] edit as follows:
 
 <blockquote>
+
+<xmp>
+// 32.3, type aliases
+
+// ...
+</xmp>
+
+<ins>
+<xmp>
+using atomic_signed_lock_free = atomic<see below>;
+using atomic_unsigned_lock_free = atomic<see below>;
+</xmp>
+</ins>
+
 <del>
 <xmp>
 
@@ -60,6 +78,27 @@ void atomic_flag_clear_explicit(atomic_flag*, memory_order) noexcept;
 
 </xmp>
 </del>
+
+</blockquote>
+
+Under Atomic operations library [**atomics**], under Type aliases
+[**atomics.alias**], edit as follows:
+
+<blockquote>
+
+The type aliases `atomic_intN_t`, `atomic_uintN_t`, `atomic_intptr_t`, and
+`atomic_uintptr_t` are defined if and only if `intN_t`, `uintN_t`, `intptr_t`,
+and `uintptr_t` are defined, respectively.
+
+<ins>
+
+The type aliases `atomic_signed_lock_free` and `atomic_unsigned_lock_free` are
+parameterized with an implementation-defined integral type other than `bool`,
+respectively signed and unsigned. `atomic_signed_lock_free::is_always_lock_free`
+and `atomic_unsigned_lock_free::is_always_lock_free` shall be `true`.
+
+</ins>
+
 </blockquote>
 
 Under Atomic operations library [**atomics**], remove Flag type and operations
