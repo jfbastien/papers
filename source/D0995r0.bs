@@ -438,4 +438,4 @@ template <class T>
 Two feature test macros should be added:
 
   * ``__cpp_lib_atomic_flag_test`` implies the improvements to `atomic_flag` are available.
-  * ``__cpp_lib_atomic_lock_free_test`` implies `atomic_signed_lock_free` and `atomic_unsigned_lock_free` types are defined.
+  * ``__cpp_lib_atomic_lock_free_type_aliases`` implies `atomic_signed_lock_free` and `atomic_unsigned_lock_free` types are defined.
