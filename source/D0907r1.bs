@@ -202,29 +202,34 @@ make `int8_t`, `int16_t`, `int32_t`, and `int64_t` not optional.  </th>
 Proposed Wording {#word}
 ================
 
-Modify Program execution [**intro.execution**] ❡8:
+Remove the note in Program execution [**intro.execution**] ❡8:
 
 <blockquote>
 
+<del>
 [*Note:* Operators can be regrouped according to the usual mathematical
 rules only where the operators really are associative or commutative.
-For example, in the following fragment
+For example, in the following fragment</del>
 
+<del>
 <xmp>
   int a, b;
   /* ... */
   a = a + 32760 + b + 5;
 </xmp>
+</del>
 
-the expression statement behaves exactly the same as
+<del>the expression statement behaves exactly the same as</del>
 
+<del>
 <xmp>
   a = (((a + 32760) + b) + 5);
 </xmp>
+</del>
 
-due to the associativity and precedence of these operators. Thus, the result of
+<del>due to the associativity and precedence of these operators. Thus, the result of
 the sum `(a + 32760)` is next added to `b`, and that result is then added to 5
-which results in the value assigned to `a`.<del> On a machine in which overflows
+which results in the value assigned to `a`. On a machine in which overflows
 produce an exception and in which the range of values representable by an `int`
 is `[-32768, +32767]`, the implementation cannot rewrite this expression as</del>
 
@@ -250,7 +255,7 @@ can the expression be rewritten either as</del>
 and 12. However on a machine in which overflows do not produce an exception and
 in which the results of overflows are reversible, the above expression statement
 can be rewritten by the implementation in any of the above ways because the same
-result will occur.</del> —*end note*]
+result will occur. —*end note*]</del>
 
 </blockquote>
 
@@ -290,14 +295,19 @@ shall define values by use of a pure binary numeration system. [*Example:*
 This document permits two's complement, ones' complement and signed magnitude
 representations for integral types. —*end example*]</del>
 
-<ins>Signed integer types shall be repesented as two's complement. Overflow in
-the positive direction shall wrap around from the maximum integer value for the
-type back to the minimum, and overflow in the negative direction shall wrap
-around from the minimum value for the type to the maximum.
-[*Note:* Addition, subtraction, and multiplication on signed and unsigned
-integral values with the same object representation produce a value with the
-same object representation, whereas division and modulo do not.
-—*end note*]</ins>
+<ins>Signed integer types shall be repesented as two's complement. The bits of
+signed integer types' object representation shall be divided into three groups:
+value bits, padding bits, and the sign bit. There need not be any padding bits;
+`signed char` shall not have any padding bits. There shall be exactly one sign
+bit. Each bit that is a value bit shall have the same value as the same bit in
+the object representation of the corresponding unsigned type (if there are *M*
+value bits in the signed type and *N* in the unsigned type, then *M ≤ N*). If
+the sign bit is zero, it shall not affect the resulting value. If the sign bit
+is one, the value shall be modified such that the sign bit has the value
+−(2<sup>M</sup>). It is implementation-defined whether the value with sign bit 1
+and all value bits zero is a trap representation or a normal value. If overflow
+caused by an operation which would require representing an integer which cannot
+be represented by the type, the behavior is undefined.</ins>
 
 </blockquote>
 
@@ -321,6 +331,8 @@ implementation-defined.</del><ins>the object representation remains the same if
 the source and destination have the same size, or the least-significant source
 bits are retained if the destination is smaller than the source.</ins>
 
+Issue: change wording to avoid "object representation" as suggested in SG6.
+
 </blockquote>
 
 Modify Static cast [**expr.static.cast**] ❡1 onwards:
@@ -340,18 +352,14 @@ type; the result is the same as that of converting from the original value to
 the floating-point type.
 
 A value of integral or enumeration type can be explicitly converted to a
-complete enumeration type.  If the enumeration type has a fixed underlying type,
+complete enumeration type. If the enumeration type has a fixed underlying type,
 the value is first converted to that type by integral conversion, if necessary,
-and then to the enumeration type.  If the enumeration type does not have a fixed
+and then to the enumeration type. If the enumeration type does not have a fixed
 underlying type, the value is unchanged if the original value is within the
-range of the enumeration values, and otherwise, <del>the behavior is
-undefined</del><ins>the object representation remains the same if the source and
-destination have the same size, or the least-significant source bits are
-retained if the destination is smaller than the source</ins>.  A value of
-floating-point type can also be explicitly converted to an enumeration type.
-The resulting value is the same as converting the original value to the
-underlying type of the enumeration\iref{conv.fpint}, and subsequently to the
-enumeration type.
+range of the enumeration values, and otherwise, the behavior is undefined. A
+value of floating-point type can also be explicitly converted to an enumeration
+type. The resulting value is the same as converting the original value to the
+underlying type of the enumeration, and subsequently to the enumeration type.
 
 </blockquote>
 
@@ -372,7 +380,8 @@ value representable in the result type.<del> Otherwise, if `E1` has a signed
 type and non-negative value, and E1×2<sup>E2</sup> is representable in the
 corresponding unsigned type of the result type, then that value, converted to
 the result type, is the resulting value; otherwise, the behavior is
-undefined.</del>
+undefined.</del><ins> If `E1` has a signed type and a 1 bit value is shifted
+into or past the sign bit, the behavior is undefined.</ins>
 
 The value of `E1 >> E2` is `E1` right-shifted `E2` bit positions. If `E1` has an
 unsigned type or if `E1` has a signed type and a non-negative value, the value
@@ -383,9 +392,11 @@ quotient of E1/2<sup>E2</sup>. [*Note*: This implies that right-shift on signed
 integral types is an arithmetic right shift, and performs sign-extension.
 —*end note*]</ins>
 
+Issue: change the wording to use better mathematical wording above as suggested by SG6.
+
 </blockquote>
 
-Modify Constant expressions [**expr.const**] ❡2:
+Leave Constant expressions [**expr.const**] ❡2 as-is:
 
 <blockquote>
 
@@ -396,8 +407,8 @@ expressions:
 […]
 
   * an operation that would have undefined behavior as specified in Clause 4
-    through 19 of this document [*Note*: including, for example, <del>signed
-    integer overflow, </del>certain pointer arithmetic, division
+    through 19 of this document [*Note*: including, for example, signed
+    integer overflow, certain pointer arithmetic, division
     by zero, or certain shift operations —*end note*]
 
 </blockquote>
@@ -424,7 +435,7 @@ enumeration had a single enumerator with value 0.
 
 </blockquote>
 
-Modify `numeric_limits` members [**numeric.limits.members**] ❡61 onwards:
+Leave `numeric_limits` members [**numeric.limits.members**] ❡61 onwards as-is:
 
 <blockquote>
 
@@ -435,9 +446,9 @@ Modify `numeric_limits` members [**numeric.limits.members**] ❡61 onwards:
 range `[min(), max()]`, the value returned differs from the true value by
 an integer multiple of `max() - min() + 1`.
 
-<del>[*Example:*`is_modulo` is `false` for signed integer types
-unless an implementation, as an extension to this document,
-defines signed integer overflow to wrap.  —*end example*]</del>
+[*Example:*`is_modulo` is `false` for signed integer types unless an
+implementation, as an extension to this document, defines signed integer
+overflow to wrap. —*end example*]
 
 Meaningful for all specializations.
 
@@ -460,8 +471,9 @@ Remove Specializations for integers [**atomics.types.int**] ❡7:
 
 <blockquote>
 
-<del>*Remarks:* For signed integer types, arithmetic is defined to use two's
-complement representation. There are no undefined results.</del>
+*Remarks:* For signed integer types, <del>arithmetic is defined to use two's
+complement representation. There are no undefined results</del><ins>there are no
+extraordinary values</ins>.
 
 </blockquote>
 
