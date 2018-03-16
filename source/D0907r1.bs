@@ -21,7 +21,117 @@ Edit History {#edit}
 r0 → r1 {#r0r1}
 -------
 
-In Jacksonville, this paper was presented to SG12, SG6, and EWG.
+In Jacksonville, this paper was presented to a joint SG6 numerics and SG12
+undefined behavior session.
+
+The following polls were taken, and corresponding modifications made to the
+paper:
+
+<table class="def">
+<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+
+<tr><th>Change anything with respect to signed integers.</th>
+<th>2</th><th>10</th><th>5</th><th>1</th><th>0</th></tr>
+
+<tr><th>Moving any change from this paper to IS'20 is blocked on synchronizing with WG14.</th>
+<th>4</th><th>9</th><th>4</th><th>0</th><th>1</th></tr>
+
+<tr><th>Change the default unsigned integral types' behavior.</th>
+<th>0</th><th>0</th><th>1</th><th>8</th><th>9</th></tr>
+
+<tr><th>Changes we make constrain *extended integral types*.</th>
+<th>10</th><th>4</th><th>2</th><th>0</th><th>1</th></tr>
+
+<tr><th>Allow *extraordinary value* for signed integral types.</th>
+<th>2</th><th>2</th><th>9</th><th>2</th><th>3</th></tr>
+</table>
+
+We decided to independently conside what the "privileged" syntax' behavior
+should be when going out of range for:
+
+  * cast of enums
+  * cast from `unsigned` to `signed`
+  * `INT_MIN / -1`
+  * add / sub / mul and `-INT_MIN` overflow
+
+**Multiple answer poll** would you be OK with these being the standards-mandated
+behavior for the "privileged" syntax behavior of `int` when going out of range:
+
+  * 16—undefined behavior
+  * 0—saturation
+  * 0—trap (exception)
+  * 1—trap (abort)
+  * 1—generate extraordinary value
+  * 11—wrap
+  * 5—Rust-style wrap or trap, maybe contract violation?
+  * 9—intermediate values are mathematical integers (e.g. `(int)a+(int)b > INT_MAX` would be OK)
+
+<table class="def">
+<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+
+<tr><th>Cast to enums outside of the enum’s representable range should be defined instead of undefined behavior.</th>
+<th>0</th><th>1</th><th>1</th><th>5</th><th>8</th></tr>
+
+<tr><th>Cast from `unsigned` to `signed` which are out of range is currently implementation defined. It should instead be wrap.</th>
+<th>6</th><th>6</th><th>3</th><th>0</th><th>1</th></tr>
+
+<tr><th>We want two’s complement representation for signed types, regardless of what WG14 decides.</th>
+<th>7</th><th>4</th><th>2</th><th>0</th><th>3</th></tr>
+
+<tr><th>`INT_MIN / -1` should be defined.</th>
+<th>0</th><th>0</th><th>4</th><th>3</th><th>9</th></tr>
+</table>
+
+**Multiple answer poll** addition / subtraction / multiplication and `-INT_MIN`
+overflow is currently undefined behavior, it should instead be:
+
+  * 4—wrap
+  * 6—wrap or trap
+  * 5—intermediate values are mathematical integers
+  * 14—status quo (remain undefined behavior)
+
+**Multiple answer poll** to opt-in to the other behaviors (both for `signed` and
+`unsigned`) we can create library or language changes. What should we explore
+separately from this paper?
+
+  * 12—undefined behavior
+  * 9—saturation
+  * 8—trap (exception)
+  * 6—trap (abort)
+  * 3—generate extraordinary value
+  * 16—wrap
+  * 10—Rust-style wrap or trap, maybe contract violation?
+  * 9—intermediate values are mathematical integers (e.g. `(int)a+(int)b > INT_MAX` would be OK)
+  * 13—bigint
+  * 14—operations with a bool set when overflow has occurred
+
+<table class="def">
+<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+
+<tr><th>Shifting out of range `1 << 31` as currently defined (if shift has
+defined value when interpreted as unsigned, you get that value as signed, you
+can shift into but not past the sign, shifting past sign bit is undefined
+behavior). `1 << 31` was defined and still is (as of Howard’s paper), `2 << 31`
+was undefined behavior and still is. WG14 is currently considering whether to
+adopt Howard’s paper which made this. Should we take it back to undefined to do
+`1 << 31`?</th>
+
+<th>2</th><th>7</th><th>5</th><th>1</th><th>1</th></tr>
+
+<tr><th>Left shift should be the same for `signed` and `unsigned`.</th>
+<th>6</th><th>5</th><th>5</th><th>0</th><th>1</th></tr>
+
+<tr><th>Right shift on a signed integral type should be an arithmetic shift (which sign-extends).</th>
+<th>9</th><th>4</th><th>3</th><th>1</th><th>0</th></tr>
+
+<tr><th>In C `intN_t` is optional: “These types are optional. However, if an
+implementation provides integer types with widths of 8, 16, 32, or 64 bits, no
+padding bits, and (for the signed types) that have a two’s complement
+representation, it shall define the corresponding typedef names.”  Change it to
+make `int8_t`, `int16_t`, `int32_t`, and `int64_t` not optional.  </th>
+
+<th>1</th><th>0</th><th>2</th><th>3</th><th>12</th></tr>
+</table>
 
 
 Introduction {#intro}
