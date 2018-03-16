@@ -2,7 +2,7 @@
 Title: Signed Integers are Two's Complement
 Shortname: D0907
 Revision: 1
-Audience: EWG, SG12
+Audience: EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D0907r1
@@ -15,17 +15,82 @@ Toggle Diffs: yes
 </pre>
 
 
+Introduction {#intro}
+============
+
+[[C11]] Integer types allows three representations for signed integral types:
+
+  * Signed magnitude
+  * Ones' complement
+  * Two's complement
+
+See [[#c-sign]] for full wording.
+
+C++ inherits these three signed integer representations from C. To the author's
+knowledge no modern machine uses both C++ and a signed integer representation
+other than two's complement (see [[#survey]]). None of [[MSVC]], [[GCC]], and
+[[LLVM]] support other representations. This means that the C++ that is taught
+is effectively two's complement, and the C++ that is written is two's
+complement. It is extremely unlikely that there exist any significant code base
+developed for two's complement machines that would actually work when run on a
+non-two's complement machine.
+
+The C++ that is spec'd, however, is not two's complement. Signed integers
+currently allow for trap representations, extra padding bits, integral negative
+zero, and introduce undefined behavior and implementation-defined behavior for
+the sake of this *extremely* abstract machine.
+
+Specifically, the current wording has the following effects:
+
+  * Associativity and commutativity of integers is needlessly obtuse.
+  * Naïve overflow checks, which are often security-critical, often get
+    eliminated by compilers. This leads to exploitable code when the intent was
+    clearly not to and the code, while naïve, was correctly performing security
+    checks for two's complement integers. Correct overflow checks are difficult
+    to write and equally difficult to read, exponentially so in generic code.
+  * Conversion between signed and unsigned are implementation-defined.
+  * There is no portable way to generate an arithmetic right-shift, or to
+    sign-extend an integer, which every modern CPU supports.
+  * `constexpr` is further restrained by this extraneous undefined behavior.
+  * Atomic integral are already two's complement and have no undefined results,
+    therefore even freestanding implementations already support two's complement
+    in C++.
+
+Let's stop pretending that the C++ abstract machine should represent integers as
+signed magnitude or ones' complement. These theoretical implementations are a
+different programming language, not our real-world C++. Users of C++ who require
+signed magnitude or ones' complement integers would be better served by a
+pure-library solution, and so would the rest of us.
+
+This proposal leaves C unchanged, it merely restricts further the subset of C
+which applies to C++. The author will ensure that WG14 is made aware of this
+paper's outcome.
+
+A final argument to move to two's complement is that few people spell "ones'
+complement" correctly according to Knuth [[TAoCP]]. Reducing the nerd-snipe
+potential inherent in C++ is a Good Thing™.
+
+<blockquote>
+
+  Detail-oriented readers and copy editors should notice the position of the
+  apostrophe in terms like “two’s complement” and “ones’ complement”: A two’s
+  complement number is complemented with respect to a single power of 2, while a
+  ones’ complement number is complemented with respect to a long sequence of
+  1s. Indeed, there is also a “twos’ complement notation,” which has radix 3 and
+  complementation with respect to (2 . . . 22)<sub>3</sub>.
+
+</blockquote>
+
+
 Edit History {#edit}
 ============
 
 r0 → r1 {#r0r1}
 -------
 
-In Jacksonville, this paper was presented to a joint SG6 numerics and SG12
-undefined behavior session.
-
-The following polls were taken, and corresponding modifications made to the
-paper:
+This paper was presented to a joint SG6 numerics and SG12 undefined behavior
+session in Jacksonville. The following polls were taken, and corresponding
+modifications made to the paper:
 
 <table class="def">
 <tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
@@ -132,73 +197,6 @@ make `int8_t`, `int16_t`, `int32_t`, and `int64_t` not optional.  </th>
 
 <th>1</th><th>0</th><th>2</th><th>3</th><th>12</th></tr>
 </table>
-
-
-Introduction {#intro}
-============
-
-[[C11]] Integer types allows three representations for signed integral types:
-
-  * Signed magnitude
-  * Ones' complement
-  * Two's complement
-
-See [[#c-sign]] for full wording.
-
-C++ inherits these three signed integer representations from C. To the author's
-knowledge no modern machine uses both C++ and a signed integer representation
-other than two's complement (see [[#survey]]). None of [[MSVC]], [[GCC]], and
-[[LLVM]] support other representations. This means that the C++ that is taught
-is effectively two's complement, and the C++ that is written is two's
-complement. It is extremely unlikely that there exist any significant code base
-developed for two's complement machines that would actually work when run on a
-non-two's complement machine.
-
-The C++ that is spec'd, however, is not two's complement. Signed integers
-currently allow for trap representations, extra padding bits, integral negative
-zero, and introduce undefined behavior and implementation-defined behavior for
-the sake of this *extremely* abstract machine.
-
-Specifically, the current wording has the following effects:
-
-  * Associativity and commutativity of integers is needlessly obtuse.
-  * Naïve overflow checks, which are often security-critical, often get
-    eliminated by compilers. This leads to exploitable code when the intent was
-    clearly not to and the code, while naïve, was correctly performing security
-    checks for two's complement integers. Correct overflow checks are difficult
-    to write and equally difficult to read, exponentially so in generic code.
-  * Conversion between signed and unsigned are implementation-defined.
-  * There is no portable way to generate an arithmetic right-shift, or to
-    sign-extend an integer, which every modern CPU supports.
-  * `constexpr` is further restrained by this extraneous undefined behavior.
-  * Atomic integral are already two's complement and have no undefined results,
-    therefore even freestanding implementations already support two's complement
-    in C++.
-
-Let's stop pretending that the C++ abstract machine should represent integers as
-signed magnitude or ones' complement. These theoretical implementations are a
-different programming language, not our real-world C++. Users of C++ who require
-signed magnitude or ones' complement integers would be better served by a
-pure-library solution, and so would the rest of us.
-
-This proposal leaves C unchanged, it merely restricts further the subset of C
-which applies to C++. The author will ensure that WG14 is made aware of this
-paper's outcome.
-
-A final argument to move to two's complement is that few people spell "ones'
-complement" correctly according to Knuth [[TAoCP]]. Reducing the nerd-snipe
-potential inherent in C++ is a Good Thing™.
-
-<blockquote>
-
-  Detail-oriented readers and copy editors should notice the position of the
-  apostrophe in terms like “two’s complement” and “ones’ complement”: A two’s
-  complement number is complemented with respect to a single power of 2, while a
-  ones’ complement number is complemented with respect to a long sequence of
-  1s. Indeed, there is also a “twos’ complement notation,” which has radix 3 and
-  complementation with respect to (2 . . . 22)<sub>3</sub>.
-
-</blockquote>
 
 
 Proposed Wording {#word}
