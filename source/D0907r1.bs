@@ -386,7 +386,7 @@ into or past the sign bit, the behavior is undefined.</ins>
 The value of `E1 >> E2` is `E1` right-shifted `E2` bit positions. If `E1` has an
 unsigned type or if `E1` has a signed type and a non-negative value, the value
 of the result is the integral part of the quotient of E1/2<sup>E2</sup>. If `E1`
-has a signed type and a negative value, the resulting value <del>is
+has a signed type and a negative value, the resulting value is<del>
 implementation-defined.</del><ins>the negative of the integral part of the
 quotient of E1/2<sup>E2</sup>. [*Note*: This implies that right-shift on signed
 integral types is an arithmetic right shift, and performs sign-extension.
@@ -471,9 +471,9 @@ Remove Specializations for integers [**atomics.types.int**] ❡7:
 
 <blockquote>
 
-*Remarks:* For signed integer types, <del>arithmetic is defined to use two's
-complement representation. There are no undefined results</del><ins>there are no
-extraordinary values</ins>.
+*Remarks:* <del>F</del><ins>There are no extraordinary values f</ins>or signed
+integer types<del>, arithmetic is defined to use two's complement
+representation. There are no undefined results</del>.
 
 </blockquote>
 
