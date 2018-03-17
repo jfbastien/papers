@@ -54,10 +54,28 @@ implementability stand-in, and help it find its true purpose. We propose:
     forbids some ancestral processors from implementing modern C++, but these
     platforms already don't support any C++.
   * Add `atomic_flag` overloads to [[P0514R3]]'s waiting and notify functions.
-  * Add optional always-lock-free integral type aliases.
+  * Add optional always-lock-free integral type aliases, which are encouraged to
+    be sized such that waiting on them is most efficient.
 
 This paper was written in Jacksonville and presented to SG1, which unanimously
-forwarded the paper to LEWG.
+forwarded the paper to LEWG. LEWG looked at the paper and took the following
+poll:
+
+<table class="def">
+<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+<tr><th>Make the type aliases non-optional.</th>
+<th>1</th><th>4</th><th>4</th><th>2</th><th>2</th></tr>
+</table>
+
+The types were made optional in case an architecture, such as PA-RISC, cannot
+support always-lock-free integral types because no compare-and-exchange
+instruction is available. There was no consensus for making aliases required.
+
+There was also discussion about ABI breakage to `atomic_flag`. An argument was
+made that `atomic_flag` should also be sized such that waiting on them is most
+efficient (which would be an ABI breakage), and if that breakage doesn't occur
+then adding wait / notify overloads is actively misleading. LEWG want SG1 to
+reconsider whether the overloads should be provided.
 
 
 Wording {#word}
@@ -113,10 +131,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_notify_one(const volatile atomic_flag*);
-template <class T>
-  void atomic_notify_one(const atomic_flag*);
+void atomic_notify_one(const volatile atomic_flag*);
+void atomic_notify_one(const atomic_flag*);
 </xmp>
 </ins>
 
@@ -129,10 +145,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_notify_all(const volatile atomic_flag*);
-template <class T>
-  void atomic_notify_all(const atomic_flag*);
+void atomic_notify_all(const volatile atomic_flag*);
+void atomic_notify_all(const atomic_flag*);
 </xmp>
 </ins>
 
@@ -146,10 +160,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_wait(const volatile atomic_flag*, bool);
-template <class T>
-  void atomic_wait(const atomic_flag*, bool);
+void atomic_wait(const volatile atomic_flag*, bool);
+void atomic_wait(const atomic_flag*, bool);
 </xmp>
 </ins>
 
@@ -165,10 +177,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_wait_explicit(const volatile atomic_flag*, bool, memory_order);
-template <class T>
-  void atomic_wait_explicit(const atomic_flag*, bool, memory_order);
+void atomic_wait_explicit(const volatile atomic_flag*, bool, memory_order);
+void atomic_wait_explicit(const atomic_flag*, bool, memory_order);
 </xmp>
 </ins>
 
@@ -347,10 +357,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_notify_one(const volatile atomic_flag* object);
-template <class T>
-  void atomic_notify_one(const atomic_flag* object);
+void atomic_notify_one(const volatile atomic_flag* object);
+void atomic_notify_one(const atomic_flag* object);
 </xmp>
 </ins>
 
@@ -368,10 +376,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_notify_all(const volatile atomic_flag* object);
-template <class T>
-  void atomic_notify_all(const atomic_flag* object);
+void atomic_notify_all(const volatile atomic_flag* object);
+void atomic_notify_all(const atomic_flag* object);
 </xmp>
 </ins>
 
@@ -403,10 +409,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_wait_explicit(const volatile atomic_flag* object, bool old, memory_order order);
-template <class T>
-  void atomic_wait_explicit(const atomic_flag* object, bool old, memory_order order);
+void atomic_wait_explicit(const volatile atomic_flag* object, bool old, memory_order order);
+void atomic_wait_explicit(const atomic_flag* object, bool old, memory_order order);
 </xmp>
 
 *Effects:* Repeatedly performs the following steps, in order:
@@ -429,10 +433,8 @@ template <class T>
 
 <ins>
 <xmp>
-template <class T>
-  void atomic_wait(const volatile atomic_flag* object, bool old);
-template <class T>
-  void atomic_wait(const atomic_flag* object, bool old);
+void atomic_wait(const volatile atomic_flag* object, bool old);
+void atomic_wait(const atomic_flag* object, bool old);
 </xmp>
 </ins>
 
