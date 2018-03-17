@@ -11,7 +11,7 @@ Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
 Editor: Andrew Hunter, Google, ahh@google.com
 Abstract: atomic_flag is marginally useful. Improve it in light of the new wait / notify APIs.
-Date: 2018-03-16
+Date: 2018-03-17
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 </pre>
@@ -55,6 +55,9 @@ implementability stand-in, and help it find its true purpose. We propose:
     platforms already don't support any C++.
   * Add `atomic_flag` overloads to [[P0514R3]]'s waiting and notify functions.
   * Add optional always-lock-free integral type aliases.
+
+This paper was written in Jacksonville and presented to SG1, which unanimously
+forwarded the paper to LEWG.
 
 
 Wording {#word}
@@ -184,12 +187,14 @@ and `uintptr_t` are defined, respectively.
 
 The type aliases `atomic_signed_lock_free` and `atomic_unsigned_lock_free` are
 defined to be specializations of `atomic` whose template arguments are integral
-types, respectively signed and unsigned, other than `bool`.  These aliases are
-optional. If an implementation provides a integral specialization of `atomic`
-other than `bool` for which `is_always_lock_free` is `true`, it shall define the
-aliases to such a type. Otherwise, they shall not be defined. An implementation
-should choose the integral specialization of `atomic` for which the waiting and
-notifying functions are most efficient.
+types, respectively signed and unsigned, other than `bool`.
+`is_always_lock_free` shall be `true` for `atomic_signed_lock_free` and
+`atomic_unsigned_lock_free`. These aliases are optional. If an implementation
+provides a integral specialization of `atomic` other than `bool` for which
+`is_always_lock_free` is `true`, it shall define the aliases to such a
+type. Otherwise, they shall not be defined. An implementation should choose the
+integral specialization of `atomic` for which the waiting and notifying
+functions are most efficient.
 
 </ins>
 
