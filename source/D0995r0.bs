@@ -2,7 +2,7 @@
 Title: Improving atomic_flag
 Shortname: D0995
 Revision: 0
-Audience: SG1
+Audience: SG1, LEWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D0995r0
@@ -11,7 +11,7 @@ Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
 Editor: Andrew Hunter, Google, ahh@google.com
 Abstract: atomic_flag is marginally useful. Improve it in light of the new wait / notify APIs.
-Date: 2018-03-14
+Date: 2018-03-16
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 </pre>
@@ -187,9 +187,9 @@ defined to be specializations of `atomic` whose template arguments are integral
 types, respectively signed and unsigned, other than `bool`.  These aliases are
 optional. If an implementation provides a integral specialization of `atomic`
 other than `bool` for which `is_always_lock_free` is `true`, it shall define the
-aliases. Otherwise, they shall not be defined. An implementation should choose
-the integral specialization of `atomic` for which the waiting and notifying
-functions are most efficient.
+aliases to such a type. Otherwise, they shall not be defined. An implementation
+should choose the integral specialization of `atomic` for which the waiting and
+notifying functions are most efficient.
 
 </ins>
 
@@ -437,5 +437,8 @@ template <class T>
 
 Two feature test macros should be added:
 
-  * ``__cpp_lib_atomic_flag_test`` implies the improvements to `atomic_flag` are available.
-  * ``__cpp_lib_atomic_lock_free_type_aliases`` implies `atomic_signed_lock_free` and `atomic_unsigned_lock_free` types are defined.
+  * `__cpp_lib_atomic_flag_test` implies the `test` methods for `atomic_flag`
+    and free functions, as well as the notify and wait overloads for
+    `atomic_flag`, are available.
+  * `__cpp_lib_atomic_lock_free_type_aliases` implies `atomic_signed_lock_free`
+    and `atomic_unsigned_lock_free` types are defined.
