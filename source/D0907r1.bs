@@ -88,9 +88,23 @@ Edit History {#edit}
 r0 → r1 {#r0r1}
 -------
 
-This paper was presented to a joint SG6 numerics and SG12 undefined behavior
-session in Jacksonville. The following polls were taken, and corresponding
-modifications made to the paper:
+This paper was presented in Jacksonville to:
+
+  * A joint SG6 numerics and SG12 undefined behavior session
+  * The Evolution Working Group
+
+The following polls were taken, and corresponding modifications made to the
+paper. The main change between [[P0907r0]] and the subsequent revision is to
+maintain undefined behavior when signed integer overflow occurs, instead of
+defining wrapping behavior. This direction was motivated by:
+
+  * Performance concerns, whereby defining the behavior prevents optimizers from
+    assuming that overflow never occurs;
+  * Implementation leeway for tools such as sanitizers;
+  * Data from Google suggesting that over 90% of all overflow is a bug.
+
+
+### SG6 / SG12 ### {#sg6-sg12}
 
 <table class="def">
 <tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
@@ -198,64 +212,80 @@ make `int8_t`, `int16_t`, `int32_t`, and `int64_t` not optional.  </th>
 <th>1</th><th>0</th><th>2</th><th>3</th><th>12</th></tr>
 </table>
 
+### EWG ### {#ewg}
+
+The Evolution Working Group took the following polls:
+
+<table class="def">
+<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+
+<tr><th>Disallow extraordinary value (trapping / NaN) for signed integral types.</th>
+<th>16</th><th>12</th><th>7</th><th>1</th><th>2</th></tr>
+
+<tr><th>Does EWG want to move signed integers to two’s complement, as presented
+in the current paper (without extraordinary values)?</th>
+<th>11</th><th>17</th><th>7</th><th>2</th><th>1</th></tr>
+
+<tr><th>Move to Core.</th>
+<th>7</th><th>8</th><th>12</th><th>8</th><th>4</th></tr>
+</table>
+
+The resolution on disallowing extraordinary values overwrites the lack of
+consensus for change from SG6 / SG12.
+
 
 Proposed Wording {#word}
 ================
 
-Remove the note in Program execution [**intro.execution**] ❡8:
+Leave the note in Program execution [**intro.execution**] ❡8 as-is:
 
 <blockquote>
 
-<del>
 [*Note:* Operators can be regrouped according to the usual mathematical
 rules only where the operators really are associative or commutative.
-For example, in the following fragment</del>
+For example, in the following fragment
 
-<del>
 <xmp>
   int a, b;
   /* ... */
   a = a + 32760 + b + 5;
 </xmp>
-</del>
 
-<del>the expression statement behaves exactly the same as</del>
+the expression statement behaves exactly the same as
 
-<del>
 <xmp>
   a = (((a + 32760) + b) + 5);
 </xmp>
-</del>
 
-<del>due to the associativity and precedence of these operators. Thus, the result of
+due to the associativity and precedence of these operators. Thus, the result of
 the sum `(a + 32760)` is next added to `b`, and that result is then added to 5
 which results in the value assigned to `a`. On a machine in which overflows
 produce an exception and in which the range of values representable by an `int`
-is `[-32768, +32767]`, the implementation cannot rewrite this expression as</del>
+is `[-32768, +32767]`, the implementation cannot rewrite this expression as
 
-<del><xmp>
+<xmp>
   a = ((a + b) + 32765);
-</xmp></del>
+</xmp>
 
-<del>since if the values for `a` and `b` were, respectively, -32754 and -15, the sum
+since if the values for `a` and `b` were, respectively, -32754 and -15, the sum
 `a + b` would produce an exception while the original expression would not; nor
-can the expression be rewritten either as</del>
+can the expression be rewritten either as
 
-<del><xmp>
+<xmp>
   a = ((a + 32765) + b);
-</xmp></del>
+</xmp>
 
-<del>or</del>
+or
 
-<del><xmp>
+<xmp>
   a = (a + (b + 32765));
-</xmp></del>
+</xmp>
 
-<del>since the values for `a` and `b` might have been, respectively, 4 and -8 or -17
+since the values for `a` and `b` might have been, respectively, 4 and -8 or -17
 and 12. However on a machine in which overflows do not produce an exception and
 in which the results of overflows are reversible, the above expression statement
 can be rewritten by the implementation in any of the above ways because the same
-result will occur. —*end note*]</del>
+result will occur. —*end note*]
 
 </blockquote>
 
@@ -304,10 +334,9 @@ the object representation of the corresponding unsigned type (if there are *M*
 value bits in the signed type and *N* in the unsigned type, then *M ≤ N*). If
 the sign bit is zero, it shall not affect the resulting value. If the sign bit
 is one, the value shall be modified such that the sign bit has the value
-−(2<sup>M</sup>). It is implementation-defined whether the value with sign bit 1
-and all value bits zero is a trap representation or a normal value. If overflow
-caused by an operation which would require representing an integer which cannot
-be represented by the type, the behavior is undefined.</ins>
+−(2<sup>M</sup>). There shall be no extraordinary value. If an operation would
+require representing an integer which cannot be represented by the type, the
+behavior is undefined.</ins>
 
 </blockquote>
 
@@ -331,11 +360,11 @@ implementation-defined.</del><ins>the object representation remains the same if
 the source and destination have the same size, or the least-significant source
 bits are retained if the destination is smaller than the source.</ins>
 
-Issue: change wording to avoid "object representation" as suggested in SG6.
+Issue: change wording to avoid "object representation" and use a mathematical definition as suggested in SG6.
 
 </blockquote>
 
-Modify Static cast [**expr.static.cast**] ❡1 onwards:
+Modify Static cast [**expr.static.cast**] ❡9 onwards:
 
 <blockquote>
 
@@ -385,14 +414,11 @@ into or past the sign bit, the behavior is undefined.</ins>
 
 The value of `E1 >> E2` is `E1` right-shifted `E2` bit positions. If `E1` has an
 unsigned type or if `E1` has a signed type and a non-negative value, the value
-of the result is the integral part of the quotient of E1/2<sup>E2</sup>. If `E1`
+of the result is the integral part of the quotient of <code>E1/2<sup>E2</sup></code>. If `E1`
 has a signed type and a negative value, the resulting value is<del>
-implementation-defined.</del><ins>the negative of the integral part of the
-quotient of E1/2<sup>E2</sup>. [*Note*: This implies that right-shift on signed
-integral types is an arithmetic right shift, and performs sign-extension.
-—*end note*]</ins>
-
-Issue: change the wording to use better mathematical wording above as suggested by SG6.
+implementation-defined.</del><ins><code>floor(E1 / 2<sup>E2</sup>)</code>. [*Note*:
+Right-shift on signed integral types is an arithmetic right shift,
+which performs sign-extension.  —*end note*]</ins>
 
 </blockquote>
 
@@ -467,13 +493,16 @@ excludes the most negative value. —*end note*]
 
 </blockquote>
 
-Remove Specializations for integers [**atomics.types.int**] ❡7:
+Modify Specializations for integers [**atomics.types.int**] ❡7 as follows:
 
 <blockquote>
 
-*Remarks:* <del>F</del><ins>There are no extraordinary values f</ins>or signed
-integer types<del>, arithmetic is defined to use two's complement
-representation. There are no undefined results</del>.
+*Remarks:* For signed integer types, <del>arithmetic is defined to use two's
+complement representation. T</del><ins>t</ins>here are no undefined results<ins>
+arising from the computation. Overflow in the positive direction shall wrap
+around from the maximum integer value for the type back to the minimum, and
+overflow in the negative direction shall wrap around from the minimum value for
+the type to the maximum</ins>.
 
 </blockquote>
 
