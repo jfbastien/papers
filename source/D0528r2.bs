@@ -10,7 +10,7 @@ URL: http://wg21.link/D0528r2
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Michael Spencer, Sony Playstation, bigcheesegs@gmail.com
 Abstract: Compare-and-exchange on a struct with padding bits should Just Work.
-Date: 2018-03-14
+Date: 2018-03-16
 Markup Shorthands: markdown yes
 </pre>
 
