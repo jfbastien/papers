@@ -69,7 +69,16 @@ poll:
 
 The types were made optional in case an architecture, such as PA-RISC, cannot
 support always-lock-free integral types because no compare-and-exchange
-instruction is available. There was no consensus for making aliases required.
+instruction is available. There was no consensus for making aliases required,
+though concern was expressed that LEWG doesn't usually make functionality
+optional. In the C++ standard library optionality is present as follows:
+
+  * `intN_t` / `uintN_t` are mandated by C, "if an implementation provides integer
+    types with widths of 8, 16, 32, or 64 bits, no padding bits, and (for the
+    signed types) that have a two’s complement representation";
+  * `abs` and `div` overloads "if and only if the type `intmax_t` designates an
+    extended integer type";
+  * The library `allocator_traits` template has optional requirements.
 
 There was also discussion about ABI breakage to `atomic_flag`. An argument was
 made that `atomic_flag` should also be sized such that waiting on them is most
