@@ -20,9 +20,9 @@ this proposal can fix this oft-encountered problem once and for all.
 
 [[P0528r0]] details extensive background on this problem (not repeated here),
 and proposed standardizing a trait, `has_padding_bits`, and using it on
-`compare_and_exchange_*`. [[P0528r1]] applied EWG guidance and simply added a
-note. This paper adds to EWG's guidance and adds a second approach to obtain the
-same effect EWG recommened.
+`compare_and_exchange_*`. [[P0528r1]] applied EWG guidance and simply added
+wording directing implementations to ensure that the desired behavior occur. At
+SG1's request this paper follows EWG's guidance but uses different wording.
 
 
 Edit History {#edit}
