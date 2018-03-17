@@ -26,19 +26,21 @@ Introduction {#intro}
 
 See [[#c-sign]] for full wording.
 
-C++ inherits these three signed integer representations from C. To the author's
-knowledge no modern machine uses both C++ and a signed integer representation
-other than two's complement (see [[#survey]]). None of [[MSVC]], [[GCC]], and
-[[LLVM]] support other representations. This means that the C++ that is taught
-is effectively two's complement, and the C++ that is written is two's
-complement. It is extremely unlikely that there exist any significant code base
-developed for two's complement machines that would actually work when run on a
-non-two's complement machine.
+C++ goes further than C and only requires that "the representations of integral
+types shall define values by use of a pure binary numeration system". To the
+author's knowledge no modern machine uses both C++ and a signed integer
+representation other than two's complement (see [[#survey]]). None of [[MSVC]],
+[[GCC]], and [[LLVM]] support other representations. This means that the C++
+that is taught is effectively two's complement, and the C++ that is written is
+two's complement. It is extremely unlikely that there exist any significant code
+base developed for two's complement machines that would actually work when run
+on a non-two's complement machine.
 
 The C++ that is spec'd, however, is not two's complement. Signed integers
-currently allow for trap representations, extra padding bits, integral negative
-zero, and introduce undefined behavior and implementation-defined behavior for
-the sake of this *extremely* abstract machine.
+currently allow the existence of an extraordinary value which traps, extra
+padding bits, integral negative zero, and introduce undefined behavior and
+implementation-defined behavior for the sake of this *extremely* abstract
+machine.
 
 Specifically, the current wording has the following effects:
 
@@ -63,8 +65,8 @@ signed magnitude or ones' complement integers would be better served by a
 pure-library solution, and so would the rest of us.
 
 This proposal leaves C unchanged, it merely restricts further the subset of C
-which applies to C++. The author will ensure that WG14 is made aware of this
-paper's outcome.
+which applies to C++. Aaron Ballman volunteered to present this paper to
+WG14, in the hope that C will approve compatible changes.
 
 A final argument to move to two's complement is that few people spell "ones'
 complement" correctly according to Knuth [[TAoCP]]. Reducing the nerd-snipe
@@ -101,7 +103,8 @@ defining wrapping behavior. This direction was motivated by:
   * Performance concerns, whereby defining the behavior prevents optimizers from
     assuming that overflow never occurs;
   * Implementation leeway for tools such as sanitizers;
-  * Data from Google suggesting that over 90% of all overflow is a bug.
+  * Data from Google suggesting that over 90% of all overflow is a bug, and
+    defining wrapping behavior would not have solved the bug.
 
 It is expected that this paper have little to no effect on code generation from
 current compilers. Known effects should have no performance implication, for
@@ -242,6 +245,9 @@ in the current paper (without extraordinary values)?</th>
 The resolution on disallowing extraordinary values overwrites the lack of
 consensus for change from SG6 / SG12.
 
+The decision to not forward to Core was mainly motivated on hearing back from
+WG14, which should be done by Rappersvil.
+
 
 Proposed Wording {#word}
 ================
@@ -359,17 +365,17 @@ an integer type.
 
 If the destination type is unsigned, the resulting value is the least unsigned
 integer congruent to the source integer (modulo 2<sup>n</sup> where *n* is the
-number of bits used to represent the unsigned type). <del>[*Note:* In a two's
-complement representation, t</del><ins>T</ins>his conversion is conceptual and there is no change
-in the bit pattern (if there is no truncation).<del> —*end note*]</del>
+number of bits used to represent the unsigned type). [*Note:* <del>In a two's
+complement representation, this</del><ins>This</ins> conversion is conceptual
+and there is no change in the bit pattern (if there is no truncation). —*end note*]
 
 If the destination type is signed, the value is unchanged if it can be
 represented in the destination type; otherwise, <del>the value is
-implementation-defined.</del><ins>the object representation remains the same if
-the source and destination have the same size, or the least-significant source
-bits are retained if the destination is smaller than the source.</ins>
-
-Issue: change wording to avoid "object representation" and use a mathematical definition as suggested in SG6.
+implementation-defined.</del><ins>with *n* being the number of bits in the value
+representation of the destination type, the resulting value is the sum of *M*
+and *S* where: *M* is the least non-negative integer congruent to the source
+integer (modulo 2<sup>n</sup>); *S* is zero if *M* can be represented in the
+destination type, and -(2<sup>n</sup>) otherwise.</ins>
 
 </blockquote>
 
@@ -412,7 +418,7 @@ than or equal to the length in bits of the promoted left operand.
 
 
 The value of `E1 << E2` is `E1` left-shifted `E2` bit positions; vacated bits
-are zero-filled. <del>If `E1` has an unsigned type, t</del><ins>T</ins>he value
+are zero-filled. <del>If `E1` has an unsigned type, the</del><ins>The</ins> value
 of the result is E1×2<sup>E2</sup>, reduced modulo one more than the maximum
 value representable in the result type.<del> Otherwise, if `E1` has a signed
 type and non-negative value, and E1×2<sup>E2</sup> is representable in the
@@ -497,8 +503,8 @@ If the template argument `D` is zero or the absolute values of either of the
 template arguments `N` and `D` is not representable by type `intmax_t`, the
 program is ill-formed. [*Note:* These rules ensure that infinite ratios are
 avoided and that for any negative input, there exists a representable value of
-its absolute value which is positive. <del>In a two's complement representation, t</del><ins>T</ins>his
-excludes the most negative value. —*end note*]
+its absolute value which is positive. <del>In a two's complement representation,
+this</del><ins>This</ins> excludes the most negative value. —*end note*]
 
 </blockquote>
 
@@ -507,7 +513,7 @@ Modify Specializations for integers [**atomics.types.int**] ❡7 as follows:
 <blockquote>
 
 *Remarks:* For signed integer types, <del>arithmetic is defined to use two's
-complement representation. T</del><ins>t</ins>here are no undefined results<ins>
+complement representation. There</del><ins>there</ins> are no undefined results<ins>
 arising from the computation. Overflow in the positive direction shall wrap
 around from the maximum integer value for the type back to the minimum, and
 overflow in the negative direction shall wrap around from the minimum value for
