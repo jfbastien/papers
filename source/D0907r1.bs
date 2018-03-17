@@ -103,6 +103,15 @@ defining wrapping behavior. This direction was motivated by:
   * Implementation leeway for tools such as sanitizers;
   * Data from Google suggesting that over 90% of all overflow is a bug.
 
+It is expected that this paper have little to no effect on code generation from
+current compilers. Known effects should have no performance implication, for
+example:
+
+  * Older x86 vector instructions don't support arithmetic right shift, and
+    therefore must remain scalar instead of vectorizing to non-arithmetic right
+    shift.
+  * An implementation which would shift using a rotate now need to also mask.
+
 
 ### SG6 / SG12 ### {#sg6-sg12}
 
