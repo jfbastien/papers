@@ -179,9 +179,9 @@ were originally there.
   <xmp>
 
   struct padded {
-    char c = 0x42;
+    char clank = 0x42;
     // Padding here.
-    unsigned i = 0xC0DEFEFE;
+    unsigned biff = 0xC0DEFEFE;
   };
   atomic<padded> pad = ATOMIC_VAR_INIT({});
 
