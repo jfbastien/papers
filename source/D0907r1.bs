@@ -9,7 +9,7 @@ URL: http://wg21.link/D0907r1
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0907r1.bs">github.com/jfbastien/papers/blob/master/source/D0907r1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: There is One True Representation for signed integers, and that representation is two's complement.
-Date: 2018-03-18
+Date: 2018-03-19
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
@@ -335,9 +335,15 @@ respectively, in `<cstdint>`, called the underlying types.
 
 Values of type `bool` are either `true` or `false`. [*Note:* There are no
 `signed`, `unsigned`, `short`, or `long bool` types or values. —*end note*]
-Values of type `bool` participate in integral promotions.<ins> The bits of
-the object representation of type `bool` shall all be zero for `false`, and
-are otherwise unspecified other that not being all zero.</ins>
+Values of type `bool` participate in integral promotions.<ins> Type `bool`'s
+object representation bits shall only contain value bits. The bits of
+the value representation of type `bool` shall all be zero for `false`, and
+shall contain at least one non-zero value for `true`. Which bit(s) are non-zero
+for `true` is unspecified.</ins>
+
+Issue: I believe we need to define the storage for `bool` since I define signed
+and unsigned below, and that excludes `bool`. Is this correct, and is the
+wording appropriate?
 
 Types `bool`, `char`, `char16_t`, `char32_t`, `wchar_t`, and the signed and
 unsigned integer types are collectively called *integral* types. A synonym for
@@ -346,26 +352,39 @@ shall define values by use of a pure binary numeration system. [*Example:*
 This document permits two's complement, ones' complement and signed magnitude
 representations for integral types. —*end example*]</del>
 
-<ins>For unsigned integer types, the bits of the object representation shall be
+<p><ins>For unsigned integer types, the bits of the object representation shall be
 divided into two groups: value bits and padding bits. There need not be any
 padding bits; `unsigned char` shall not have any padding bits. If there are *N*
 value bits, each bit shall represent a different power of 2 between 1 and
 2<sup>*N*−1</sup>, so that objects of that type shall be capable of representing
 values from 0 to 2<sup>*N*</sup>−1 using a pure binary representation; this
 shall be known as the value representation. The values of any padding bits are
-unspecified.</ins> <br><br> <ins>Signed integer types shall be repesented as
-two's complement. The bits of signed integer types' object representation shall
-be divided into three groups: value bits, padding bits, and the sign bit. There
-need not be any padding bits; `signed char` shall not have any padding
-bits. There shall be exactly one sign bit. Each bit that is a value bit shall
-have the same value as the same bit in the object representation of the
-corresponding unsigned type (if there are *M* value bits in the signed type and
-*N* in the unsigned type, then *M = N-1*). If the sign bit is zero, it shall not
-affect the resulting value. If the sign bit is one, the value shall be modified
-such that the sign bit has the value −(2<sup>M</sup>). There shall be no
-extraordinary value. Unless otherwise specified, if a signed operation would
+unspecified.</ins>
+
+<p><ins>Signed integer types shall be repesented as two's complement. The bits
+of signed integer types' object representation shall be divided into three
+groups: value bits, padding bits, and the sign bit. There need not be any
+padding bits; `signed char` shall not have any padding bits. There shall be
+exactly one sign bit. Each bit that is a value bit shall have the same value as
+the same bit in the object representation of the corresponding unsigned type (if
+there are *M* value bits in the signed type and *N* in the unsigned type, then
+*M = N-1*). If the sign bit is zero, it shall not affect the resulting value. If
+the sign bit is one, the value shall be modified such that the sign bit has the
+value −(2<sup>M</sup>). Unless otherwise specified, if a signed operation would
 naturally produce a value that is not within the range of the result type, the
 behavior is undefined.</ins>
+
+Issue: note *M = N-1*, whereas C says *M ≤ N*. I derive this from "For each of
+the standard signed integer types, there exists a corresponding (but different)
+standard unsigned integer type [...] <strong>each of which occupies the same
+amount of storage</strong>". Is this accurate?
+
+<p><ins>None of the integral types shall have extraordinary values.</ins>
+
+Issue: In C11 note 53 there's wording around extraordinary values being held in
+padding bits (not just as a value stolen from the value representation), and
+since C++ wording used to only talk about "binary representation" it'd rather be
+very clear about the absence of extraordinary values.
 
 </blockquote>
 
@@ -409,6 +428,9 @@ scoped enumeration type can also be explicitly converted to a floating-point
 type; the result is the same as that of converting from the original value to
 the floating-point type.
 
+Issue: the above change is for enumeration *to* integer, which SG6 did not
+request to change.
+
 A value of integral or enumeration type can be explicitly converted to a
 complete enumeration type. If the enumeration type has a fixed underlying type,
 the value is first converted to that type by integral conversion, if necessary,
@@ -418,6 +440,10 @@ range of the enumeration values, and otherwise, the behavior is undefined. A
 value of floating-point type can also be explicitly converted to an enumeration
 type. The resulting value is the same as converting the original value to the
 underlying type of the enumeration, and subsequently to the enumeration type.
+
+Issue: the above change is for integer *to* enumeration which SG6 voted to leave
+undefined in poll "Cast to enums outside of the enum’s representable range
+should be defined instead of undefined behavior".
 
 </blockquote>
 
@@ -432,14 +458,17 @@ than or equal to the length in bits of the promoted left operand.
 
 
 The value of `E1 << E2` is `E1` left-shifted `E2` bit positions; vacated bits
-are zero-filled. <del>If `E1` has an unsigned type, the</del><ins>The</ins> value
-of the result is E1×2<sup>E2</sup>, reduced modulo one more than the maximum
-value representable in the result type.<del> Otherwise, if `E1` has a signed
-type and non-negative value, and E1×2<sup>E2</sup> is representable in the
-corresponding unsigned type of the result type, then that value, converted to
-the result type, is the resulting value; otherwise, the behavior is
-undefined.</del><ins> If `E1` has a signed type and a 1 bit value is shifted
-into or past the sign bit, the behavior is undefined.</ins>
+are zero-filled. If `E1` has an unsigned type, the value of the result is
+E1×2<sup>E2</sup>, reduced modulo one more than the maximum value representable
+in the result type. Otherwise, if `E1` has a signed type <del>and non-negative
+value, and E1×2<sup>E2</sup> is representable in the corresponding unsigned type
+of the result type, then that value, converted to the result type, is the
+resulting value; otherwise, the behavior is undefined.</del><ins>, then the
+result has the same value representation as that of `E1` converted to its
+corresponding unsigned integer type, left-shifted by `E2`.</ins>
+
+Issue: updated to reflect poll "Cast from unsigned to signed which are out of
+range is currently implementation defined. It should instead be wrap".
 
 The value of `E1 >> E2` is `E1` right-shifted `E2` bit positions. If `E1` has an
 unsigned type or if `E1` has a signed type and a non-negative value, the value
@@ -509,7 +538,31 @@ Meaningful for all specializations.
 
 </blockquote>
 
-Modify Class template `ratio` [**ratio.ratio**] ❡1:
+Modify Type properties [**meta.unary.prop**] ❡9 as follows:
+
+<blockquote>
+
+The predicate condition for a template specialization `has_unique_object_representations<T>` shall be satisfied if and only if:
+
+  * `T` is trivially copyable, and
+  * any two objects of type `T` with the same value have the same object
+    representation, where two objects of array or non-union class type are
+    considered to have the same value if their respective sequences of direct
+    subobjects have the same values, and two objects of union type are
+    considered to have the same value if they have the same active member and
+    the corresponding members have the same value.
+
+The set of scalar types for which this condition holds is implementation-defined.
+[*Note:* If a type has padding bits, the condition does not hold; otherwise, the
+condition holds true for <ins>signed and </ins>unsigned integral types. —*end note*]
+
+Issue: this was missing from P0907r0. It is worded to exclude `bool`. Is this
+correct? GCC says `bool` has unique object representation, which an
+implementation can choose to guarantee but I find surprising.
+
+</blockquote>
+
+Modify Class template `ratio` [**ratio.ratio**] ❡1 as follows:
 
 <blockquote>
 
@@ -522,16 +575,32 @@ this</del><ins>This</ins> excludes the most negative value. —*end note*]
 
 </blockquote>
 
-Modify Specializations for integers [**atomics.types.int**] ❡7 as follows:
+Modify Specializations for integers [**atomics.types.int**] ❡7 and ❡8 as
+follows:
 
 <blockquote>
 
 *Remarks:* For signed integer types, <del>arithmetic is defined to use two's
-complement representation. There</del><ins>there</ins> are no undefined results<ins>
-arising from the computation. Overflow in the positive direction shall wrap
-around from the maximum integer value for the type back to the minimum, and
-overflow in the negative direction shall wrap around from the minimum value for
-the type to the maximum</ins>.
+complement representation. </del><ins>the result is as if the object value and
+parameters were converted to their corresponding unsigned types, the computation
+performed on those types, and the result converted back to the signed type.
+[*Note:* </ins> There are no undefined results<ins> arising from the computation.
+—*end note*]</ins>
+
+Issue: the operations this applies to are add, or, and, sub, xor, and is only
+meaningful for add and sub.
+
+<xmp>
+T operator op=(T operand) volatile noexcept;
+T operator op=(T operand) noexcept;
+</xmp>
+
+*Effects:* Equivalent to:
+<del>`return fetch_key(operand) op operand;`</del>
+<ins>`return static_cast<T>(static_cast<make_unsigned_t<T>>(fetch_key(operand)) op static_cast<make_unsigned_t<T>>(operand));`</ins>
+
+Issue: there's an outstanding defect report for this [[LWG3047]], whose
+resolution should be updated as above.
 
 </blockquote>
 
@@ -667,13 +736,37 @@ Here is a non-comprehensive history of signed integer representations:
 <a href="https://en.wikipedia.org/wiki/Two%27s_complement">Wikipedia</a> offers
 more details and has comprehensive sources for the above.
 
+Thomas Rodgers surveyed popular DSPs and found the following:
+
+  * SHARC family ships
+    [a C++ compiler](http://www.analog.com/media/en/dsp-documentation/software-manuals/cces-SharcCompiler-manual.pdf)
+    which supports C++11, and where signed integers are two's complement.
+  * Freescale/NXP ships
+    [a C++ compiler](https://www.nxp.com/docs/en/reference-manual/SC_COMPILER_USERS_GUIDE.pdf)
+    which supports C++03, and where signed integers are two's complement
+    ([reference](https://www.nxp.com/docs/en/reference-manual/MNSC140CORE.pdf)).
+  * Texas Instruments ships
+    [a C++ compiler](http://www.ti.com/lit/ug/slau132r/slau132r.pdf) which
+    supports C++14, and where signed integers are two's complement.
+  * CML Microcircuits has fixed ASIC for radio processing, and doesn't seem to
+    support C++.
+  * [Cirrus Logic](https://www.cirrus.com/products/cs4970xx/) (formerly Wolfson)
+    has
+    [a C compiler only](https://d3uzseaevmutz1.cloudfront.net/pubs/manual/cirrus_c_compiler_um15.pdf)
+    which is probably two's complement.
+  * Synaptics (formerly Connexant) makes audio input subsystem for voice
+    assistants. The DSP runs fixed far-field signal processing algorithms and
+    has programmable functions which run on standard ARM controller, using
+    Raspbian.
+
 In short, the only machine the author could find using non-two's complement are
-made by Unisys. Nowadays they emulate their old architecture using x86 CPUs for
-customers who have legacy applications which they've been unable to
-migrate. These applications are unlikely to be well served by modern C++, signed
-integers are the least of their problem. Post-modern C++ should focus on serving
-its existing users well, and incoming users should be blissfully unaware of
-integer esoterica.
+made by Unisys, and no counter-example was brought by any member of the C++
+standards committee. Nowadays Unisys emulates their old architecture using x86
+CPUs with attached FPGAs for customers who have legacy applications which
+they've been unable to migrate. These applications are unlikely to be well
+served by modern C++, signed integers are the least of their
+problem. Post-modern C++ should focus on serving its existing users well, and
+incoming users should be blissfully unaware of integer esoterica.
 
 
 <pre class=biblio>
