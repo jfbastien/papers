@@ -352,7 +352,7 @@ shall define values by use of a pure binary numeration system. [*Example:*
 This document permits two's complement, ones' complement and signed magnitude
 representations for integral types. —*end example*]</del>
 
-<p><ins>For unsigned integer types, the bits of the object representation shall be
+<p><ins>For unsigned integer types, the bits of the object representation are
 divided into two groups: value bits and padding bits. There need not be any
 padding bits; `unsigned char` shall not have any padding bits. If there are *N*
 value bits, each bit shall represent a different power of 2 between 1 and
@@ -362,29 +362,34 @@ shall be known as the value representation. The values of any padding bits are
 unspecified.</ins>
 
 <p><ins>Signed integer types shall be repesented as two's complement. The bits
-of signed integer types' object representation shall be divided into three
-groups: value bits, padding bits, and the sign bit. There need not be any
-padding bits; `signed char` shall not have any padding bits. There shall be
-exactly one sign bit. Each bit that is a value bit shall have the same value as
-the same bit in the object representation of the corresponding unsigned type (if
-there are *M* value bits in the signed type and *N* in the unsigned type, then
-*M = N-1*). If the sign bit is zero, it shall not affect the resulting value. If
-the sign bit is one, the value shall be modified such that the sign bit has the
-value −(2<sup>M</sup>). Unless otherwise specified, if a signed operation would
+of signed integer types' object representation are divided into three groups:
+value bits, padding bits, and the sign bit. There need not be any padding bits;
+`signed char` shall not have any padding bits. There shall be exactly one sign
+bit. Each bit that is a value bit shall have the same value as the same bit in
+the object representation of the corresponding unsigned type (if there are *M*
+value bits in the signed type and *N* in the unsigned type, then *M = N-1*). If
+the sign bit is zero, it shall not affect the resulting value. If the sign bit
+is one, the value shall be modified such that the sign bit has the value
+−(2<sup>M</sup>). [*Note:* Unless otherwise specified, if a signed operation would
 naturally produce a value that is not within the range of the result type, the
-behavior is undefined.</ins>
+behavior is undefined (see [**expr.pre**] 8 ❡4). —*end note*]</ins>
 
 Issue: note *M = N-1*, whereas C says *M ≤ N*. I derive this from "For each of
 the standard signed integer types, there exists a corresponding (but different)
 standard unsigned integer type [...] <strong>each of which occupies the same
 amount of storage</strong>". Is this accurate?
 
-<p><ins>None of the integral types shall have extraordinary values.</ins>
+<p><ins>All combinations of value bits and sign bit are valid and result in a
+specific distinct integer value. [*Note:* Therefore, none of the integral types
+have extraordinary values. —*end note*]</ins>
 
-Issue: In C11 note 53 there's wording around extraordinary values being held in
-padding bits (not just as a value stolen from the value representation), and
-since C++ wording used to only talk about "binary representation" it'd rather be
-very clear about the absence of extraordinary values.
+Issue: In C11 implementation requirements call it the "extraordinary value" and
+refer to 6.2.6.2 which calls it "is a trap representation or a normal
+value". Furthermore, in note 53 there's wording around extraordinary values
+being held in padding bits (not just as a value stolen from the value
+representation), and since C++ wording used to only talk about "binary
+representation" it'd rather be very clear about the absence of extraordinary
+values.
 
 </blockquote>
 
@@ -396,19 +401,24 @@ A prvalue of an integer type can be converted to a prvalue of another integer
 type. A prvalue of an unscoped enumeration type can be converted to a prvalue of
 an integer type.
 
-If the destination type is unsigned, the resulting value is the least unsigned
+<del>If the destination type is unsigned, the resulting value is the least unsigned
 integer congruent to the source integer (modulo 2<sup>n</sup> where *n* is the
-number of bits used to represent the unsigned type). [*Note:* <del>In a two's
-complement representation, this</del><ins>This</ins> conversion is conceptual
-and there is no change in the bit pattern (if there is no truncation). —*end note*]
+number of bits used to represent the unsigned type). [*Note:* In a two's
+complement representation, this conversion is conceptual and there is no change
+in the bit pattern (if there is no truncation). —*end note*]</del>
 
-If the destination type is signed, the value is unchanged if it can be
-represented in the destination type; otherwise, <del>the value is
-implementation-defined.</del><ins>with *N* being the number of bits in the value
-representation of the destination type, the resulting value is the sum of *M*
-and *S* where: *M* is the least non-negative integer congruent to the source
-integer (modulo 2<sup>N</sup>); *S* is zero if *M* can be represented in the
-destination type, and -(2<sup>N</sup>) otherwise.</ins>
+<del>If the destination type is signed, the value is unchanged if it can be
+represented in the destination type; otherwise, the value is
+implementation-defined.</del>
+
+<p><ins>When the destination type is *cv* `bool`, the resulting value is `false` if the
+original value is zero and `true` for all other values. When the source type is *cv* `bool`,
+the resulting value is zero if the original value is `false` and one otherwise.
+For the remaining integral types, the result is the unique value of the destination type
+that is congruent to the source integer modulo 2<sup>N</sup>, where *N* is the number
+of value bits in the destination type. [*Note:* This conversion is conceptual; there
+is no change in the bit pattern other than that high-order bits may either be
+discarded or added. All added high-order bits will have the same value.  —*end note*]</ins>
 
 </blockquote>
 
@@ -417,19 +427,19 @@ Modify Static cast [**expr.static.cast**] ❡9 onwards:
 <blockquote>
 
 A value of a scoped enumeration type can be explicitly converted to an integral
-type. When that type is *cv* `bool`, the resulting value is `false` if the
+type<del>. When that type is *cv* `bool`, the resulting value is `false` if the
 original value is zero and `true` for all other values. For the remaining
 integral types, the value is unchanged if the original value can be represented
-by the specified type. Otherwise, the <del>resulting value is
-unspecified</del><ins>the object representation remains the same if the source
-and destination have the same size, or the least-significant source bits are
-retained if the destination is smaller than the source</ins>. A value of a
-scoped enumeration type can also be explicitly converted to a floating-point
+by the specified type. Otherwise, the resulting value is
+unspecified.</del><ins>; the result isthe same as that of converting from the
+enumeration's underlying type and then to the destination type.</ins> A value of
+a scoped enumeration type can also be explicitly converted to a floating-point
 type; the result is the same as that of converting from the original value to
 the floating-point type.
 
 Issue: the above change is for enumeration *to* integer, which SG6 did not
-request to change.
+request to change. It states the conversion in terms of the updated
+[**conv.integral**] rules.
 
 A value of integral or enumeration type can be explicitly converted to a
 complete enumeration type. If the enumeration type has a fixed underlying type,
@@ -458,25 +468,26 @@ than or equal to the length in bits of the promoted left operand.
 
 
 The value of `E1 << E2` is `E1` left-shifted `E2` bit positions; vacated bits
-are zero-filled. If `E1` has an unsigned type, the value of the result is
-E1×2<sup>E2</sup>, reduced modulo one more than the maximum value representable
-in the result type. Otherwise, if `E1` has a signed type <del>and non-negative
-value, and E1×2<sup>E2</sup> is representable in the corresponding unsigned type
-of the result type, then that value, converted to the result type, is the
-resulting value; otherwise, the behavior is undefined.</del><ins>, then the
-result has the same value representation as that of `E1` converted to its
-corresponding unsigned integer type, left-shifted by `E2`.</ins>
+are zero-filled. <del>If `E1` has an unsigned type, the</del><ins>The</ins>
+value of the result is E1×2<sup>E2</sup>, reduced modulo <del>one more than the
+maximum value representable in the result type. Otherwise, if `E1` has a signed
+type and non-negative value, and E1×2<sup>E2</sup> is representable in the
+corresponding unsigned type of the result type, then that value, converted to
+the result type, is the resulting value; otherwise, the behavior is
+undefined.</del><ins>2<sup>N</sup>, where *N* is the number of value
+bits in the result type.</ins>
 
-Issue: updated to reflect poll "Cast from unsigned to signed which are out of
-range is currently implementation defined. It should instead be wrap".
+Issue: updated to reflect poll "Left shift should be the same for signed and
+unsigned".
 
-The value of `E1 >> E2` is `E1` right-shifted `E2` bit positions. If `E1` has an
-unsigned type or if `E1` has a signed type and a non-negative value, the value
-of the result is the integral part of the quotient of <code>E1/2<sup>E2</sup></code>. If `E1`
-has a signed type and a negative value, the resulting value is<del>
-implementation-defined.</del><ins><code>floor(E1 / 2<sup>E2</sup>)</code>. [*Note*:
-Right-shift on signed integral types is an arithmetic right shift,
-which performs sign-extension.  —*end note*]</ins>
+The value of `E1 >> E2` is `E1` right-shifted `E2` bit positions. <del>If `E1`
+has an unsigned type or if `E1` has a signed type and a non-negative value,
+the</del><ins>The</ins> value of the result is <del>the integral part of the
+quotient of <code>E1/2<sup>E2</sup></code>. If `E1` has a signed type and a
+negative value, the resulting value is implementation-defined.</del><ins>
+<code>floor(E1 / 2<sup>E2</sup>)</code>. [*Note*: Right-shift on signed
+integral types is an arithmetic right shift, which performs sign-extension.
+—*end note*]</ins>
 
 </blockquote>
 
