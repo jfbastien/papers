@@ -9,7 +9,7 @@ URL: http://wg21.link/D0907r1
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0907r1.bs">github.com/jfbastien/papers/blob/master/source/D0907r1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: There is One True Representation for signed integers, and that representation is two's complement.
-Date: 2018-03-17
+Date: 2018-03-18
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
@@ -32,11 +32,11 @@ author's knowledge no modern machine uses both C++ and a signed integer
 representation other than two's complement (see [[#survey]]). None of [[MSVC]],
 [[GCC]], and [[LLVM]] support other representations. This means that the C++
 that is taught is effectively two's complement, and the C++ that is written is
-two's complement. It is extremely unlikely that there exist any significant code
-base developed for two's complement machines that would actually work when run
-on a non-two's complement machine.
+two's complement. It is extremely unlikely that there exist any significant
+codebase developed for two's complement machines that would actually work when
+run on a non-two's complement machine.
 
-The C++ that is spec'd, however, is not two's complement. Signed integers
+C and C++ as specified, however, are not two's complement. Signed integers
 currently allow the existence of an extraordinary value which traps, extra
 padding bits, integral negative zero, and introduce undefined behavior and
 implementation-defined behavior for the sake of this *extremely* abstract
@@ -58,9 +58,9 @@ Specifically, the current wording has the following effects:
     therefore even freestanding implementations already support two's complement
     in C++.
 
-Let's stop pretending that the C++ abstract machine should represent integers as
+Let's stop pretending that the abstract machine should represent integers as
 signed magnitude or ones' complement. These theoretical implementations are a
-different programming language, not our real-world C++. Users of C++ who require
+different programming language, not our real-world C++. Developers who require
 signed magnitude or ones' complement integers would be better served by a
 pure-library solution, and so would the rest of us.
 
@@ -107,33 +107,34 @@ defining wrapping behavior. This direction was motivated by:
     defining wrapping behavior would not have solved the bug.
 
 It is expected that this paper have little to no effect on code generation from
-current compilers. Known effects should have no performance implication, for
-example:
+current compilers. Known codegen changes should have no performance implication,
+for example:
 
   * Older x86 vector instructions don't support arithmetic right shift, and
     therefore must remain scalar instead of vectorizing to non-arithmetic right
     shift.
-  * An implementation which would shift using a rotate now need to also mask.
+  * An implementation which implements left shift using a rotate now need to
+    also mask.
 
 
 ### SG6 / SG12 ### {#sg6-sg12}
 
 <table class="def">
-<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+<tr><th style="width: 70%;"></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
 
-<tr><th>Change anything with respect to signed integers.</th>
+<tr><th><small>Change anything with respect to signed integers.</th>
 <th>2</th><th>10</th><th>5</th><th>1</th><th>0</th></tr>
 
-<tr><th>Moving any change from this paper to IS'20 is blocked on synchronizing with WG14.</th>
+<tr><th><small>Moving any change from this paper to IS'20 is blocked on synchronizing with WG14.</th>
 <th>4</th><th>9</th><th>4</th><th>0</th><th>1</th></tr>
 
-<tr><th>Change the default unsigned integral types' behavior.</th>
+<tr><th><small>Change the default unsigned integral types' behavior.</th>
 <th>0</th><th>0</th><th>1</th><th>8</th><th>9</th></tr>
 
-<tr><th>Changes we make constrain *extended integral types*.</th>
+<tr><th><small>Changes we make constrain *extended integral types*.</th>
 <th>10</th><th>4</th><th>2</th><th>0</th><th>1</th></tr>
 
-<tr><th>Allow *extraordinary value* for signed integral types.</th>
+<tr><th><small>Allow *extraordinary value* for signed integral types.</th>
 <th>2</th><th>2</th><th>9</th><th>2</th><th>3</th></tr>
 </table>
 
@@ -143,10 +144,11 @@ should be when going out of range for:
   * cast of enums
   * cast from `unsigned` to `signed`
   * `INT_MIN / -1`
-  * add / sub / mul and `-INT_MIN` overflow
+  * addition / subtraction / multiplication and `-INT_MIN` overflow
 
 **Multiple answer poll** would you be OK with these being the standards-mandated
-behavior for the "privileged" syntax behavior of `int` when going out of range:
+behavior for the "privileged" syntax behavior of signed integral types when
+going out of range:
 
   * 16—undefined behavior
   * 0—saturation
@@ -158,18 +160,18 @@ behavior for the "privileged" syntax behavior of `int` when going out of range:
   * 9—intermediate values are mathematical integers (e.g. `(int)a+(int)b > INT_MAX` would be OK)
 
 <table class="def">
-<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+<tr><th style="width: 70%;"></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
 
-<tr><th>Cast to enums outside of the enum’s representable range should be defined instead of undefined behavior.</th>
+<tr><th><small>Cast to enums outside of the enum’s representable range should be defined instead of undefined behavior.</th>
 <th>0</th><th>1</th><th>1</th><th>5</th><th>8</th></tr>
 
-<tr><th>Cast from `unsigned` to `signed` which are out of range is currently implementation defined. It should instead be wrap.</th>
+<tr><th><small>Cast from `unsigned` to `signed` which are out of range is currently implementation defined. It should instead be wrap.</th>
 <th>6</th><th>6</th><th>3</th><th>0</th><th>1</th></tr>
 
-<tr><th>We want two’s complement representation for signed types, regardless of what WG14 decides.</th>
+<tr><th><small>We want two’s complement representation for signed types, regardless of what WG14 decides.</th>
 <th>7</th><th>4</th><th>2</th><th>0</th><th>3</th></tr>
 
-<tr><th>`INT_MIN / -1` should be defined.</th>
+<tr><th><small>`INT_MIN / -1` should be defined.</th>
 <th>0</th><th>0</th><th>4</th><th>3</th><th>9</th></tr>
 </table>
 
@@ -197,9 +199,9 @@ separately from this paper?
   * 14—operations with a bool set when overflow has occurred
 
 <table class="def">
-<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+<tr><th style="width: 70%;"></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
 
-<tr><th>Shifting out of range `1 << 31` as currently defined (if shift has
+<tr><th><small>Shifting out of range `1 << 31` as currently defined (if shift has
 defined value when interpreted as unsigned, you get that value as signed, you
 can shift into but not past the sign, shifting past sign bit is undefined
 behavior). `1 << 31` was defined and still is (as of Howard’s paper), `2 << 31`
@@ -209,13 +211,13 @@ adopt Howard’s paper which made this. Should we take it back to undefined to d
 
 <th>2</th><th>7</th><th>5</th><th>1</th><th>1</th></tr>
 
-<tr><th>Left shift should be the same for `signed` and `unsigned`.</th>
+<tr><th><small>Left shift should be the same for `signed` and `unsigned` (*overwrite previous poll*).</th>
 <th>6</th><th>5</th><th>5</th><th>0</th><th>1</th></tr>
 
-<tr><th>Right shift on a signed integral type should be an arithmetic shift (which sign-extends).</th>
+<tr><th><small>Right shift on a signed integral type should be an arithmetic shift (which sign-extends).</th>
 <th>9</th><th>4</th><th>3</th><th>1</th><th>0</th></tr>
 
-<tr><th>In C `intN_t` is optional: “These types are optional. However, if an
+<tr><th><small>In C `intN_t` is optional: “These types are optional. However, if an
 implementation provides integer types with widths of 8, 16, 32, or 64 bits, no
 padding bits, and (for the signed types) that have a two’s complement
 representation, it shall define the corresponding typedef names.”  Change it to
@@ -229,16 +231,16 @@ make `int8_t`, `int16_t`, `int32_t`, and `int64_t` not optional.  </th>
 The Evolution Working Group took the following polls:
 
 <table class="def">
-<tr><th></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
+<tr><th style="width: 70%;"></th><th>**SF**</th><th>**F**</th><th>**N**</th><th>**A**</th><th>**SA**</th></tr>
 
-<tr><th>Disallow extraordinary value (trapping / NaN) for signed integral types.</th>
+<tr><th><small>Disallow extraordinary value (trapping / NaN) for signed integral types.</th>
 <th>16</th><th>12</th><th>7</th><th>1</th><th>2</th></tr>
 
-<tr><th>Does EWG want to move signed integers to two’s complement, as presented
+<tr><th><small>Does EWG want to move signed integers to two’s complement, as presented
 in the current paper (without extraordinary values)?</th>
 <th>11</th><th>17</th><th>7</th><th>2</th><th>1</th></tr>
 
-<tr><th>Move to Core.</th>
+<tr><th><small>Move to Core.</th>
 <th>7</th><th>8</th><th>12</th><th>8</th><th>4</th></tr>
 </table>
 
@@ -246,7 +248,9 @@ The resolution on disallowing extraordinary values overwrites the lack of
 consensus for change from SG6 / SG12.
 
 The decision to not forward to Core was mainly motivated on hearing back from
-WG14, which should be done by Rappersvil.
+WG14, which should be done by Rappersvil. EWG will see the paper again in
+Rappersvil, and will likely forward to Core at that point in time given the
+outcome of the next-to-last poll.
 
 
 Proposed Wording {#word}
@@ -331,7 +335,9 @@ respectively, in `<cstdint>`, called the underlying types.
 
 Values of type `bool` are either `true` or `false`. [*Note:* There are no
 `signed`, `unsigned`, `short`, or `long bool` types or values. —*end note*]
-Values of type `bool` participate in integral promotions.
+Values of type `bool` participate in integral promotions.<ins> The bits of
+the object representation of type `bool` shall all be zero for `false`, and
+are otherwise unspecified other that not being all zero.</ins>
 
 Types `bool`, `char`, `char16_t`, `char32_t`, `wchar_t`, and the signed and
 unsigned integer types are collectively called *integral* types. A synonym for
@@ -340,17 +346,25 @@ shall define values by use of a pure binary numeration system. [*Example:*
 This document permits two's complement, ones' complement and signed magnitude
 representations for integral types. —*end example*]</del>
 
-<ins>Signed integer types shall be repesented as two's complement. The bits of
-signed integer types' object representation shall be divided into three groups:
-value bits, padding bits, and the sign bit. There need not be any padding bits;
-`signed char` shall not have any padding bits. There shall be exactly one sign
-bit. Each bit that is a value bit shall have the same value as the same bit in
-the object representation of the corresponding unsigned type (if there are *M*
-value bits in the signed type and *N* in the unsigned type, then *M ≤ N*). If
-the sign bit is zero, it shall not affect the resulting value. If the sign bit
-is one, the value shall be modified such that the sign bit has the value
-−(2<sup>M</sup>). There shall be no extraordinary value. If an operation would
-require representing an integer which cannot be represented by the type, the
+<ins>For unsigned integer types, the bits of the object representation shall be
+divided into two groups: value bits and padding bits. There need not be any
+padding bits; `unsigned char` shall not have any padding bits. If there are *N*
+value bits, each bit shall represent a different power of 2 between 1 and
+2<sup>*N*−1</sup>, so that objects of that type shall be capable of representing
+values from 0 to 2<sup>*N*</sup>−1 using a pure binary representation; this
+shall be known as the value representation. The values of any padding bits are
+unspecified.</ins> <br><br> <ins>Signed integer types shall be repesented as
+two's complement. The bits of signed integer types' object representation shall
+be divided into three groups: value bits, padding bits, and the sign bit. There
+need not be any padding bits; `signed char` shall not have any padding
+bits. There shall be exactly one sign bit. Each bit that is a value bit shall
+have the same value as the same bit in the object representation of the
+corresponding unsigned type (if there are *M* value bits in the signed type and
+*N* in the unsigned type, then *M = N-1*). If the sign bit is zero, it shall not
+affect the resulting value. If the sign bit is one, the value shall be modified
+such that the sign bit has the value −(2<sup>M</sup>). There shall be no
+extraordinary value. Unless otherwise specified, if a signed operation would
+naturally produce a value that is not within the range of the result type, the
 behavior is undefined.</ins>
 
 </blockquote>
@@ -371,11 +385,11 @@ and there is no change in the bit pattern (if there is no truncation). —*end n
 
 If the destination type is signed, the value is unchanged if it can be
 represented in the destination type; otherwise, <del>the value is
-implementation-defined.</del><ins>with *n* being the number of bits in the value
+implementation-defined.</del><ins>with *N* being the number of bits in the value
 representation of the destination type, the resulting value is the sum of *M*
 and *S* where: *M* is the least non-negative integer congruent to the source
-integer (modulo 2<sup>n</sup>); *S* is zero if *M* can be represented in the
-destination type, and -(2<sup>n</sup>) otherwise.</ins>
+integer (modulo 2<sup>N</sup>); *S* is zero if *M* can be represented in the
+destination type, and -(2<sup>N</sup>) otherwise.</ins>
 
 </blockquote>
 
