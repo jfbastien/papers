@@ -333,40 +333,64 @@ Types `char16_t` and `char32_t` denote distinct types with the same size,
 signedness, and alignment as `uint_least16_t` and `uint_least32_t`,
 respectively, in `<cstdint>`, called the underlying types.
 
-Values of type `bool` are either `true` or `false`. [*Note:* There are no
+Values of type `bool` are either `true` or `false`<sup>†</sup>. [*Note:* There are no
 `signed`, `unsigned`, `short`, or `long bool` types or values. —*end note*]
 Values of type `bool` participate in integral promotions.<ins> Type `bool`'s
 object representation bits shall only contain value bits. The bits of the value
 representation of type `bool` shall all be zero for `false`. For `true`, all
 bits shall be zero except for the bit corresponding to the least-significant bit
-in the object representation of the unsigned type with the same size as
-`bool`.</ins>
+in the object representation of the unsigned type with the same size (or a
+bit-field thereof) as `bool`. The program has undefined behavior if any other
+object representation is formed.</ins>
 
-Issue: I believe we need to define the storage for `bool` since I define signed
-and unsigned below, and that excludes `bool`. This definition is more
+  <blockquote>
+
+  <sup>†</sup> Using a `bool` value in ways described by this International
+  Standard as “undefined”, such as by examining the value of an uninitialized
+  automatic object, might cause it to behave as if it is neither `true` nor
+  `false`.
+
+</blockquote>
+
+Issue: We need to define the storage for `bool` since we define signed and
+unsigned below, and that excludes `bool`. The definition I propose is more
 restrictive than what we had before because it only allows two values to be
-represented. It happens to make `bool` trivially-copyable, and gives it a unique
-object representation.
+represented, and doesn't allow padding bits. This guarantees that `bool` is
+trivially-copyable, and gives it a unique object representation, which as far as
+I know all compilers already guaranteed.
 
 Types `bool`, `char`, `char16_t`, `char32_t`, `wchar_t`, and the signed and
 unsigned integer types are collectively called *integral* types. A synonym for
 integral type is *integer type*. <del>The representations of integral types
-shall define values by use of a pure binary numeration system. [*Example:*
+shall define values by use of a pure binary numeration system<sup>‡</sup>. [*Example:*
 This document permits two's complement, ones' complement and signed magnitude
 representations for integral types. —*end example*]</del>
 
 <p><ins>For unsigned integer types, the bits of the object representation are
-divided into two groups: value bits and padding bits. Value bits are store
-contiguously in memory. There need not be any padding bits; `unsigned char`
-shall not have any padding bits. If there are *N* value bits, each bit shall
-represent a different power of 2 between 1 and 2<sup>*N*−1</sup>, so that
-objects of that type shall be capable of representing values from 0 to
-2<sup>*N*</sup>−1 using a pure binary representation; this shall be known as the
-value representation. The values of any padding bits are unspecified.</ins>
+divided into two groups: value bits and padding bits. There need not be any
+padding bits; `unsigned char` shall not have any padding bits. If there are *N*
+value bits, each bit shall represent a different power of 2 between 1 and
+2<sup>*N*−1</sup>, so that objects of that type shall be capable of representing
+values from 0 to 2<sup>*N*</sup>−1 using a pure binary numeration
+system<sup>‡</sup>; this shall be known as the value representation. The values
+of any padding bits are unspecified.</ins>
 
-Issue: storing value bits contiguously wasn't in the original proposal. It
-attempts to preserve different endiannesses, and otherwise restricts
-implementations to "sane" layout.
+<blockquote>
+
+  <sup>‡</sup> A positional representation for integers that uses the binary
+  digits 0 and 1, in which the values represented by successive bits are
+  additive, begin with 1, and are multiplied by successive integral power of 2,
+  except perhaps for the bit with the highest position. (Adapted from the
+  *American National Dictionary for Information Processing Systems*.)
+
+</blockquote>
+
+Issue: An intermediate revision of this paper stated "Value bits are store
+contiguously in memory" in an attempt to preserve different endiannesses, and
+otherwise restricts implementations to "sane" layout. However, that change
+wasn't presented to EWG and received pushback on the SG6 reflector. Would this
+be a desirable addition, should it be in a separate paper, or does it
+overconstrain implementations?
 
 <p><ins>Signed integer types shall be repesented as two's complement. The bits
 of signed integer types' object representation are divided into three groups:
@@ -377,15 +401,14 @@ the object representation of the corresponding unsigned type (if there are *M*
 value bits in the signed type and *N* in the unsigned type, then *M = N-1*).
 The value bit in the unsigned representation with value 2<sup>N-1</sup>
 corresponds to the sign bit in the signed representation, where it has value
-<code>sign_bit ? -2<sup>N-1</sup> : 0</code>. [*Note:* Unless otherwise specified,
-if a signed operation would naturally produce a value that is not within the
-range of the result type, the behavior is undefined (see [**expr.pre**] 8).
-—*end note*]</ins>
+-2<sup>N-1</sup>. [*Note:* Unless otherwise specified, if a signed operation
+would naturally produce a value that is not within the range of the result
+type, the behavior is undefined (see [**expr.pre**] 8). —*end note*]</ins>
 
 Issue: note *M = N-1*, whereas C says *M ≤ N*. I derive this from "For each of
 the standard signed integer types, there exists a corresponding (but different)
 standard unsigned integer type [...] <strong>each of which occupies the same
-amount of storage</strong>". Is this accurate?
+amount of storage</strong>".
 
 <p><ins>All combinations of value bits and sign bit are valid and result in a
 specific distinct integer value. No other bits factor into an integer's value.
@@ -446,8 +469,8 @@ type; the result is the same as that of converting from the original value to
 the floating-point type.
 
 Issue: the above change is for enumeration *to* integer, which SG6 did not
-request to change. It states the conversion in terms of the updated
-[**conv.integral**] rules.
+object to changing as suggested. It states the conversion in terms of the
+updated [**conv.integral**] rules.
 
 A value of integral or enumeration type can be explicitly converted to a
 complete enumeration type. If the enumeration type has a fixed underlying type,
@@ -459,9 +482,9 @@ value of floating-point type can also be explicitly converted to an enumeration
 type. The resulting value is the same as converting the original value to the
 underlying type of the enumeration, and subsequently to the enumeration type.
 
-Issue: the above change is for integer *to* enumeration which SG6 voted to leave
-undefined in poll "Cast to enums outside of the enum’s representable range
-should be defined instead of undefined behavior".
+Issue: the above unmodified paragraph is for integer *to* enumeration which SG6
+voted to leave undefined in poll "Cast to enums outside of the enum’s
+representable range should be defined instead of undefined behavior".
 
 </blockquote>
 
@@ -577,8 +600,8 @@ condition holds true for <ins>`bool`, signed, and </ins>unsigned integral types.
 —*end note*]
 
 Issue: this was missing from P0907r0. Adding signed here seems like a
-no-brainer. GCC currently returns `true` for `bool` (this isn't implemented in
-clang).
+no-brainer. GCC and LLVM currently return `true` for `bool` (and is currently
+isn't implemented in MSVC). [Try it out](https://godbolt.org/g/pxaidA).
 
 </blockquote>
 
