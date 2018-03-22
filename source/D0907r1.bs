@@ -600,7 +600,7 @@ condition holds true for <ins>`bool`, signed, and </ins>unsigned integral types.
 —*end note*]
 
 Issue: this was missing from P0907r0. Adding signed here seems like a
-no-brainer. GCC and LLVM currently return `true` for `bool` (and is currently
+no-brainer. GCC and LLVM currently return `true` for `bool` (and it currently
 isn't implemented in MSVC). [Try it out](https://godbolt.org/g/pxaidA).
 
 </blockquote>
