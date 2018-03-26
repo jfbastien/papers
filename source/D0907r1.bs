@@ -9,7 +9,7 @@ URL: http://wg21.link/D0907r1
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0907r1.bs">github.com/jfbastien/papers/blob/master/source/D0907r1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: There is One True Representation for signed integers, and that representation is two's complement.
-Date: 2018-03-20
+Date: 2018-03-26
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
@@ -42,27 +42,58 @@ padding bits, integral negative zero, and introduce undefined behavior and
 implementation-defined behavior for the sake of this *extremely* abstract
 machine.
 
-Specifically, the current wording has the following effects:
-
-  * Associativity and commutativity of integers is needlessly obtuse.
-  * Naïve overflow checks, which are often security-critical, often get
-    eliminated by compilers. This leads to exploitable code when the intent was
-    clearly not to and the code, while naïve, was correctly performing security
-    checks for two's complement integers. Correct overflow checks are difficult
-    to write and equally difficult to read, exponentially so in generic code.
-  * Conversion between signed and unsigned are implementation-defined.
-  * There is no portable way to generate an arithmetic right-shift, or to
-    sign-extend an integer, which every modern CPU supports.
-  * `constexpr` is further restrained by this extraneous undefined behavior.
-  * Atomic integral are already two's complement and have no undefined results,
-    therefore even freestanding implementations already support two's complement
-    in C++.
-
 Let's stop pretending that the abstract machine should represent integers as
 signed magnitude or ones' complement. These theoretical implementations are a
 different programming language, not our real-world C++. Developers who require
 signed magnitude or ones' complement integers would be better served by a
 pure-library solution, and so would the rest of us.
+
+This paper proposes the following:
+
+  * *Status-quo* Signed integer arithmetic remains non-commutative in general
+    (though some implementations may guarantee that it is).
+  * *Change* `bool` is represented as `0` for `false` and `1` for `true`. All
+    other representations are undefined.
+  * *Change* `bool` only has value bits, no padding bits.
+  * *Change* Signed integers are two's complement.
+  * *Change* If there are *M* value bits in the signed type and *N* in the
+    unsigned type, then *M = N-1* (whereas C says *M ≤ N*).
+  * *Status-quo* If a signed operation would naturally produce a value that is
+    not within the range of the result type, the behavior is undefined. The
+    author had hoped to make this well-defined as wrapping (the operations
+    produce the same value bits as for the corresponding unsigned type), but
+    WG21 had strong resistance against this.
+  * *Change* None of the integral types have extraordinary values.
+  * *Change* C11 note 53 has wording aroung trap representations within padding
+    bits, e.g. for parity bits. C++ has no such wording.
+  * *Change* Conversion from signed to unsigned is always well-defined: the
+    result is the unique value of the destination type that is congruent to the
+    source integer modulo 2<sup>N</sup>.
+  * *Change* Conversion from enumeration type to integral is the same as that of
+    converting from the enumeration's underlying type and then to the
+    destination type, even if the original value cannot be represented by the
+    specified type.
+  * *Status-quo* Conversion from integral type to enumeration is unchanged: if
+    the original value is not within the range of the enumeration values the
+    behavior is undefined.
+  * *Change* Left-shift on signed integer types produces the same results as
+    left-shift on the corresponding unsigned integer type.
+  * *Change* Right-shift is an arithmetic right shift which performs
+    sign-extension.
+  * *Status-quo* shift by larger-than or equal-to bit-width remains undefined.
+  * *Status-quo* `constexpr` evaluation of signed integer arithmetic with
+    undefined result is not a *core constant expression*.
+  * *Change* the range of enumerations without a fixed underlying type is
+    simplified because of two's complement.
+  * *Status-quo* `is_modulo` type trait remains `false` for signed integer types
+    unless an implementation chooses to defined overflow as wrap.
+  * `has_unique_object_representations<T>` is `true` for `bool` and signed
+    integer types, in addition to unsigned integer types and others before.
+  * *Status-quo* atomic operations on signed integer types continues not to have
+    undefined behavior, and is still specified to wrap as two's complement (the
+    definition is clarified to act as-if casting to unsigned and back).
+  * *Change* address [[LWG3047]] to remove undefined behavior in pre-increment
+    atomic operations.
 
 This proposal leaves C unchanged, it merely restricts further the subset of C
 which applies to C++. Aaron Ballman volunteered to present this paper and the
@@ -212,7 +243,7 @@ adopt Howard’s paper which made this. Should we take it back to undefined to d
 
 <th>2</th><th>7</th><th>5</th><th>1</th><th>1</th></tr>
 
-<tr><th><small>Left shift should be the same for `signed` and `unsigned` (*overwrite previous poll*).</th>
+<tr><th><small>Left shift should be the same for `signed` and `unsigned` (*overrides previous poll*).</th>
 <th>6</th><th>5</th><th>5</th><th>0</th><th>1</th></tr>
 
 <tr><th><small>Right shift on a signed integral type should be an arithmetic shift (which sign-extends).</th>
@@ -245,7 +276,7 @@ in the current paper (without extraordinary values)?</th>
 <th>7</th><th>8</th><th>12</th><th>8</th><th>4</th></tr>
 </table>
 
-The resolution on disallowing extraordinary values overwrites the lack of
+The resolution on disallowing extraordinary values overrides the lack of
 consensus for change from SG6 / SG12.
 
 The decision to not forward to Core was mainly motivated on hearing back from
