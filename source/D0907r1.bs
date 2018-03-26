@@ -65,8 +65,9 @@ signed magnitude or ones' complement integers would be better served by a
 pure-library solution, and so would the rest of us.
 
 This proposal leaves C unchanged, it merely restricts further the subset of C
-which applies to C++. Aaron Ballman volunteered to present this paper to
-WG14, in the hope that C will approve compatible changes.
+which applies to C++. Aaron Ballman volunteered to present this paper and the
+corresponding [[N2218]] to WG14, in the hope that C will approve compatible
+changes.
 
 A final argument to move to two's complement is that few people spell "ones'
 complement" correctly according to Knuth [[TAoCP]]. Reducing the nerd-snipe
@@ -837,6 +838,12 @@ incoming users should be blissfully unaware of integer esoterica.
         "rawDate": "1997",
         "isbn": "0-201-89684-2",
         "publisher": "Addison-Wesley Longman Publishing Co., Inc."
+    },
+    "N2218": {
+        "authors": ["JF Bastien"],
+        "title": "Signed integers are two's complement",
+        "publisher": "ISO JTC1/SC22/WG14: Programming Language C",
+        "href": "http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2218.html"
     }
 }
 </pre>
