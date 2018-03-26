@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: Improving atomic_flag
-Shortname: D0995
+Shortname: P0995
 Revision: 0
 Audience: SG1, LEWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D0995r0
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0995r0.bs">github.com/jfbastien/papers/blob/master/source/D0995r0.bs</a>
+URL: http://wg21.link/P0995r0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0995r0.bs">github.com/jfbastien/papers/blob/master/source/P0995r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
 Editor: Andrew Hunter, Google, ahh@google.com
