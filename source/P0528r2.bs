@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: The Curious Case of Padding Bits, Featuring Atomic Compare-and-Exchange
-Shortname: D0528
+Shortname: P0528
 Revision: 2
 Audience: CWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D0528r2
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0528r2.bs">github.com/jfbastien/papers/blob/master/source/D0528r2.bs</a>
+URL: http://wg21.link/P0528r2
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0528r2.bs">github.com/jfbastien/papers/blob/master/source/P0528r2.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Michael Spencer, Sony Playstation, bigcheesegs@gmail.com
 Abstract: Compare-and-exchange on a struct with padding bits should Just Work.
