@@ -1,15 +1,15 @@
 <pre class='metadata'>
 Title: Signed Integers are Two's Complement
-Shortname: D0907
+Shortname: P0907
 Revision: 1
 Audience: EWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D0907r1
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0907r1.bs">github.com/jfbastien/papers/blob/master/source/D0907r1.bs</a>
+URL: http://wg21.link/P0907r1
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0907r1.bs">github.com/jfbastien/papers/blob/master/source/P0907r1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: There is One True Representation for signed integers, and that representation is two's complement.
-Date: 2018-03-26
+Date: 2018-04-01
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
