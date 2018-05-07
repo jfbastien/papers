@@ -98,7 +98,7 @@ This paper proposes the following:
 This proposal leaves C unchanged, it merely restricts further the subset of C
 which applies to C++. Aaron Ballman volunteered to present this paper and the
 corresponding [[N2218]] to WG14, in the hope that C will approve compatible
-changes.
+changes. The WG14 feedback is summarized in [[#WG14]].
 
 A final argument to move to two's complement is that few people spell "ones'
 complement" correctly according to Knuth [[TAoCP]]. Reducing the nerd-snipe
@@ -119,10 +119,10 @@ potential inherent in C++ is a Good Thing™.
 Edit History {#edit}
 ============
 
-r1 → r2 {#r0r1}
+r1 → r2 {#r1r2}
 -------
 
-Update with feedback from WG14.
+Update with feedback from WG14, available in [[#WG14]].
 
 r0 → r1 {#r0r1}
 -------
@@ -285,9 +285,9 @@ The resolution on disallowing extraordinary values overrides the lack of
 consensus for change from SG6 / SG12.
 
 The decision to not forward to Core was mainly motivated on hearing back from
-WG14, which should be done by Rappersvil. EWG will see the paper again in
-Rappersvil, and will likely forward to Core at that point in time given the
-outcome of the next-to-last poll.
+WG14. WG14 met in Brno, discussed [[N2218]], and provided feedback detailed in
+[[#WG14]]. EWG will see the paper again in Rappersvil, and will likely forward
+to Core at that point in time given the outcome of the next-to-last poll.
 
 
 Proposed Wording {#word}
@@ -828,12 +828,12 @@ Thomas Rodgers surveyed popular DSPs and found the following:
   * Texas Instruments ships
     [a C++ compiler](http://www.ti.com/lit/ug/slau132r/slau132r.pdf) which
     supports C++14, and where signed integers are two's complement.
-  * CML Microcircuits has fixed ASIC for radio processing, and doesn't seem to
-    support C++.
   * [Cirrus Logic](https://www.cirrus.com/products/cs4970xx/) (formerly Wolfson)
     has
     [a C compiler only](https://d3uzseaevmutz1.cloudfront.net/pubs/manual/cirrus_c_compiler_um15.pdf)
     which is probably two's complement.
+  * CML Microcircuits has fixed ASIC for radio processing, and doesn't seem to
+    support C++.
   * Synaptics (formerly Connexant) makes audio input subsystem for voice
     assistants. The DSP runs fixed far-field signal processing algorithms and
     has programmable functions which run on standard ARM controller, using
@@ -847,6 +847,49 @@ they've been unable to migrate. These applications are unlikely to be well
 served by modern C++, signed integers are the least of their
 problem. Post-modern C++ should focus on serving its existing users well, and
 incoming users should be blissfully unaware of integer esoterica.
+
+
+WG14 Feedback from the Brno Meeting {#WG14}
+===================================
+
+WG14 met in Brno to discuss [[N2218]]. The paper was received very positively,
+especially given that no one in the room knew of an extant architecture that was
+not two's complement for which there was a reasonably modern C compiler. The
+closest anyone came was the Unisys ClearPath compiler documentation which says:
+
+<blockquote>
+
+  Two's complement arithmetic is used on many platforms. On ClearPath MCP
+  systems, arithmetic is performed on data in signed-magnitude form. This can
+  cause discrepancies in algorithms that depend on the two’s complement
+  representation.
+  
+</blockquote>
+
+However, this compiler documentation also says that they only target
+C90, and was last updated on 2017.
+
+
+There was worry about the search on impacted architectures not having been
+exhaustive. Given that WG14 will ship the IS in 5 years, it was felt that making
+them aware now should give vendors plenty of time to bring up reasons why this
+change would be bad for them.
+
+It was pointed out that C already has cases that require two's complement.
+
+It was noted that the existing implementation latitude is a burden for library
+developers because they have to consider test cases where integers are not two's
+complement but they have no way to actually exercise any of those test cases.
+
+The following straw poll was taken:
+
+<table class="def">
+<tr><th style="width: 70%;"></th><th>**F**</th><th>**N**</th><th>**A**</th></tr>
+
+<tr><th><small>Remove (not deprecate) non-two's complement representations for signed integers.</th>
+<th>14</th><th>0</th><th>3</th></tr>
+
+</table>
 
 
 <pre class=biblio>
