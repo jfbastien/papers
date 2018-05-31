@@ -9,7 +9,7 @@ URL: http://wg21.link/D0907r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0907r3.bs">github.com/jfbastien/papers/blob/master/source/D0907r3.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: There is One True Representation for signed integers, and that representation is two's complement.
-Date: 2018-04-01
+Date: 2018-05-31
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
