@@ -13,61 +13,76 @@ Date: 2018-06-01
 Markup Shorthands: markdown yes
 </pre>
 
-Introduction and motivation
-==========
-Currently, C++ lambdas with no parameters do not require a parameter declaration clause.
-The specification even contains this language in section 8.4.5:
-"If a lambda-expression does not include a lambda-declarator, it is as if the lambda-declarator were ()."
-This allows us to omit the unused () in simple lambdas such as this:
+Introduction and motivation {#intro}
+===========================
+
+Currently, C++ lambdas with no parameters do not require a parameter declaration
+clause. The specification even contains this language in section 8.4.5:
+
+> If a lambda-expression does not include a lambda-declarator, it is as if the
+> lambda-declarator were `()`.
+
+This allows us to omit the unused `()` in simple lambdas such as this:
 
 <xmp>
 std::string s1 = "abc";
-auto lambdaWithParentheses = [s1 = std::move(s1)] () {
-	std::cout << s1 << std::endl; 
+auto withParen = [s1 = std::move(s1)] () {
+	std::cout << s1 << '\n'; 
 };
 
 std::string s2 = "abc";
-auto lambdaWithoutParentheses = [s2 = std::move(s2)] { // Note no syntax error.
-	std::cout << s2 << std::endl; 
+auto noSean = [s2 = std::move(s2)] { // Note no syntax error.
+	std::cout << s2 << '\n'; 
 };
 </xmp>
 
-These particular lambdas have ownership of the strings, so they ought to be able to mutate it, 
-but `s1` and `s2` are const by default so we need to add the `mutable` keyword.
+These particular lambdas have ownership of the strings, so they ought to be able
+to mutate it, but `s1` and `s2` are const by default so we need to add the
+`mutable` keyword:
 
 <xmp>
 std::string s1 = "abc";
-auto lambdaWithParentheses = [s1 = std::move(s1)] () mutable {
+auto withParen = [s1 = std::move(s1)] () mutable {
 	s1 += "d";
-	std::cout << s1 << std::endl; 
+	std::cout << s1 << '\n'; 
 };
 
 std::string s2 = "abc";
-auto lambdaWithoutParentheses = [s2 = std::move(s2)] mutable { // Currently a syntax error.
+auto noSean = [s2 = std::move(s2)] mutable { // Currently a syntax error.
 	s2 += "d";
-	std::cout << s2 << std::endl; 
+	std::cout << s2 << '\n'; 
 };
 </xmp>
 
-When we do this, however, for some reason the not needing () does not apply any more.
-This rule is unintuitive, causes common syntax errors, and makes us clutter our code.
-When compiling with clang, we even get a syntax error that indicates the compiler
-knows exactly what is going on:
+Confusingly, the current Standard requires the empty parens when using the
+`mutable` keyword. This rule is unintuitive, causes common syntax errors, and
+clutters our code. When compiling with clang, we even get a syntax error that
+indicates the compiler knows exactly what is going on:
 
 <xmp>
 example.cpp:11:54: error: lambda requires '()' before 'mutable'
-auto lambdaWithoutParentheses = [s2 = std::move(s2)] mutable { // Currently a syntax error
-                                                     ^
-                                                     () 
+auto noSean = [s2 = std::move(s2)] mutable { // Currently a syntax error.
+                                   ^
+                                   () 
 1 error generated.
 </xmp>
 
-This proposal would make these parentheses unnecessary like they were before we added `mutable`.
-The same will be true of `constexpr`, `noexcept`, attributes, and trailing return types.
+This proposal would make these parentheses unnecessary like they were before we
+added `mutable`. This will apply to:
 
-Proposed change
-==========
-<p>Currently, Section 8.4.5 reads as follows:</p>
+  * lambda template parameters
+  * `constexpr`
+  * `mutable`
+  * Exception specifications and `noexcept`
+  * attributes
+  * trailing return types
+  * `requires`
+
+Wording {#word}
+=======
+
+Modify Lambda expressions [**expr.prim.lambda**] as follows:
+
 <style>
 indent1 { padding-left: 4em; }
 indent2 { padding-left: 8em; }
@@ -75,27 +90,15 @@ indent3 { padding-left: 12em; }
 </style>
 <i>
 <indent1>lambda-expression :<br/></indent1>
-<indent2>lambda-introducer compound-statement<br/></indent2>
 <indent2>lambda-introducer lambda-declarator requires-clause<sub>opt</sub> compound-statement<br/></indent2>
-<indent2>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> compound-statement<br/></indent2>
+<indent2><del>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> compound-statement</del><br/></indent2>
 <indent2>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> <br/></indent2>
 <indent3>lambda-declarator requires-clause<sub>opt</sub> compound-statement<br/></indent3>
 <indent1>lambda-introducer :<br/></indent1>
 <indent2>[ lambda-capture<sub>opt</sub> ]<br/></indent2>
 <indent1>lambda-declarator :<br/></indent1>
-<indent2>( parameter-declaration-clause ) decl-specifier-seq<sub>opt</sub> <br/></indent2>
-<indent3>noexcept-specifier<sub>opt</sub> attribute-specifier-seqopt trailing-return-type<sub>opt</sub><br/></indent3>
+<indent2>( parameter-declaration-clause )<sub><ins>opt</ins></sub> decl-specifier-seq<sub>opt</sub> <br/></indent2>
+<indent3>noexcept-specifier<sub>opt</sub> attribute-specifier-seq<sub>opt</sub> trailing-return-type<sub>opt</sub><br/></indent3>
 </i>
-<p>I propose replacing it with this:</p>
-<i>
-<indent1>lambda-expression :<br/></indent1>
-<indent2>lambda-introducer lambda-declarator<sub>opt</sub> requires-clause<sub>opt</sub> compound-statement<br/></indent2>
-<indent2>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> <br/></indent2>
-<indent3>lambda-declarator<sub>opt</sub> requires-clause<sub>opt</sub> compound-statement<br/></indent3>
-<indent1>lambda-introducer :<br/></indent1>
-<indent2>[ lambda-capture<sub>opt</sub> ]<br/></indent2>
-<indent1>lambda-declarator :<br/></indent1>
-<indent2>( parameter-declaration-clause ) decl-specifier-seq<sub>opt</sub> <br/></indent2>
-<indent3>noexcept-specifier<sub>opt</sub> attribute-specifier-seqopt trailing-return-type<sub>opt</sub><br/></indent3>
-</i>
-<p>This change will not break existing code.</p>
+
+This change will not break existing code.
