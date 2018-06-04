@@ -1,15 +1,15 @@
 <pre class='metadata'>
 Title: Down with ()!
-Shortname: D????
+Shortname: D1102
 Revision: 0
 Audience: EWG
 Status: D
 Group: WG21
-URL: http://wg21.link/D????r0
-!Source: <a href="https://github.com/achristensen07/papers/blob/master/source/D????r0.bs">https://github.com/achristensen07/papers/blob/master/source/D????r0.bs</a>
+URL: http://wg21.link/D1102r0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1102r0.bs">https://github.com/jfbastien/papers/blob/master/source/D1102r0.bs</a>
 Editor: Alex Christensen, Apple, achristensen@apple.com
 Abstract: A proposal for removing unnecessary ()'s from C++ lambdas.
-Date: 2018-06-01
+Date: 2018-06-04
 Markup Shorthands: markdown yes
 </pre>
 
