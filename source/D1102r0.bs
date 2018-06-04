@@ -8,6 +8,7 @@ Group: WG21
 URL: http://wg21.link/D1102r0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1102r0.bs">https://github.com/jfbastien/papers/blob/master/source/D1102r0.bs</a>
 Editor: Alex Christensen, Apple, achristensen@apple.com
+Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: A proposal for removing unnecessary ()'s from C++ lambdas.
 Date: 2018-06-04
 Markup Shorthands: markdown yes
@@ -17,7 +18,8 @@ Introduction and motivation {#intro}
 ===========================
 
 Currently, C++ lambdas with no parameters do not require a parameter declaration
-clause. The specification even contains this language in section 8.4.5:
+clause. The specification even contains this language in [**expr.prim.lambda**]
+section 8.4.5 ❡4:
 
 > If a lambda-expression does not include a lambda-declarator, it is as if the
 > lambda-declarator were `()`.
@@ -78,29 +80,56 @@ added `mutable`. This will apply to:
   * trailing return types
   * `requires`
 
-This issue was discussed as [[EWG135]], which became [[CWG2121]].
+EWG discussed this change as [[EWG135]]
+in [Lenexa](http://wiki.edg.com/bin/view/Wg21lenexa/EWGIssuesResolutionMinutes)
+and voted 15 to 1 on forwarding to core. It became [[CWG2121]], discussed
+in
+[Kona](http://wiki.edg.com/bin/view/Wg21kona2015/CoreWorkingGroup#CWG_2121_More_flexible_lambda_sy) and
+needed someone to voluntee wording.
+
+
+Impact {#impact}
+======
+
+This change will not break existing code.
+
 
 Wording {#word}
 =======
 
 Modify Lambda expressions [**expr.prim.lambda**] as follows:
 
-<style>
-indent1 { padding-left: 4em; }
-indent2 { padding-left: 8em; }
-indent3 { padding-left: 12em; }
-</style>
-<i>
-<indent1>lambda-expression :<br/></indent1>
-<indent2>lambda-introducer lambda-declarator requires-clause<sub>opt</sub> compound-statement<br/></indent2>
-<indent2><del>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> compound-statement</del><br/></indent2>
-<indent2>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> <br/></indent2>
-<indent3>lambda-declarator requires-clause<sub>opt</sub> compound-statement<br/></indent3>
-<indent1>lambda-introducer :<br/></indent1>
-<indent2>[ lambda-capture<sub>opt</sub> ]<br/></indent2>
-<indent1>lambda-declarator :<br/></indent1>
-<indent2>( parameter-declaration-clause )<sub><ins>opt</ins></sub> decl-specifier-seq<sub>opt</sub> <br/></indent2>
-<indent3>noexcept-specifier<sub>opt</sub> attribute-specifier-seq<sub>opt</sub> trailing-return-type<sub>opt</sub><br/></indent3>
-</i>
+<blockquote>
 
-This change will not break existing code.
+    <style>
+    indent1 { padding-left: 4em; }
+    indent2 { padding-left: 8em; }
+    indent3 { padding-left: 12em; }
+    </style>
+    <i>
+    <indent1>lambda-expression :<br/></indent1>
+        <indent2>lambda-introducer lambda-declarator requires-clause<sub>opt</sub> compound-statement<br/></indent2>
+        <indent2><del>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> compound-statement</del><br/></indent2>
+        <indent2>lambda-introducer < template-parameter-list > requires-clause<sub>opt</sub> <br/></indent2>
+            <indent3>lambda-declarator requires-clause<sub>opt</sub> compound-statement<br/></indent3>
+    <indent1>lambda-introducer :<br/></indent1>
+        <indent2>[ lambda-capture<sub>opt</sub> ]<br/></indent2>
+        <indent1>lambda-declarator :<br/></indent1>
+        <indent2>( parameter-declaration-clause )<sub><ins>opt</ins></sub> decl-specifier-seq<sub>opt</sub> <br/></indent2>
+            <indent3>noexcept-specifier<sub>opt</sub> attribute-specifier-seq<sub>opt</sub> trailing-return-type<sub>opt</sub><br/></indent3>
+    </i>
+
+</blockquote>
+
+Modify ❡4:
+
+<blockquote>
+
+If a <del>*lambda-expression*</del><ins>*lambda-declarator*</ins> does not
+include <del>a *lambda-declarator*</del><ins>`(` *parameter-declaration-clause*
+`)`</ins>, it is as if the <del>*lambda-declarator*</del><ins>`(`
+*parameter-declaration-clause* `)`</ins> were `()`. The lambda return type is
+`auto`, which is replaced by the type specified by the *trailing-return-type* if
+provided and/or deduced from `return` statements as described in 10.1.7.4.
+
+</blockquote>
