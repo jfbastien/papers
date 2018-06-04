@@ -78,6 +78,8 @@ added `mutable`. This will apply to:
   * trailing return types
   * `requires`
 
+This issue was discussed as [[EWG135]], which became [[CWG2121]].
+
 Wording {#word}
 =======
 

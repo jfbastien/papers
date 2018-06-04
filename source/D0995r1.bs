@@ -115,7 +115,7 @@ implementability stand-in, and help it find its true purpose. We propose:
     forbids some ancestral processors from implementing modern C++, but these
     platforms already don't support any C++.
   * Add `atomic_flag` overloads to [[P0514R3]]'s waiting and notify functions.
-  * Add optional always-lock-free integral type aliases, which are encouraged to
+  * Add always-lock-free integral type aliases, which are encouraged to
     be sized such that waiting on them is most efficient.
 
 
@@ -134,8 +134,8 @@ Under Header `<atomic>` synopsis [**atomics.syn**] edit as follows:
 
 <ins>
 <xmp>
-using atomic_signed_lock_free   = see below; // optional
-using atomic_unsigned_lock_free = see below; // optional
+using atomic_signed_lock_free   = see below;
+using atomic_unsigned_lock_free = see below;
 </xmp>
 </ins>
 
@@ -240,12 +240,9 @@ The type aliases `atomic_signed_lock_free` and `atomic_unsigned_lock_free` are
 defined to be specializations of `atomic` whose template arguments are integral
 types, respectively signed and unsigned, other than `bool`.
 `is_always_lock_free` shall be `true` for `atomic_signed_lock_free` and
-`atomic_unsigned_lock_free`. These aliases are optional. If an implementation
-provides a integral specialization of `atomic` other than `bool` for which
-`is_always_lock_free` is `true`, it shall define the aliases to such a
-type. Otherwise, they shall not be defined. An implementation should choose the
-integral specialization of `atomic` for which the waiting and notifying
-functions are most efficient.
+`atomic_unsigned_lock_free`. An implementation should choose the integral
+specialization of `atomic` for which the waiting and notifying functions are
+most efficient.
 
 </ins>
 
