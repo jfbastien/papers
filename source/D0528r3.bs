@@ -59,7 +59,8 @@ Purposefully not addressed in this paper:
 Proposed Wording {#word}
 ================
 
-In Class template `atomic` [**atomics.types.generic**], edit ❡17 and onwards as follows:
+In Operations on `atomic` types [**atomics.types.operations**], edit ❡17 and
+onwards as follows:
 
 <blockquote>
 
@@ -100,23 +101,23 @@ bool compare_exchange_strong(T& expected, T desired,
 <blockquote>
 
 *Effects:* Retrieves the value in `expected`. It then atomically compares
-the <del>contents of the memory pointed to by `this`</del><ins>value representation
-of `*this`</ins> for equality with that previously retrieved from `expected`,
-and if true, replaces the <del>contents of the memory pointed to
-by `this`</del><ins>value representation of `*this`</ins> with that in `desired`.  If
-and only if the comparison is true, memory is affected according to the value of
-`success`, and if the comparison is false, memory is affected according to the
-value of `failure`. When only one `memory_order` argument is supplied, the value
-of `success` is `order`, and the value of `failure` is `order` except that a
-value of `memory_order::acq_rel` shall be replaced by the value
-`memory_order::acquire` and a value of `memory_order::release` shall be replaced
-by the value `memory_order::relaxed`. If and only if the comparison is false
-then, after the atomic operation, the <del>contents of the memory</del><ins>the
-value representation</ins> in `expected` are replaced by the value<ins>
-representation</ins> read from the memory pointed to by `this` during the atomic
-comparison. If the operation returns `true`, these operations are atomic
-read-modify-write operations on the memory pointed to by `this`. Otherwise,
-these operations are atomic load operations on that memory.
+the <del>contents of </del><ins>value representation read from </ins>the memory
+pointed to by `this` for equality with that previously retrieved from
+`expected`, and if true, replaces the <del>contents of </del><ins>value
+representation contained in</ins> the memory pointed to by `this` with that in
+`desired`. If and only if the comparison is true, memory is affected according
+to the value of `success`, and if the comparison is false, memory is affected
+according to the value of `failure`. When only one `memory_order` argument is
+supplied, the value of `success` is `order`, and the value of `failure` is
+`order` except that a value of `memory_order::acq_rel` shall be replaced by the
+value `memory_order::acquire` and a value of `memory_order::release` shall be
+replaced by the value `memory_order::relaxed`. If and only if the comparison is
+false then, after the atomic operation, the <del>contents of the
+memory</del><ins>value representation</ins> in `expected` <del>are</del><ins>is</ins>
+replaced by the value<ins> representation</ins> read from the memory pointed to
+by `this` during the atomic comparison. If the operation returns `true`, these
+operations are atomic read-modify-write operations on the memory pointed to by
+`this`. Otherwise, these operations are atomic load operations on that memory.
 
 </blockquote>
 
@@ -222,16 +223,15 @@ were originally there.
 
 [*Note:*
 
-  The `memcpy` and `memcmp` semantics of the compare-and-exchange operations
-  may result in failed comparisons for values that compare equal with
-  `operator==` if the underlying type has padding bits<ins> which sometimes
-  participate in the object's representation</ins>, trap bits, or
-  alternate representations of the same value<ins> other than those caused by
-  padding bits which never participate in the object's representation</ins>.
-  Notably, on implementations conforming to ISO/IEC/IEEE 60559, floating-point
-  `-0.0` and `+0.0` will not compare equal with `memcmp` but will compare equal
-  with `operator==`, and NaNs with the same payload will compare equal with
-  `memcmp` but will not compare equal with `operator==`.
+  <ins>Under cases where the </ins><del>The</del> `memcpy` and `memcmp`
+  semantics of the compare-and-exchange operations <ins>apply, the outcome may
+  be</ins><del> may result in</del> failed comparisons for values that compare
+  equal with `operator==` if the underlying type has padding bits, trap bits, or
+  alternate representations of the same value. Notably, on implementations
+  conforming to ISO/IEC/IEEE 60559, floating-point `-0.0` and `+0.0` will not
+  compare equal with `memcmp` but will compare equal with `operator==`, and NaNs
+  with the same payload will compare equal with `memcmp` but will not compare
+  equal with `operator==`.
 
 —*end note*]
 
@@ -240,7 +240,8 @@ were originally there.
 [*Note:*
 
   Compare-and-exchange acts on an object's value representation, ensuring that
-  padding bits which never participate in the object's representation are ignored.
+  padding bits that never participate in the object's value representation are
+  ignored.
 
   As a consequence, the following code is guaranteed to avoid spurious failure:
 
