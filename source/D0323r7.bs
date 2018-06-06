@@ -3,19 +3,19 @@ Title: std::expected
 Shortname: D0323
 Revision: 7
 Audience: LWG
-Status: P
+Status: D
 Group: WG21
 URL: https://wg21.link/D0323r7
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0323r7.bs">github.com/jfbastien/papers/blob/master/source/D0323r7.bs</a>
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2018-04-02
+Date: 2018-06-06
 Markup Shorthands: markdown yes
 </pre>
 
-This paper revises [[P0323r6]]. [[P0323r5]] applied feedback obtained from LEWG
-and EWG.
+This paper revises [[P0323r5]], which applied feedback obtained from LEWG and
+EWG.
 
 r6 takes in account the LWG feedback in Jacksonville.
 
