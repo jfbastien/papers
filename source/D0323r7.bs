@@ -65,16 +65,16 @@ type `unexpected<E>` and manages the lifetime of the contained objects.
 namespace std {
 namespace experimental {
 inline namespace fundamentals_v3 {
-	// �.�.4, class template expected
+    // �.�.4, class template expected
     template <class T, class E>
         class expected;
 
     // �.�.5, class template unexpected
     template <class E>
         class unexpected;
-	template <class E>
-	  unexpected(E) -> unexpected<E>;
-	
+    template <class E>
+      unexpected(E) -> unexpected<E>;
+
     // �.�.6, class bad_expected_access
     template <class E>
        class bad_expected_access;
@@ -142,7 +142,7 @@ public:
     template <class G = E>
         constexpr expected(unexpected<G> &&);
 
-	template <class... Args>
+    template <class... Args>
         constexpr explicit expected(in_place_t, Args&&...);
     template <class U, class... Args>
         constexpr explicit expected(in_place_t, initializer_list<U>, Args&&...);
@@ -151,7 +151,7 @@ public:
     template <class U, class... Args>
         constexpr explicit expected(unexpect_t, initializer_list<U>, Args&&...);
 
-		
+
     // �.�.4.2, destructor
     ~expected();
 
@@ -164,13 +164,13 @@ public:
     template <class G = E>
         expected& operator=(unexpected<G>&&);
 
-	// �.�.4.4, modifiers
+    // �.�.4.4, modifiers
 
     template <class... Args>
         T& emplace(Args&&...);
     template <class U, class... Args>
         T& emplace(initializer_list<U>, Args&&...);
-		
+
     // �.�.4.5, swap
     void swap(expected&) noexcept(see below);
 
@@ -195,7 +195,7 @@ public:
         constexpr T value_or(U&&) const&;
     template <class U>
         constexpr T value_or(U&&) &&;
-		
+
     // �.�.4.7, Expected equality operators
     template <class T1, class E1, class T2, class E2>
         friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
@@ -204,27 +204,27 @@ public:
 
     // �.�.4.8, Comparison with T
     template <class T1, class E1, class T2>
-		friend constexpr bool operator==(const expected<T1, E1>&, const T2&);
+        friend constexpr bool operator==(const expected<T1, E1>&, const T2&);
     template <class T1, class E1, class T2>
-		friend constexpr bool operator==(const T2&, const expected<T1, E1>&);
+        friend constexpr bool operator==(const T2&, const expected<T1, E1>&);
     template <class T1, class E1, class T2>
-		friend constexpr bool operator!=(const expected<T1, E1>&, const T2&);
+        friend constexpr bool operator!=(const expected<T1, E1>&, const T2&);
     template <class T1, class E1, class T2>
-		friend constexpr bool operator!=(const T2&, const expected<T1, E1>&);
+        friend constexpr bool operator!=(const T2&, const expected<T1, E1>&);
 
     // �.�.4.9, Comparison with unexpected<E>
     template <class T1, class E1, class E2>
-		friend constexpr bool operator==(const expected<T1, E1>&, const unexpected<E2>&);
+        friend constexpr bool operator==(const expected<T1, E1>&, const unexpected<E2>&);
     template <class T1, class E1, class E2>
-		friend constexpr bool operator==(const unexpected<E2>&, const expected<T1, E1>&);
+        friend constexpr bool operator==(const unexpected<E2>&, const expected<T1, E1>&);
     template <class T1, class E1, class E2>
-		friend constexpr bool operator!=(const expected<T1, E1>&, const unexpected<E2>&);
+        friend constexpr bool operator!=(const expected<T1, E1>&, const unexpected<E2>&);
     template <class T1, class E1, class E2>
-		friend constexpr bool operator!=(const unexpected<E2>&, const expected<T1, E1>&);
+        friend constexpr bool operator!=(const unexpected<E2>&, const expected<T1, E1>&);
 
     // �.�.4.10, Specialized algorithms
     template <class T1, class E1>
-		friend void swap(expected<T1, E1>&, expected<T1, E1>&) noexcept(see below);		
+        friend void swap(expected<T1, E1>&, expected<T1, E1>&) noexcept(see below);
 
 private:
     bool has_val; // exposition only
@@ -1258,31 +1258,31 @@ class unexpected {
 public:
     constexpr unexpected(const unexpected&) = default;
     constexpr unexpected(unexpected&&) = default;
-	template <class... Args>
-		constexpr explicit unexpected(in_place_t, Args&&...);
+    template <class... Args>
+        constexpr explicit unexpected(in_place_t, Args&&...);
     template <class U, class... Args>
-		constexpr explicit unexpected(in_place_t, initializer_list<U>, Args&&...);
+        constexpr explicit unexpected(in_place_t, initializer_list<U>, Args&&...);
     template <class Err = E>
-		constexpr explicit unexpected(Err&&);
+        constexpr explicit unexpected(Err&&);
     template <class Err>
-		constexpr EXPLICIT unexpected(const unexpected<Err>&);
+        constexpr EXPLICIT unexpected(const unexpected<Err>&);
     template <class Err>
-		constexpr EXPLICIT unexpected(unexpected<Err>&&);
+        constexpr EXPLICIT unexpected(unexpected<Err>&&);
 
     constexpr unexpected& operator=(const unexpected&) = default;
     constexpr unexpected& operator=(unexpected&&) = default;
-	template <class Err = E>
+    template <class Err = E>
     constexpr unexpected& operator=(const unexpected<Err>&);
-	template <class Err = E>
+    template <class Err = E>
     constexpr unexpected& operator=(unexpected<Err>&&);
-	
+
     constexpr const E& value() const& noexcept;
     constexpr E& value() & noexcept;
     constexpr const E&& value() const&& noexcept;
     constexpr E&& value() && noexcept;
 
-	void swap(unexpected& other) noexcept(see bellow);
-	
+    void swap(unexpected& other) noexcept(see bellow);
+
     template <class E1, class E2>
         friend constexpr bool
         operator==(const unexpected<E1>&, const unexpected<E2>&);
@@ -1292,7 +1292,7 @@ public:
 
     template <class E1>
     friend void swap(unexpected<E1>& x, unexpected<E1>& y) noexcept(noexcept(x.swap(y)));
-	
+
 
 private:
     E val; // exposition only
@@ -1306,7 +1306,7 @@ template <class E> unexpected(E) -> unexpected<E>;
 
 ```c++
 template <class Err>
-	constexpr explicit unexpected(Err&& e);
+    constexpr explicit unexpected(Err&& e);
 ```
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
@@ -1321,7 +1321,7 @@ This constructor shall not participate in overload resolution unless `is_constru
 
 ```c++
 template <class... Args>
-	constexpr explicit unexpected(in_place_t, Args&&...);
+    constexpr explicit unexpected(in_place_t, Args&&...);
 ```
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
@@ -1336,7 +1336,7 @@ This constructor shall not participate in overload resolution unless `is_constru
 
 ```c++
 template <class U, class... Args>
-	constexpr explicit unexpected(in_place_t, initializer_list<U>, Args&&...);
+    constexpr explicit unexpected(in_place_t, initializer_list<U>, Args&&...);
 ```
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
@@ -1421,7 +1421,7 @@ constexpr E const&& value() const&&;
 �.�.5.2.4 Swap [*expected.unexpected.ctor*] {#expected.unexpected.swap}
 
 ```c++
-	void swap(unexpected& other) noexcept(see bellow);
+    void swap(unexpected& other) noexcept(see bellow);
 ```
 
 *Requires*: `is_swappable_v<E>` is `true`
