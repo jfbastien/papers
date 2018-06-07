@@ -10,7 +10,7 @@ URL: http://wg21.link/D0528r3
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Michael Spencer, Sony Playstation, bigcheesegs@gmail.com
 Abstract: Compare-and-exchange on a struct with padding bits should Just Work.
-Date: 2018-03-16
+Date: 2018-06-07
 Markup Shorthands: markdown yes
 </pre>
 
@@ -101,10 +101,10 @@ bool compare_exchange_strong(T& expected, T desired,
 <blockquote>
 
 *Effects:* Retrieves the value in `expected`. It then atomically compares
-the <del>contents of </del><ins>value representation read from </ins>the memory
+the <del>contents of the memory</del><ins>value representation of the value</ins>
 pointed to by `this` for equality with that previously retrieved from
-`expected`, and if true, replaces the <del>contents of </del><ins>value
-representation contained in</ins> the memory pointed to by `this` with that in
+`expected`, and if true, replaces the <del>contents of the memory</del><ins>value</ins>
+pointed to by `this` with that in
 `desired`. If and only if the comparison is true, memory is affected according
 to the value of `success`, and if the comparison is false, memory is affected
 according to the value of `failure`. When only one `memory_order` argument is
@@ -113,8 +113,8 @@ supplied, the value of `success` is `order`, and the value of `failure` is
 value `memory_order::acquire` and a value of `memory_order::release` shall be
 replaced by the value `memory_order::relaxed`. If and only if the comparison is
 false then, after the atomic operation, the <del>contents of the
-memory</del><ins>value representation</ins> in `expected` <del>are</del><ins>is</ins>
-replaced by the value<ins> representation</ins> read from the memory pointed to
+memory</del><ins>value</ins> in `expected` <del>are</del><ins>is</ins>
+replaced by the value<del> read from the memory </del> pointed to
 by `this` during the atomic comparison. If the operation returns `true`, these
 operations are atomic read-modify-write operations on the memory pointed to by
 `this`. Otherwise, these operations are atomic load operations on that memory.
@@ -264,11 +264,10 @@ were originally there.
 
 [*Note:*
 
-  For a type that contains bits that sometimes participate in the object’s value
-  representation, such as a `union` containing a type with padding bits and a
-  type without, compare-and-exchange may always fail. This is because such
-  padding bits have an indeteminate value when they do not participate in the
-  object’s value representation.
+  `union`s with bits that participate in the value representation of some
+  members but not others, compare-and-exchange may always fail. This is because
+  such padding bits have an indeteminate value when they do not participate in
+  the object’s value representation.
 
   As a consequence, the following code is not guaranteed to ever succeed:
   
@@ -278,11 +277,11 @@ were originally there.
     double celestia = 0.;
     short luna; // padded
   };
-  atomic<pony> string = ATOMIC_VAR_INIT({});
+  atomic<pony> marmalade = ATOMIC_VAR_INIT({});
 
   bool party(pony desired) {
     pony expected;
-    return string.compare_exchange_strong(expected, desired);
+    return marmalade.compare_exchange_strong(expected, desired);
   }
 
   </xmp>
