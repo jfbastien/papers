@@ -277,11 +277,11 @@ were originally there.
     double celestia = 0.;
     short luna; // padded
   };
-  atomic<pony> marmalade = ATOMIC_VAR_INIT({});
+  atomic<pony> princesses = ATOMIC_VAR_INIT({});
 
   bool party(pony desired) {
     pony expected;
-    return marmalade.compare_exchange_strong(expected, desired);
+    return princesses.compare_exchange_strong(expected, desired);
   }
 
   </xmp>
