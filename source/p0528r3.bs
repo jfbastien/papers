@@ -1,12 +1,12 @@
 <pre class='metadata'>
 Title: The Curious Case of Padding Bits, Featuring Atomic Compare-and-Exchange
-Shortname: D0528
+Shortname: P0528
 Revision: 3
 Audience: CWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D0528r3
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0528r3.bs">github.com/jfbastien/papers/blob/master/source/D0528r3.bs</a>
+URL: http://wg21.link/P0528r3
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0528r3.bs">github.com/jfbastien/papers/blob/master/source/P0528r3.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Michael Spencer, Sony Playstation, bigcheesegs@gmail.com
 Abstract: Compare-and-exchange on a struct with padding bits should Just Work.
@@ -224,9 +224,9 @@ were originally there.
 [*Note:*
 
   <ins>Under cases where the </ins><del>The</del> `memcpy` and `memcmp`
-  semantics of the compare-and-exchange operations <ins>apply, the outcome may
+  semantics of the compare-and-exchange operations <ins>apply, the outcome might
   be</ins><del> may result in</del> failed comparisons for values that compare
-  equal with `operator==` if the underlying type has padding bits, trap bits, or
+  equal with `operator==` if the underlying type has <del>padding bits, </del>trap bits<del>,</del> or
   alternate representations of the same value. Notably, on implementations
   conforming to ISO/IEC/IEEE 60559, floating-point `-0.0` and `+0.0` will not
   compare equal with `memcmp` but will compare equal with `operator==`, and NaNs
@@ -264,10 +264,10 @@ were originally there.
 
 [*Note:*
 
-  `union`s with bits that participate in the value representation of some
-  members but not others, compare-and-exchange may always fail. This is because
+  For a union with bits that participate in the value representation of some
+  members but not others, compare-and-exchange might always fail. This is because
   such padding bits have an indeteminate value when they do not participate in
-  the object’s value representation.
+  the value representation of the active member.
 
   As a consequence, the following code is not guaranteed to ever succeed:
   
