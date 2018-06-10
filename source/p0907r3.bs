@@ -2,7 +2,7 @@
 Title: Signed Integers are Two's Complement
 Shortname: P0907
 Revision: 3
-Audience: EWG
+Audience: CWG
 Status: P
 Group: WG21
 URL: http://wg21.link/p0907r3
