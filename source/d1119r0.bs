@@ -12,6 +12,7 @@ Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
 Editor: Jonathan Wakely, RedHat, cxx@kayari.org
 Editor: Hal Finkel, Argonne National Laboratory, hfinkel@anl.gov
 Editor: Thomas Rodgers, RedHat, trodgers@redhat.com
+Editor: Matthias Kretz, GSI, m.kretz@gsi.de
 Abstract: std::hardware_{constructive,destructive}_interference_size exposes potential ABI issues, and that's OK. This position paper clarifies the committee's position.
 Date: 2018-06-10
 Markup Shorthands: markdown yes
