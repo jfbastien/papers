@@ -85,7 +85,7 @@ in [Lenexa](http://wiki.edg.com/bin/view/Wg21lenexa/EWGIssuesResolutionMinutes)
 and voted 15 to 1 on forwarding to core. It became [[CWG2121]], discussed
 in
 [Kona](http://wiki.edg.com/bin/view/Wg21kona2015/CoreWorkingGroup#CWG_2121_More_flexible_lambda_sy) and
-needed someone to voluntee wording.
+needed someone to volunteer wording.
 
 
 Impact {#impact}
