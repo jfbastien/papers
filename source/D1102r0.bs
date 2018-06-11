@@ -2,7 +2,7 @@
 Title: Down with ()!
 Shortname: D1102
 Revision: 0
-Audience: EWG
+Audience: CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D1102r0
@@ -10,7 +10,7 @@ URL: http://wg21.link/D1102r0
 Editor: Alex Christensen, Apple, achristensen@apple.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: A proposal for removing unnecessary ()'s from C++ lambdas.
-Date: 2018-06-04
+Date: 2018-06-11
 Markup Shorthands: markdown yes
 </pre>
 
@@ -39,8 +39,8 @@ auto noSean = [s2 = std::move(s2)] { // Note no syntax error.
 </xmp>
 
 These particular lambdas have ownership of the strings, so they ought to be able
-to mutate it, but `s1` and `s2` are const by default so we need to add the
-`mutable` keyword:
+to mutate it, but `s1` and `s2` are const (because the `const` operator is
+declared `const` by default) so we need to add the `mutable` keyword:
 
 <xmp>
 std::string s1 = "abc";
@@ -133,3 +133,24 @@ include <del>a *lambda-declarator*</del><ins>`(` *parameter-declaration-clause*
 provided and/or deduced from `return` statements as described in 10.1.7.4.
 
 </blockquote>
+
+Keep Closure types [**expr.prim.lambda.closure**] ❡3 as-is:
+
+<blockquote>
+
+  The return type and function parameters of the function call operator template
+  are derived from the *lambda-expression*'s *trailing-return-type* and
+  *parameter-declaration-clause* by replacing each occurrence of `auto` in the
+  *decl-specifier*s of the *parameter-declaration-clause* with the name of the
+  corresponding invented *template-parameter*. The *requires-clause* of the
+  function call operator template is the *requires-clause* immediately following
+  `<` *template-parameter-list* `>`, if any. The trailing *requires-clause* of
+  the function call operator or operator template is the *requires-clause*
+  following the *lambda-declarator*, if any.
+
+</blockquote>
+
+  Note: The first sentence can remain as-is because the modification to
+  **[expr.prim.lambda**] ❡4 create an empty *parameter-declaration-clause* if
+  none is provided. Similarly, the second and third sentences bind the
+  *requires-clause* unambiguously.
