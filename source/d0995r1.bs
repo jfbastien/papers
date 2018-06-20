@@ -11,7 +11,7 @@ Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
 Editor: Andrew Hunter, Google, ahh@google.com
 Abstract: atomic_flag is marginally useful. Improve it in light of the new wait / notify APIs.
-Date: 2018-03-17
+Date: 2018-06-20
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 </pre>
