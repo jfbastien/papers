@@ -10,36 +10,18 @@ URL: https://wg21.link/D0323r7
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2018-06-06
+Date: 2018-06-20
 Markup Shorthands: markdown yes
 </pre>
 
-This paper revises [[P0323r5]], which applied feedback obtained from LEWG and
-EWG.
-
-r6 takes in account the LWG feedback in Jacksonville.
-
-  * Locate `unexpected` inside `<expected>` header and section.
-  * Define friend functions for equality operators and `swap`.
-  * Follows as much as possible `variant` kind of wording.
-  * Reword `emplace(initializer_list)` overload.
-  * Use `trait` is `true`/ `false`.
-  * Simplify Effects clause when there is a simple return.
-
-We have added some additional open points that have not been identified previously after the LWG's feedback:
-
-  * Has `unexpected<void>` a sense?
-  * Missing `expected<T,E>::emplace` for `unexpected<E>`.
-  * The in-place construction from a `unexpected<E>` using the `unexpect_t` tag doesn't conveys the in-place nature of this constructor.
-
-These should be fixed in another paper if LEWG considered the fix necessary.
-
+This paper revises [[P0323r6]] and [[P0323r5]] with feedback received from LWG.
 [[P0323r4]] contains motivation, design rationale, implementability information,
-sample usage, history, alternative designs and related types. r6 and r5 only
+sample usage, history, alternative designs and related types. r5 onwards only
 contain wording and open questions because their purpose is twofold:
 
   * Present appropriate wording for inclusion in the Library Fundamentals TS v3.
   * List open questions which the TS should aim to answer.
+
 
 Wording {#word}
 =======
