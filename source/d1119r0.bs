@@ -2,7 +2,7 @@
 Title: ABI for std::hardware_{constructive,destructive}_interference_size
 Shortname: D1119
 Revision: 0
-Audience: SG1, LEWG
+Audience: SG1, LEWG, LWG
 Status: D
 Group: WG21
 URL: http://wg21.link/d1119r0
@@ -14,7 +14,7 @@ Editor: Hal Finkel, Argonne National Laboratory, hfinkel@anl.gov
 Editor: Thomas Rodgers, RedHat, trodgers@redhat.com
 Editor: Matthias Kretz, GSI, m.kretz@gsi.de
 Abstract: std::hardware_{constructive,destructive}_interference_size exposes potential ABI issues, and that's OK. This position paper clarifies the committee's position.
-Date: 2018-06-10
+Date: 2018-06-20
 Markup Shorthands: markdown yes
 </pre>
 
@@ -109,7 +109,21 @@ follows:
 
 A further ABI issue was added by [[P0607r0]] by making the variables `inline`:
 in case 1. above the interference size values differ between translation units,
-which is a problem if they are used in an ODR-relevant context.
+which is a problem if they are used in an ODR-relevant context. That paper noted:
+
+<blockquote>
+
+  [*Drafting notes*: The removal of the explicit `static` specifier for the
+  namespace-scope constants `hardware_destructive_interference_size` and
+  `hardware_constructive_interference_size` is still required because adding
+  `inline` alone would still not solve the ODR violation problem here.
+  — *end drafting notes*]
+
+</blockquote>
+
+We propose to revert this change because the ODR violations that could occur
+were by design.
+
 
 Pushback {#push}
 ========
@@ -136,13 +150,17 @@ The authors believe that the ABI issues are acceptable because:
   * Implementations can offer compiler flags which specifically control ABI. For
     example, `-mcpu` could keep the ABI stable, but `-mcpu-abi` would change it.
 
-Poll {#poll}
-====
+Polls {#polls}
+=====
 
-We propose the following poll:
+We propose the following poll for SG1:
 
 > The committee understands the ABI issues  with `std::hardware_{constructive,destructive}_interference_size`, yet chooses to  standardize these values nonetheless.
 
 The committee could also consider adding a note to point out ABI issues with
 these values. This would be a novel note, since ABI isn't discussed in the
 Standard.
+
+We propose the following poll for LEWG and LWG:
+
+> Revert the change to [**hardware.interference**] from [[P0607r0]], adding back `static` to `std::hardware_{constructive,destructive}_interference_size`.
