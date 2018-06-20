@@ -1,16 +1,16 @@
 <pre class='metadata'>
 Title: Down with ()!
-Shortname: D1102
+Shortname: P1102
 Revision: 0
 Audience: CWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D1102r0
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1102r0.bs">https://github.com/jfbastien/papers/blob/master/source/D1102r0.bs</a>
+URL: http://wg21.link/P1102R0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/p1102r0.bs">https://github.com/jfbastien/papers/blob/master/source/p1102r0.bs</a>
 Editor: Alex Christensen, Apple, achristensen@apple.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: A proposal for removing unnecessary ()'s from C++ lambdas.
-Date: 2018-06-11
+Date: 2018-06-20
 Markup Shorthands: markdown yes
 </pre>
 
@@ -86,6 +86,10 @@ and voted 15 to 1 on forwarding to core. It became [[CWG2121]], discussed
 in
 [Kona](http://wiki.edg.com/bin/view/Wg21kona2015/CoreWorkingGroup#CWG_2121_More_flexible_lambda_sy) and
 needed someone to volunteer wording.
+
+This paper was discussed on the EWG reflector in June, Nina Ranns provided
+feedback, and EWG chair agreed that the paper should move to CWG directly given
+previous polls.
 
 
 Impact {#impact}
