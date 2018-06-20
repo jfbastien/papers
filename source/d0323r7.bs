@@ -256,14 +256,14 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
-*Remarks*: This constructor shall be defined as deleted unless the conjunction of:
+*Remarks*: This constructor shall be defined as deleted unless:
 
-  * `is_copy_constructible_v<T>` is `true` or `T` is *cv* `void`,
+  * `is_copy_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_copy_constructible_v<E>` is `true`.
 
-This constructor shall be a constexpr constructor if the conjunction of:
+This constructor shall be a constexpr constructor if:
 
-  * `is_trivially_copy_constructible_v<T>` is `true` or `T` is *cv* `void`,
+  * `is_trivially_copy_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_trivially_copy_constructible_v<E>` is `true`.
 
 
@@ -282,19 +282,19 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
-*Remarks*: The expression inside `noexcept` is equivalent to the conjunction of:
+*Remarks*: The expression inside `noexcept` is equivalent to:
 
-  * `is_nothrow_move_constructible_v<T>` is `true` or `T `is *cv* `void`,
+  * `is_nothrow_move_constructible_v<T>` is `true` or `T `is *cv* `void`; and
   * `is_nothrow_move_constructible_v<E>` is `true`.
 
-This constructor shall not participate in overload resolution unless the conjunction of:
+This constructor shall not participate in overload resolution unless:
 
-  * `is_move_constructible_v<T>` is `true`,
+  * `is_move_constructible_v<T>` is `true`; and
   * `is_move_constructible_v<E>` is `true`.
 
-This constructor shall be a constexpr constructor if the conjunction of:
+This constructor shall be a constexpr constructor if:
 
-  * `is_trivially_move_constructible_v<T>` is `true` or `T` is *cv* `void`,
+  * `is_trivially_move_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_trivially_move_constructible_v<E>` is `true`.
 
 ```c++
@@ -313,25 +313,25 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
 *Remarks*: This constructor shall not participate in overload resolution unless
-`T` and `U` are *cv* `void` or the conjunction of:
+`T` and `U` are *cv* `void` or:
 
-  * `is_constructible_v<T, const U&>` is `true` ,
-  * `is_constructible_v<T, expected<U, G>&>` is `false`,
-  * `is_constructible_v<T, expected<U, G>&&>` is `false`,
-  * `is_constructible_v<T, const expected<U, G>&>` is `false`,
-  * `is_constructible_v<T, const expected<U, G>&&>` is `false`,
-  * `is_convertible_v<expected<U, G>&, T>` is `false`,
-  * `is_convertible_v<expected<U, G>&&, T>` is `false`,
-  * `is_convertible_v<const expected<U, G>&, T>` is `false`,
-  * `is_convertible_v<const expected<U, G>&&, T>` is `false`,
-  * `is_constructible_v<E, const G&>` is `true`,
-  * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`,
-  * `is_constructible_v<unexpected<E>, expected<U, G>&&>` is `false`,
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`,
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&&>` is `false`,
-  * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`,
-  * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`,
-  * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`,
+  * `is_constructible_v<T, const U&>` is `true` ; and
+  * `is_constructible_v<T, expected<U, G>&>` is `false`; and
+  * `is_constructible_v<T, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<T, const expected<U, G>&>` is `false`; and
+  * `is_constructible_v<T, const expected<U, G>&&>` is `false`; and
+  * `is_convertible_v<expected<U, G>&, T>` is `false`; and
+  * `is_convertible_v<expected<U, G>&&, T>` is `false`; and
+  * `is_convertible_v<const expected<U, G>&, T>` is `false`; and
+  * `is_convertible_v<const expected<U, G>&&, T>` is `false`; and
+  * `is_constructible_v<E, const G&>` is `true`; and
+  * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>&&>` is `false`; and
+  * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`; and
+  * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`; and
+  * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
   * `is_convertible_v<const expected<U, G>&&, unexpected<E>>` is `false`.
 
 
@@ -359,25 +359,25 @@ of type `unexpected<E> ` with the expression
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
 *Remarks*: This constructor shall not participate in overload resolution unless:
-`T` and `U` are *cv* `void` or the conjunction of:
+`T` and `U` are *cv* `void` or:
 
-  * `is_constructible_v<T, U&&>` is `true`,
-  * `is_constructible_v<T, expected<U, G>&>` is `false`,
-  * `is_constructible_v<T, expected<U, G>&&>` is `false`,
-  * `is_constructible_v<T, const expected<U, G>&>` is `false`,
-  * `is_constructible_v<T, const expected<U, G>&&>` is `false`,
-  * `is_convertible_v<expected<U, G>&, T>` is `false`,
-  * `is_convertible_v<expected<U, G>&&, T>` is `false`,
-  * `is_convertible_v<const expected<U, G>&, T>` is `false`,
-  * `is_convertible_v<const expected<U, G>&&, T>` is `false`,
-  * `is_constructible_v<E, G&&>` is `true`,
-  * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`,
-  * `is_constructible_v<unexpected<E>, expected<U, G>&&>` is `false`,
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`,
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&&>` is `false`,
-  * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`,
-  * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`,
-  * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`,
+  * `is_constructible_v<T, U&&>` is `true`; and
+  * `is_constructible_v<T, expected<U, G>&>` is `false`; and
+  * `is_constructible_v<T, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<T, const expected<U, G>&>` is `false`; and
+  * `is_constructible_v<T, const expected<U, G>&&>` is `false`; and
+  * `is_convertible_v<expected<U, G>&, T>` is `false`; and
+  * `is_convertible_v<expected<U, G>&&, T>` is `false`; and
+  * `is_convertible_v<const expected<U, G>&, T>` is `false`; and
+  * `is_convertible_v<const expected<U, G>&&, T>` is `false`; and
+  * `is_constructible_v<E, G&&>` is `true`; and
+  * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>&&>` is `false`; and
+  * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`; and
+  * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`; and
+  * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
   * `is_convertible_v<const expected<U, G>&&, unexpected<E>>` is `false`.
 
 The constructor is explicit if and only if
@@ -399,12 +399,12 @@ object of type `T` with the expression `std::forward<U>(v)`.
 
 *Remarks*: If `T`'s selected constructor is a constant subexpression, this
 constructor shall be a constexpr constructor. This constructor shall not
-participate in overload resolution unless the conjunction of:
+participate in overload resolution unless:
 
-  * `T` is not *cv* `void`,
-  * `is_constructible_v<T, U&&>` is `true`,
-  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`,
-  * `is_same_v<expected<T, E>, remove_cvref_t<U>>` is `false`,
+  * `T` is not *cv* `void`; and
+  * `is_constructible_v<T, U&&>` is `true`; and
+  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
+  * `is_same_v<expected<T, E>, remove_cvref_t<U>>` is `false`; and
   * `is_same_v<unexpected<E>, remove_cvref_t<U>>` is `false`.
 
 The constructor is explicit if and only if `is_convertible_v<U&&, T>` is `false`.
@@ -462,9 +462,9 @@ direct-non-list-initializing an object of type `T` with the arguments
 
 *Remarks*: If `T`'s constructor selected for the initialization is a constant subexpression,
 this constructor shall be a constexpr constructor. This
-constructor shall not participate in overload resolution unless the disjunction of:
+constructor shall not participate in overload resolution unless:
 
-  * `T` is *cv* `void` and `sizeof...(Args) == 0`,
+  * `T` is *cv* `void` and `sizeof...(Args) == 0`; or
   * `T` is not *cv* `void` and `is_constructible_v<T, Args...>` is `true`.
 
 
@@ -623,9 +623,9 @@ constructor, no effect. If an exception is thrown during the call to `T`'s or
 `unexpected<E>`'s copy assignment, the state of its contained value is as defined
 by the exception safety guarantee of `T`'s or `unexpected<E>`'s copy assignment.
 
-This operator shall be defined as deleted unless the disjunction of:
+This operator shall be defined as deleted unless:
 
-  * `T` is *cv* `void` and `is_copy_assignable_v<E>` is `true` and `is_copy_constructible_v<E>` is `true`,
+  * `T` is *cv* `void` and `is_copy_assignable_v<E>` is `true` and `is_copy_constructible_v<E>` is `true`; or
   * `T` is not *cv* `void` and `is_copy_assignable_v<T>` is `true` and
     `is_copy_constructible_v<T>` is `true` and `is_copy_assignable_v<E>` is
     `true` and `is_copy_constructible_v<E>` is `true` and
@@ -702,9 +702,9 @@ of `T`'s copy assignment. If an exception is thrown during the call to `E`'s
 copy assignment, the state of its contained `unex` is as defined by
 the exception safety guarantee of `E`'s copy assignment.
 
-This operator shall be defined as deleted unless the disjunction of:
+This operator shall be defined as deleted unless:
 
-  * `T` is *cv* `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`,
+  * `T` is *cv* `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`; or
   * `T` is not *cv* `void` and `is_move_constructible_v<T>` is `true` and
     `is_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<E>`
     is `true` and `is_nothrow_move_assignable_v<E>` is `true`.
@@ -743,13 +743,13 @@ otherwise
  state of its contained value is as defined by the exception safety guarantee of
  `T`'s copy assignment.
 
-This function shall not participate in overload resolution unless the conjunction of:
+This function shall not participate in overload resolution unless:
 
-  * `is_void_v<T>` is `false`,
-  * `is_same_v<expected<T,E>, remove_cvref_t<U>>` is `false`,
-  * `conjunction_v<is_scalar<T>, is_same<T, decay_t<U>>>` is `false`,
-  * `is_constructible_v<T, U>` is `true`,
-  * `is_assignable_v<T&, U>` is `true`,
+  * `is_void_v<T>` is `false`; and
+  * `is_same_v<expected<T,E>, remove_cvref_t<U>>` is `false`; and
+  * `conjunction_v<is_scalar<T>, is_same<T, decay_t<U>>>` is `false`; and
+  * `is_constructible_v<T, U>` is `true`; and
+  * `is_assignable_v<T&, U>` is `true`; and
   * `is_nothrow_move_constructible_v<E>` is `true`.
 
 ```c++
@@ -962,13 +962,13 @@ otherwise
 `is_nothrow_move_constructible_v<T>` is `true` and `is_nothrow_swappable_v<T>` is `true` and
  `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_swappable_v<E>` is `true`.
 
-The function shall not participate in overload resolution unless the conjunction of:
+The function shall not participate in overload resolution unless:
 
-  * Lvalues of type `T` are `Swappable`,
-  * Lvalues of type `E` are `Swappable`,
-  * `is_void_v<T>` is `true` or `is_void_v<T>` is `false` and the disjunction of:
+  * Lvalues of type `T` are `Swappable`; and
+  * Lvalues of type `E` are `Swappable`; and
+  * `is_void_v<T>` is `true` or `is_void_v<T>` is `false` and either:
 
-    * `is_move_constructible_v<T>` is `true`,
+    * `is_move_constructible_v<T>` is `true`; or
     * `is_move_constructible_v<E>` is `true`.
 
 �.�.4.5 Observers [*expected.object.observe*] {#expected.object.observe}
@@ -1201,11 +1201,11 @@ void swap(expected<T1, E1>& x, expected<T1, E1>& y) noexcept(noexcept(x.swap(y))
 
 *Effects*: Calls `x.swap(y)`.
 
-*Remarks*: This function shall not participate in overload resolution unless the conjunction of:
+*Remarks*: This function shall not participate in overload resolution unless:
 
-  * `T1` is *cv* `void` or `is_move_constructible_v<T1>` is `true`,
-  * `is_swappable_v<T1>` is `true`,
-  * `is_move_constructible_v<E1>` is `true`,
+  * `T1` is *cv* `void` or `is_move_constructible_v<T1>` is `true`; and
+  * `is_swappable_v<T1>` is `true`; and
+  * `is_move_constructible_v<E1>` is `true`; and
   * `is_swappable_v<E1>` is `true`.
 
 
@@ -1292,10 +1292,10 @@ object of type `E` with the expression `std::forward<Err>(e)`.
 
 *Remarks*: If E’s selected constructor is a constant subexpression, this
 constructor shall be a constexpr constructor. This constructor shall not
-participate in overload resolution unless the conjunction of:
+participate in overload resolution unless:
 
-  * `is_constructible_v<E, Err>` is `true`,
-  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`,
+  * `is_constructible_v<E, Err>` is `true`; and
+  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
   * `is_same_v<remove_cvref_t<U>, unexpected>` is `false`.
 
 ```c++
@@ -1339,16 +1339,16 @@ object of type `E` with the expression `e.val`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: This constructor participates in overload resolution unless the conjunction of:
+*Remarks*: This constructor participates in overload resolution unless:
 
- * `std::is_constructible_v<E, Err>` is `true`,
- * `is_constructible_v<E, unexpected<Err>&>` is `false`,
- * `is_constructible_v<E, unexpected<Err>>` is `false`,
- * `is_constructible_v<E, const unexpected<Err>&>` is `false`,
- * `is_constructible_v<E, const unexpected<Err>>` is `false`,
- * `is_convertible_v<unexpected<Err>&, E>` is `false`,
- * `is_convertible_v<unexpected<Err>, E>` is `false`,
- * `is_convertible_v<const unexpected<Err>&, E>` is `false`,
+ * `std::is_constructible_v<E, Err>` is `true`; and
+ * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
+ * `is_constructible_v<E, unexpected<Err>>` is `false`; and
+ * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
+ * `is_constructible_v<E, const unexpected<Err>>` is `false`; and
+ * `is_convertible_v<unexpected<Err>&, E>` is `false`; and
+ * `is_convertible_v<unexpected<Err>, E>` is `false`; and
+ * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
 
 This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`.
@@ -1363,16 +1363,16 @@ object of type `E` with the expression `std::move(e.val)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: This constructor participates in overload resolution unless the conjunction of:
+*Remarks*: This constructor participates in overload resolution unless:
 
- * `std::is_constructible_v<E, Err>` is `true`,
- * `is_constructible_v<E, unexpected<Err>&>` is `false`,
- * `is_constructible_v<E, unexpected<Err>>` is `false`,
- * `is_constructible_v<E, const unexpected<Err>&>` is `false`,
- * `is_constructible_v<E, const unexpected<Err>>` is `false`,
- * `is_convertible_v<unexpected<Err>&, E>` is `false`,
- * `is_convertible_v<unexpected<Err>, E>` is `false`,
- * `is_convertible_v<const unexpected<Err>&, E>` is `false`,
+ * `std::is_constructible_v<E, Err>` is `true`; and
+ * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
+ * `is_constructible_v<E, unexpected<Err>>` is `false`; and
+ * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
+ * `is_constructible_v<E, const unexpected<Err>>` is `false`; and
+ * `is_convertible_v<unexpected<Err>&, E>` is `false`; and
+ * `is_convertible_v<unexpected<Err>, E>` is `false`; and
+ * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
 
 This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`
