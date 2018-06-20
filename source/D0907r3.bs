@@ -2,14 +2,14 @@
 Title: Signed Integers are Two's Complement
 Shortname: D0907
 Revision: 3
-Audience: EWG
+Audience: CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D0907r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0907r3.bs">github.com/jfbastien/papers/blob/master/source/D0907r3.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: There is One True Representation for signed integers, and that representation is two's complement.
-Date: 2018-05-31
+Date: 2018-06-20
 Markup Shorthands: markdown yes
 Toggle Diffs: yes
 </pre>
@@ -123,6 +123,13 @@ r2 → r3 {#r2r3}
 -------
 
 Add [[#diff]].
+
+The paper was presented to EWG in Rapperswil, giving an update on WG14's
+reception. The following poll was taken:
+
+<tr><th><small>Move to Core.</th>
+<th>4</th><th>17</th><th>0</th><th>0</th><th>0</th></tr>
+</table>
 
 r1 → r2 {#r1r2}
 -------
@@ -291,8 +298,8 @@ consensus for change from SG6 / SG12.
 
 The decision to not forward to Core was mainly motivated on hearing back from
 WG14. WG14 met in Brno, discussed [[N2218]], and provided feedback detailed in
-[[#WG14]]. EWG will see the paper again in Rappersvil, and will likely forward
-to Core at that point in time given the outcome of the next-to-last poll.
+[[#WG14]]. EWG wanted to see the paper again in Rapperswil and hear what WG14
+thought.
 
 
 Proposed Wording {#word}
