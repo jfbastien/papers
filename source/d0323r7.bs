@@ -219,7 +219,7 @@ ill-formed. A program that instantiates the definition of template
 `expected<E>` with the `E` parameter that is not a valid template parameter
 for `unexpected` is ill-formed.
 
-When `T` is not `void`, it shall satisfy the requirements of `Destructible`
+When `T` is not *cv* `void`, it shall satisfy the requirements of `Destructible`
 (Table 27).
 
 `E` shall satisfy the requirements of `Destructible` (Table 27).
@@ -232,21 +232,21 @@ When `T` is not `void`, it shall satisfy the requirements of `Destructible`
 constexpr expected();
 ```
 
-*Effects*: Value-Initializes `val` if `T` is not `void`.
+*Effects*: Value-Initializes `val` if `T` is not *cv* `void`.
 
 *Postconditions*: `bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
 *Remarks*: If value-initialization of `T` is a constant subexpression or `T` is
-`void` this constructor shall be constexpr. This constructor shall not participate in
-overload resolution unless `is_default_constructible_v<T>` is `true` or `T` is `void`.
+*cv* `void` this constructor shall be constexpr. This constructor shall not participate in
+overload resolution unless `is_default_constructible_v<T>` is `true` or `T` is *cv* `void`.
 
 ```c++
 constexpr expected(const expected& rhs);
 ```
 
-*Effects*: If `bool(rhs)` and `T` is not `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 
 Otherwise, initializes `unexpect` as if direct-non-list-initializing an object
@@ -258,12 +258,12 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Remarks*: This constructor shall be defined as deleted unless the conjunction of:
 
-  * `is_copy_constructible_v<T>` is `true` or `T` is `void`,
+  * `is_copy_constructible_v<T>` is `true` or `T` is *cv* `void`,
   * `is_copy_constructible_v<E>` is `true`.
 
 This constructor shall be a constexpr constructor if the conjunction of:
 
-  * `is_trivially_copy_constructible_v<T>` is `true` or `T` is `void`,
+  * `is_trivially_copy_constructible_v<T>` is `true` or `T` is *cv* `void`,
   * `is_trivially_copy_constructible_v<E>` is `true`.
 
 
@@ -271,7 +271,7 @@ This constructor shall be a constexpr constructor if the conjunction of:
 constexpr expected(expected&& rhs) noexcept(see below);
 ```
 
-*Effects*: If `bool(rhs)` and `T` is not `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression
 `std::move(*rhs)`.
 
@@ -284,7 +284,7 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Remarks*: The expression inside `noexcept` is equivalent to the conjunction of:
 
-  * `is_nothrow_move_constructible_v<T>` is `true` or `T `is `void`,
+  * `is_nothrow_move_constructible_v<T>` is `true` or `T `is *cv* `void`,
   * `is_nothrow_move_constructible_v<E>` is `true`.
 
 This constructor shall not participate in overload resolution unless the conjunction of:
@@ -294,7 +294,7 @@ This constructor shall not participate in overload resolution unless the conjunc
 
 This constructor shall be a constexpr constructor if the conjunction of:
 
-  * `is_trivially_move_constructible_v<T>` is `true` or `T` is `void`,
+  * `is_trivially_move_constructible_v<T>` is `true` or `T` is *cv* `void`,
   * `is_trivially_move_constructible_v<E>` is `true`.
 
 ```c++
@@ -302,7 +302,7 @@ This constructor shall be a constexpr constructor if the conjunction of:
     EXPLICIT constexpr expected(const expected<U, G>& rhs);
 ```
 
-*Effects*: If `bool(rhs)` and `T` is not `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 
 Otherwise, initializes `unexpect` as if direct-non-list-initializing an object
@@ -313,7 +313,7 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
 *Remarks*: This constructor shall not participate in overload resolution unless
-`T` and `U` are `void` or the conjunction of:
+`T` and `U` are *cv* `void` or the conjunction of:
 
   * `is_constructible_v<T, const U&>` is `true` ,
   * `is_constructible_v<T, expected<U, G>&>` is `false`,
@@ -337,7 +337,7 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 The constructor is explicit if and only if
 
-  * `T` and `U` are not `void` and `is_convertible_v<const U&, T>` is `false` or
+  * `T` and `U` are not *cv* `void` and `is_convertible_v<const U&, T>` is `false` or
   * `is_convertible_v<const G&, E>` is `false`.
 
 
@@ -348,7 +348,7 @@ template<class U, class G>
 
 *Effects*: If `bool(rhs)` initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression
-`std::move(*rhs)` or nothing if `T` is `void`.
+`std::move(*rhs)` or nothing if `T` is *cv* `void`.
 
 Otherwise, initializes `unexpect` as if direct-non-list-initializing an object
 of type `unexpected<E> ` with the expression
@@ -359,7 +359,7 @@ of type `unexpected<E> ` with the expression
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
 *Remarks*: This constructor shall not participate in overload resolution unless:
-`T` and `U` are `void` or the conjunction of:
+`T` and `U` are *cv* `void` or the conjunction of:
 
   * `is_constructible_v<T, U&&>` is `true`,
   * `is_constructible_v<T, expected<U, G>&>` is `false`,
@@ -382,7 +382,7 @@ of type `unexpected<E> ` with the expression
 
 The constructor is explicit if and only if
 
-  * `T` and `U` are not `void` and `is_convertible_v<U&&, T>` is `false` or
+  * `T` and `U` are not *cv* `void` and `is_convertible_v<U&&, T>` is `false` or
   * `is_convertible_v<G&&, E>` is `false`.
 
 ```c++
@@ -401,7 +401,7 @@ object of type `T` with the expression `std::forward<U>(v)`.
 constructor shall be a constexpr constructor. This constructor shall not
 participate in overload resolution unless the conjunction of:
 
-  * `T` is not `void`,
+  * `T` is not *cv* `void`,
   * `is_constructible_v<T, U&&>` is `true`,
   * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`,
   * `is_same_v<expected<T, E>, remove_cvref_t<U>>` is `false`,
@@ -452,7 +452,7 @@ template<class... Args>
     constexpr explicit expected(in_place_t, Args&&... args);
 ```
 
-*Effects*: If `T` is `void`, no effects. Otherwise, initializes `val` as if
+*Effects*: If `T` is *cv* `void`, no effects. Otherwise, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the arguments
 `std::forward<Args>(args)...`.
 
@@ -464,8 +464,8 @@ direct-non-list-initializing an object of type `T` with the arguments
 this constructor shall be a constexpr constructor. This
 constructor shall not participate in overload resolution unless the disjunction of:
 
-  * `T` is `void` and `sizeof...(Args) == 0`,
-  * `T` is not `void` and `is_constructible_v<T, Args...>` is `true`.
+  * `T` is *cv* `void` and `sizeof...(Args) == 0`,
+  * `T` is not *cv* `void` and `is_constructible_v<T, Args...>` is `true`.
 
 
 ```c++
@@ -483,7 +483,7 @@ object of type `T` with the arguments `il, std::forward<Args>(args)...`.
 *Remarks*: If `T`'s constructor selected for the initialization is a constant subexpression,
 this constructor shall be a constexpr constructor. This
 constructor shall not participate in overload resolution unless `T` is not
-`void` and `is_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
+*cv* `void` and `is_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
 
 
 
@@ -531,11 +531,11 @@ constructor shall not participate in overload resolution unless
 ~expected();
 ```
 
-*Effects*: If `T` is not `void` and `is_trivially_destructible_v<T>` is `false`
+*Effects*: If `T` is not *cv* `void` and `is_trivially_destructible_v<T>` is `false`
 and `bool(*this)`, calls `val.~T()`. If `is_trivially_destructible_v<E>` is
 `false` and `!bool(*this)`, calls `unexpect.~unexpected<E>()`.
 
-*Remarks*: If either `T` is `void` or `is_trivially_destructible_v<T>` is
+*Remarks*: If either `T` is *cv* `void` or `is_trivially_destructible_v<T>` is
 `true`, and `is_trivially_destructible_v<E>` is `true`, then this destructor
 shall be a trivial destructor.
 
@@ -551,7 +551,7 @@ expected& operator=(const expected& rhs) noexcept(see below);
 
 If `bool(*this)` and `bool(rhs)`,
 
-  * assigns `*rhs` to `val` if `T` is not `void`;
+  * assigns `*rhs` to `val` if `T` is not *cv* `void`;
 
 otherwise if `!bool(*this)` and `!bool(rhs)`,
 
@@ -559,7 +559,7 @@ otherwise if `!bool(*this)` and `!bool(rhs)`,
 
 otherwise if `bool(*this)` and `!bool(rhs)`,
 
-  * if `T` is `void`
+  * if `T` is *cv* `void`
 
     * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())`. Either
 
@@ -588,7 +588,7 @@ otherwise if `bool(*this)` and `!bool(rhs)`,
 
 otherwise
 
-  * if `T` is `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
+  * if `T` is *cv* `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
 
   * otherwise if `is_nothrow_copy_constructible_v<T>` is `true`
 
@@ -625,8 +625,8 @@ by the exception safety guarantee of `T`'s or `unexpected<E>`'s copy assignment.
 
 This operator shall be defined as deleted unless the disjunction of:
 
-  * `T` is `void` and `is_copy_assignable_v<E>` is `true` and `is_copy_constructible_v<E>` is `true`,
-  * `T` is not `void` and `is_copy_assignable_v<T>` is `true` and
+  * `T` is *cv* `void` and `is_copy_assignable_v<E>` is `true` and `is_copy_constructible_v<E>` is `true`,
+  * `T` is not *cv* `void` and `is_copy_assignable_v<T>` is `true` and
     `is_copy_constructible_v<T>` is `true` and `is_copy_assignable_v<E>` is
     `true` and `is_copy_constructible_v<E>` is `true` and
     (`is_nothrow_move_constructible_v<E>` is `true` or
@@ -640,7 +640,7 @@ expected& operator=(expected&& rhs) noexcept(see below);
 
 If `bool(*this)` and `bool(rhs)`,
 
-  * move assign `*rhs` to `val` if `T` is not `void`;
+  * move assign `*rhs` to `val` if `T` is not *cv* `void`;
 
 otherwise if `!bool(*this)` and `!bool(rhs)`,
 
@@ -648,7 +648,7 @@ otherwise if `!bool(*this)` and `!bool(rhs)`,
 
 otherwise if `bool(*this)` and `!bool(rhs)`,
 
-  * if `T` is `void`
+  * if `T` is *cv* `void`
 
     * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(move(rhs).error())`. Either
 
@@ -671,7 +671,7 @@ otherwise if `bool(*this)` and `!bool(rhs)`,
 
 otherwise `!bool(*this)` and `bool(rhs)`,
 
-  * if `T` is `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()`
+  * if `T` is *cv* `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()`
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
@@ -704,8 +704,8 @@ the exception safety guarantee of `E`'s copy assignment.
 
 This operator shall be defined as deleted unless the disjunction of:
 
-  * `T` is `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`,
-  * `T` is not `void` and `is_move_constructible_v<T>` is `true` and
+  * `T` is *cv* `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`,
+  * `T` is not *cv* `void` and `is_move_constructible_v<T>` is `true` and
     `is_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<E>`
     is `true` and `is_nothrow_move_assignable_v<E>` is `true`.
 
@@ -763,7 +763,7 @@ If `!bool(*this)`, assigns `unexpected(e.error())` to `unexpect`;
 
 otherwise
 
-  * destroys `val` by calling `val.~T()` if `T` is not `void`,
+  * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
   * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
 
 *Returns*: `*this`.
@@ -785,7 +785,7 @@ If `!bool(*this)`, move assign `unexpected(e.error())` to `unexpect`;
 
 otherwise
 
-  * destroys `val` by calling `val.~T()` if `T` is not `void`,
+  * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
   * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
 
 *Returns*: `*this`.
@@ -855,7 +855,7 @@ otherwise
 changes.
 
 This signature shall not participate in overload resolution unless:
-`T` is not `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
+`T` is not *cv* `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
 
 
 ```c++
@@ -902,7 +902,7 @@ otherwise
 changes.
 
 The function shall not participate in overload resolution unless:
-`T` is not `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
+`T` is not *cv* `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
 
 �.�.4.4 Swap [*expected.object.swap*] {#expected.object.swap}
 -------------------------------------
@@ -913,7 +913,7 @@ void swap(expected<T, E>& rhs) noexcept(see below);
 
 *Effects*: if `bool(*this)` and `bool(rhs)`,
 
-  * if `T` is not `void` calls `using std::swap; swap(val, rhs.val)`,
+  * if `T` is not *cv* `void` calls `using std::swap; swap(val, rhs.val)`,
 
 otherwise if `!bool(*this)` and `!bool(rhs)`,
 
@@ -925,7 +925,7 @@ otherwise if `!bool(*this)` and `bool(rhs)`,
 
 otherwise
 
-  * if `T` is `void`
+  * if `T` is *cv* `void`
 
     * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
 
@@ -985,7 +985,7 @@ T* operator->();
 
 *Remarks*: Unless `T` is a user-defined type with overloaded unary `operator&`,
 the first operator shall be a constexpr function.
-The operator shall not participate in overload resolution unless: `T` is not `void`.
+The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
 
 ```c++
 constexpr const T& operator*() const&;
@@ -998,7 +998,7 @@ T& operator*() &;
 `val`.
 
 *Remarks*: The first operator shall be a constexpr function.
-The operator shall not participate in overload resolution unless: `T` is not `void`.
+The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
 
 ```c++
 constexpr T&& operator*() &&;
@@ -1010,7 +1010,7 @@ constexpr const T&& operator*() const&&;
 *Returns*: `std::move(val)`.
 
 *Remarks*: This operator shall be a constexpr function.
-The operator shall not participate in overload resolution unless: `T` is not `void`.
+The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
 
 ```c++
 constexpr explicit operator bool() noexcept;
@@ -1045,7 +1045,7 @@ constexpr T& expected::value() &;
 *Throws*: `bad_expected_access(error())` if `!bool(*this)`.
 
 *Remarks*: These functions shall be constexpr functions.
-The operator shall not participate in overload resolution unless: `T` is not `void`.
+The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
 
 
 ```c++
@@ -1058,7 +1058,7 @@ constexpr const T&& expected::value() const&&;
 *Throws*: `bad_expected_access(error())` if `!bool(*this)`.
 
 *Remarks*: These functions shall be constexpr functions.
-The operator shall not participate in overload resolution unless: `T` is not `void`.
+The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
 
 ```c++
 constexpr const E& error() const&;
@@ -1119,9 +1119,9 @@ template<class T1, class E1, class T2, class E2>
 shall be convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
-`x.error() == y.error()`; otherwise `true` if `T1` and `T2` are `void` or `*x == *y` otherwise.
+`x.error() == y.error()`; otherwise `true` if `T1` and `T2` are *cv* `void` or `*x == *y` otherwise.
 
-*Remarks*: Specializations of this function template, for which `T1` and `T2` are `void` or
+*Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
 `*x == *y` and `x.error() == y.error()` are core constant expression, shall be
 `constexpr` functions.
 
@@ -1135,9 +1135,9 @@ well-formed and its result shall be convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `true`; otherwise if `bool(x) == false`,
 `x.error() != y.error()`; otherwise `true` if `T1` and `T2` are
-`void` or `*x != *y`.
+*cv* `void` or `*x != *y`.
 
-*Remarks*: Specializations of this function template, for which `T1` and `T2` are `void` or
+*Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
 `*x != *y` and `x.error() != y.error()` are core
 constant expression, shall be constexpr functions.
 
@@ -1149,7 +1149,7 @@ template<class T1, class E1, class T2> constexpr bool operator==(const expected<
 template<class T1, class E1, class T2> constexpr bool operator==(const T2& v, const expected<T1, E1>& x);
 ```
 
-*Requires*: `T1` and `T2` are not `void` and the expression `*x == v` shall be well-formed
+*Requires*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` shall be well-formed
 and its result shall be convertible to
 `bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
 
@@ -1161,7 +1161,7 @@ template<class T1, class E1, class T2> constexpr bool operator!=(const expected<
 template<class T1, class E1, class T2> constexpr bool operator!=(const T2& v, const expected<T1, E1>& x);
 ```
 
-*Requires*: `T1` and `T2` are not `void` and the expression `*x == v` shall be well-formed
+*Requires*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` shall be well-formed
 and its result shall be convertible to
 `bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
 
@@ -1203,7 +1203,7 @@ void swap(expected<T1, E1>& x, expected<T1, E1>& y) noexcept(noexcept(x.swap(y))
 
 *Remarks*: This function shall not participate in overload resolution unless the conjunction of:
 
-  * `T1` is `void` or `is_move_constructible_v<T1>` is `true`,
+  * `T1` is *cv* `void` or `is_move_constructible_v<T1>` is `true`,
   * `is_swappable_v<T1>` is `true`,
   * `is_move_constructible_v<E1>` is `true`,
   * `is_swappable_v<E1>` is `true`.
@@ -1603,3 +1603,14 @@ STL Usage {#stl}
 
   1. Should `expected` be used in the STL at the same time as it gets standardized?
   1. Where, considering `std2` may be a good place to change APIs?
+
+<pre class=biblio>
+{
+    "P0323r6": {
+        "href": "https://wg21.link/p0323r6",
+        "title": "std::expected",
+        "authors": ["Vicente Botet", "JF Bastien"],
+        "date": "2 April 2018"
+    }
+}
+</pre>
