@@ -1575,7 +1575,7 @@ Ergonomics {#ergo}
     * `E` template parameter has no default. Should it?
     * Should `expected` be specialized for particular `E` types such as `exception_ptr` and how?
     * Should `expected` handle `E` types with a built-in "success" value any differently and how?
-    * `expected` is not implicitly constructible from an `E`, even when unambiguous from `T`, because as a vocabulary type it wants unexpected error construction to be verbose, and require hopping through an `unexpected`. Is the verbosity extraneous?
+    * `expected` is not implicitly constructible from an `E`, even when unambiguous from `T`, because as a vocabulary type it wants unexpected error construction to be verbose, and require hopping through an `unexpected`. Is the verbosity extraneous? We could alleviate the verbosity by adding a `.unexpected()` method to `expected`, so that one doesn't have to write `unexpected(e.error())` when constructing a new `expected` from an error.
 
   1. Does usage of this class cause a meaningful performance impact compared to using error codes?
   1. The accessor design offers a terse unchecked dereference operator (expected to be used alongside the implicit `bool` conversion), as well as `value()` and `error()` accessors which are checked. Is that a gotcha, or is it similar enough to classes such as `optional` to be unsurprising?
