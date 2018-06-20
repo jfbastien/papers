@@ -198,7 +198,7 @@ private:
     union
     {
         value_type val; // exposition only
-        unexpected_type unexpect; // exposition only
+        unexpected_type unex; // exposition only
     };
 };
 ```
@@ -208,7 +208,7 @@ type `unexpected<E>` within its own storage. Implementations are not permitted
 to use additional storage, such as dynamic memory, to allocate the object of
 type `T` or the object of type `unexpected<E>`. These objects shall be allocated
 in a region of the `expected<T, E>` storage suitably aligned for the types `T`
-and `unexpected<E>`. Members `has_val`, `val` and `unexpect` are provided for
+and `unexpected<E>`. Members `has_val`, `val` and `unex` are provided for
 exposition only. `has_val` indicates whether the `expected<T, E>` object
 contains an object of type `T`.
 
@@ -249,7 +249,7 @@ constexpr expected(const expected& rhs);
 *Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 
-Otherwise, initializes `unexpect` as if direct-non-list-initializing an object
+Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Postconditions*: `bool(rhs) == bool(*this)`.
@@ -305,7 +305,7 @@ This constructor shall be a constexpr constructor if the conjunction of:
 *Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 
-Otherwise, initializes `unexpect` as if direct-non-list-initializing an object
+Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Postconditions*: `bool(rhs) == bool(*this)`.
@@ -350,7 +350,7 @@ template<class U, class G>
 direct-non-list-initializing an object of type `T` with the expression
 `std::move(*rhs)` or nothing if `T` is *cv* `void`.
 
-Otherwise, initializes `unexpect` as if direct-non-list-initializing an object
+Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E> ` with the expression
 `unexpected(std::move(rhs.error()))`.
 
@@ -414,7 +414,7 @@ template<class G = E>
     EXPLICIT constexpr expected(const unexpected<G>& e);
 ```
 
-*Effects*: Initializes `unexpect` as if direct-non-list-initializing
+*Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `e`.
 
 *Postconditions*: `!bool(*this)`.
@@ -432,7 +432,7 @@ template<class G = E>
     EXPLICIT constexpr expected(unexpected<G>&& e);
 ```
 
-*Effects*: Initializes `unexpect` as if direct-non-list-initializing
+*Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `std::move(e)`.
 
 *Postconditions*: `!bool(*this)`.
@@ -492,7 +492,7 @@ template<class... Args>
     constexpr explicit expected(unexpect_t, Args&&... args);
 ```
 
-*Effects*: Initializes `unexpect` as if direct-non-list-initializing
+*Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>`with the arguments
 `std::forward<Args>(args)...`.
 
@@ -510,7 +510,7 @@ template<class U, class... Args>
     constexpr explicit expected(unexpect_t, initializer_list<U> il, Args&&... args);
 ```
 
-*Effects*: Initializes `unexpect` as if direct-non-list-initializing
+*Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the arguments `il,
 std::forward<Args>(args)...`.
 
@@ -555,13 +555,13 @@ If `bool(*this)` and `bool(rhs)`,
 
 otherwise if `!bool(*this)` and `!bool(rhs)`,
 
-  * assigns `unexpected(rhs.error())` to `unexpect`;
+  * assigns `unexpected(rhs.error())` to `unex`;
 
 otherwise if `bool(*this)` and `!bool(rhs)`,
 
   * if `T` is *cv* `void`
 
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())`. Either
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())`. Either
 
       * the constructor didn't throw, set `has_val` to `false`, or
       * the constructor did throw, and nothing was changed.
@@ -569,42 +569,42 @@ otherwise if `bool(*this)` and `!bool(rhs)`,
   * otherwise if `is_nothrow_copy_constructible_v<E>` is `true`
 
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())` and set `has_val` to `false`.
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())` and set `has_val` to `false`.
 
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`
 
     * constructs an `unexpected<E> tmp` from `unexpected(rhs.error()) ` (this can throw),
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(tmp)` and set `has_val` to `false`.
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(tmp)` and set `has_val` to `false`.
 
   otherwise
 
   * constructs a `T tmp` from `*this` (this can throw),
   * destroys `val` by calling `val.~T()`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())`. Either,
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(rhs.error())`. Either,
 
     * the last constructor didn't throw, set `has_val` to `false`, or
     * the last constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `is_nothrow_move_constructible_v<T>` is `true`), and rethrow the exception.
 
 otherwise
 
-  * if `T` is *cv* `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
+  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
 
   * otherwise if `is_nothrow_copy_constructible_v<T>` is `true`
 
-    * destroys `unexpect` by calling `unexpect.~unexpected<E>() `
+    * destroys `unex` by calling `unexpect.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`;
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
     * constructs a `T tmp` from `*rhs` (this can throw),
-    * destroys `unexpect` by calling `unexpect.~unexpected<E>() `
+    * destroys `unex` by calling `unexpect.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)`;
 
   * otherwise
 
     * constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can throw),
-    * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+    * destroys `unex` by calling `unexpect.~unexpected<E>()`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -644,13 +644,13 @@ If `bool(*this)` and `bool(rhs)`,
 
 otherwise if `!bool(*this)` and `!bool(rhs)`,
 
-  * move assign `unexpected(rhs.error())` to `unexpect`;
+  * move assign `unexpected(rhs.error())` to `unex`;
 
 otherwise if `bool(*this)` and `!bool(rhs)`,
 
   * if `T` is *cv* `void`
 
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(move(rhs).error())`. Either
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(move(rhs).error())`. Either
 
       * the constructor didn't throw, set `has_val` to `false`, or
       * the constructor did throw, and nothing was changed.
@@ -658,30 +658,30 @@ otherwise if `bool(*this)` and `!bool(rhs)`,
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`
 
     * destroys `val` by calling `val.~T()`,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs.error()))`;
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs.error()))`;
 
   * otherwise
 
     * move constructs a `T tmp` from `*this` (which can't throw as `T` is nothrow-move-constructible),
     * destroys `val` by calling `val.~T() `,
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected_type<E>` with `unexpected(std::move(rhs.error()))`. Either,
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected_type<E>` with `unexpected(std::move(rhs.error()))`. Either,
 
       * The constructor didn't throw, so mark the expected as holding a `unexpected_type<E>`, or
       * The constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `T` is nothrow-move-constructible), and rethrow the exception.
 
 otherwise `!bool(*this)` and `bool(rhs)`,
 
-  * if `T` is *cv* `void` destroys `unexpect` by calling `unexpect.~unexpected<E>()`
+  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()`
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
-    * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+    * destroys `unex` by calling `unexpect.~unexpected<E>()`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`;
 
   * otherwise
 
     * move constructs an `unexpected_type<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
-    * destroys `unexpect` by calling `unexpect.~unexpected<E>() `,
+    * destroys `unex` by calling `unexpect.~unexpected<E>() `,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`. Either,
 
       * The constructor didn't throw, set `has_val` to `true`, or
@@ -699,7 +699,7 @@ unchanged. If an exception is thrown during the call to `T`'s copy constructor,
 no effect. If an exception is thrown during the call to `T`'s copy assignment,
 the state of its contained value is as defined by the exception safety guarantee
 of `T`'s copy assignment. If an exception is thrown during the call to `E`'s
-copy assignment, the state of its contained `unexpect` is as defined by
+copy assignment, the state of its contained `unex` is as defined by
 the exception safety guarantee of `E`'s copy assignment.
 
 This operator shall be defined as deleted unless the disjunction of:
@@ -720,14 +720,14 @@ If `bool(*this)`, assigns `std::forward<U>(v)` to `val`;
 
 otherwise if `is_nothrow_constructible_v<T, U>` is `true`
 
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)` and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, that is set `has_val` to `true`, or
@@ -759,12 +759,12 @@ template<class G = E>
 
 *Effects*:
 
-If `!bool(*this)`, assigns `unexpected(e.error())` to `unexpect`;
+If `!bool(*this)`, assigns `unexpected(e.error())` to `unex`;
 
 otherwise
 
   * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
 
 *Returns*: `*this`.
 
@@ -781,12 +781,12 @@ expected<T, E>& operator=(unexpected<G>&& e);
 
 *Effects*:
 
-If `!bool(*this)`, move assign `unexpected(e.error())` to `unexpect`;
+If `!bool(*this)`, move assign `unexpected(e.error())` to `unex`;
 
 otherwise
 
   * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
-  * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
 
 *Returns*: `*this`.
 
@@ -805,7 +805,7 @@ void expected<void, E>::emplace();
 
 If `!bool(*this)`
 
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
   * set `has_val` to `true`
 
 *Postconditions*: `bool(*this)` .
@@ -825,21 +825,21 @@ constructing an object of type `T` with the arguments
 
 otherwise if `is_nothrow_constructible_v<T, Args...>` is `true`
 
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...` and
   * set `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `std::forward<Args>(args)...` (which can throw),
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` ,
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -872,21 +872,21 @@ constructing an object of type `T` with the arguments
 
 otherwise if `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`
 
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `il, std::forward<Args>(args)...` and
   * set `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `il, std::forward<Args>(args)...` (which can throw),
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` ,
-  * destroys `unexpect` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `il, std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -927,26 +927,26 @@ otherwise
 
   * if `T` is *cv* `void`
 
-    * initializes `unexpect` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
 
       * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unexpect.~unexpected<E>()` set `rhs.has_val` to `true`.
       * the constructor did throw, rethrow the exception.
 
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`,
 
-    * the `unexpect` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`,
-    * followed by destruction of `unexpect` as if by `rhs.unexpect.~unexpected<E>()`,
+    * the `unex` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`,
+    * followed by destruction of `unex` as if by `rhs.unexpect.~unexpected<E>()`,
     * `rhs.val` is direct-initialized from `std::move(*this)`. Either
         * the constructor didn't throw
             * destroy `val` as if by `this->val.~T()`,
-            * the `unexpect` of `this` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
+            * the `unex` of `this` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
         * the constructor did throw, so move-construct the `unexpected<E>` from `tmp` back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and re-throw the exception.
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`,
 
     * `val` is moved to a temporary variable `tmp` of type `T`,
     * followed by destruction of `val` as if by `val.~T()`,
-    * the `unexpect` is direct-initialized from `unexpected(std::move(other.error()))`. Either
+    * the `unex` is direct-initialized from `unexpected(std::move(other.error()))`. Either
         * the constructor didn't throw
             * destroy `rhs.unexpect` as if by `rhs.unexpect.~unexpected<E>()`,
             * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
