@@ -122,6 +122,8 @@ Edit History {#edit}
 r2 → r3 {#r2r3}
 -------
 
+Add [[#diff]].
+
 As requested in Jacksonville, the paper was presented to EWG a second time in
 Rapperswil with feedback from WG14. Reception was extremely positive, and the
 paper was forwarded to CWG through the following poll.
@@ -697,6 +699,14 @@ Issue: there's an outstanding defect report for this [[LWG3047]], whose
 resolution should be updated as above.
 
 </blockquote>
+
+
+Annex C (informative) Compatibility {#diff}
+-----------------------------------
+
+Leave Annex C (informative) Compatibility [**diff**] as-is. A discussion on the
+Core reflector has determined that no updates are required with respect to C
+compatibility.
 
 
 Out of Scope {#scope}
