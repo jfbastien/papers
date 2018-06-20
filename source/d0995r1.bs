@@ -47,6 +47,9 @@ implement these types.
 <th>20</th><th>7</th><th>2</th><th>0</th><th>0</th></tr>
 </table>
 
+LEWG then saw the paper again, and there was unanimous consent to forward to LWG
+for C++20.
+
 
 Draft ➡ r0 {#draftr0}
 -----------
