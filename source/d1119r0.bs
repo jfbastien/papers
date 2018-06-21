@@ -163,4 +163,4 @@ Standard.
 
 We propose the following poll for LEWG and LWG:
 
-> Revert the change to [**hardware.interference**] from [[P0607r0]], adding back `static` to `std::hardware_{constructive,destructive}_interference_size`.
+> Revert the change to [**hardware.interference**] from [[P0607r0]], adding back `static` and removing `inline` for `std::hardware_{constructive,destructive}_interference_size`.
