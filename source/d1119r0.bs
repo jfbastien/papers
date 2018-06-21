@@ -121,6 +121,17 @@ which is a problem if they are used in an ODR-relevant context. That paper noted
 
 </blockquote>
 
+This change indeed fixes the ODR issue where two translation units translated
+with the same interference size values may violate ODR when used with e.g.
+`std::max`. It however introduces a new ODR issue for case 1. above.
+
+Richard Smith and Tim Song propose changing the definition to:
+
+<xmp>
+static constexpr const std::size_t& hardware_destructive_interference_size = implementation-defined;
+static constexpr const std::size_t& hardware_constructive_interference_size = implementation-defined;
+</xmp>
+
 We propose a discussion and poll on this topic.
 
 
@@ -162,7 +173,7 @@ Standard.
 
 We propose the following poll for SG1, LEWG, and LWG:
 
-> Revert the change to [**hardware.interference**] from [[P0607r0]], adding back `static` and removing `inline` for `std::hardware_{constructive,destructive}_interference_size`.
+> Both ODR issues should be addressed, the type should therefore be changed to `static constexpr const std::size_t&`.
 
 Not all authors of this paper are in favor of this direction, but all agree the
 discussion is worth having.
