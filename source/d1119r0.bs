@@ -121,8 +121,7 @@ which is a problem if they are used in an ODR-relevant context. That paper noted
 
 </blockquote>
 
-We propose to revert this change because the ODR violations that could occur
-were by design.
+We propose a discussion and poll on this topic.
 
 
 Pushback {#push}
@@ -161,6 +160,9 @@ The committee could also consider adding a note to point out ABI issues with
 these values. This would be a novel note, since ABI isn't discussed in the
 Standard.
 
-We propose the following poll for LEWG and LWG:
+We propose the following poll for SG1, LEWG, and LWG:
 
 > Revert the change to [**hardware.interference**] from [[P0607r0]], adding back `static` and removing `inline` for `std::hardware_{constructive,destructive}_interference_size`.
+
+Not all authors of this paper are in favor of this direction, but all agree the
+discussion is worth having.
