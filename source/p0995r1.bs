@@ -1,17 +1,17 @@
 <pre class='metadata'>
 Title: Improving atomic_flag
-Shortname: D0995
+Shortname: P0995
 Revision: 1
 Audience: LWG
 Status: P
 Group: WG21
-URL: http://wg21.link/D0995r1
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0995r1.bs">github.com/jfbastien/papers/blob/master/source/D0995r1.bs</a>
+URL: http://wg21.link/p0995r1
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/p0995r1.bs">github.com/jfbastien/papers/blob/master/source/p0995r1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Olivier Giroux, NVIDIA, ogiroux@nvidia.com
-Editor: Andrew Hunter, Google, ahh@google.com
+Editor: Andrew Hunter, Google, andrewhhunter@gmail.com
 Abstract: atomic_flag is marginally useful. Improve it in light of the new wait / notify APIs.
-Date: 2018-06-20
+Date: 2018-06-22
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 </pre>
