@@ -146,6 +146,15 @@ committee wasn't clear that ABI issues were discussed and the proposal accepted
 despite these issues. This type of ABI problem is difficult or impossible to
 warn about, some implementors are worried.
 
+Some implementors are worries that they have the following choices when
+implementing, and are unsure which approach to take:
+
+  1. Pick a value once for each ABI and cast it in stone forever, even if
+     microarchitectural revisions cause the values to change.
+  1. Change the value between microarchitectures, even though that's an ABI
+     break?
+  1. Something else.
+
 The authors believe that the ABI issues are acceptable because:
 
   * As demonstrated in the original paper, developers already write code like
