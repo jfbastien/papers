@@ -2,7 +2,7 @@
 Title: Improving atomic_flag
 Shortname: D0995
 Revision: 1
-Audience: SG1, LEWG
+Audience: LWG
 Status: P
 Group: WG21
 URL: http://wg21.link/D0995r1
@@ -19,6 +19,11 @@ Toggle Diffs: no
 <style>
 ins .highlight:not(.idl) { background: rgba(0, 136, 0, 0.2); }
 </style>
+
+Note: this paper is superseded by [[P1135r0]], which takes the r1 version of
+this paper and integrates it fully with other related papers which should be
+voted into the working draft together.
+
 
 Revision History {#rev}
 ================
@@ -494,11 +499,10 @@ Two feature test macros should be added:
 
 <pre class=biblio>
 {
-"P0995R0": {
-	"title": "Improving atomic_flag",
-	"author": ["JF Bastien", "Olivier Giroux", "Andrew Hunter"],
-	"href": "https://wg21.link/p0995r0",
-	"date": "2018-03-17"
+"P1135R0": {
+	"title": "The C++20 Concurrency Library",
+	"author": ["Bryce Adelstein Lelbach", "Olivier Giroux", "JF Bastien"],
+	"href": "https://wg21.link/p1135r0"
 }
 }
 </pre>
