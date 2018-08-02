@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
-!Draft Revision: 1
+!Draft Revision: 2
 Revision: 0
 Audience: SG1, LEWG, EWG
 Status: D
@@ -10,7 +10,7 @@ URL: http://wg21.link/d1152r0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/d1152r0.bs">github.com/jfbastien/papers/blob/master/source/d1152r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2018-08-01
+Date: 2018-08-02
 Markup Shorthands: markdown yes
 </pre>
 
@@ -153,7 +153,8 @@ This proposal has the following goals:
      `load`, `store`, and only exist when `is_always_lock_free` is `true`.
      Preserve most `volatile` free function overloads for atomic.
   1. Deprecate (and eventually remove) non-reference and non-pointer `volatile`
-     parameters and return values.
+     parameters. Deprecate (and eventually remove) `const` as well as `volatile`
+     return values.
 
 A rationale for each of these is provided in [[#why]].
 
@@ -829,16 +830,33 @@ without `volatile` semantics. Ditto for destructors.
 We propose to deprecate, and eventually remove, `volatile`-qualified member
 functions.
 
-Issue: We would like guidance on whether `volatile` should be allowed on
-aggregate types at all, or whether it should be restricted to scalars. At a
-minimum, it seems like `volatile` aggregates should have constructors which
-initialize all members with `volatile` semantics, and destroy them with
-`volatile` semantics. Alternatively, triviality could be mandated for
-constructors and destructors of `volatile` aggregates. The author is told by
-some embedded developers that It’s very common to have an aggregate that
-describes some hardware, and to access hardware registers (member variables of
-the aggregate) by indirection through a pointer to `volatile` struct. This could
-be outside the scope of the current paper.
+Our goal is to avoid the ambiguity where an aggregate is sometimes `volatile`
+and sometimes not. The above proposal forces developers to recursively
+`volatile`-qualify all non-aggregate data members. Alternatively, we could:
+
+  1. Mandate that member functions `volatile`-qualification be all-or-nothing; or
+  1. Allow the aggregate declaration itself to be `volatile` (e.g. `struct
+     volatile my_hardware { /* ... */ };`).
+  1. Disallow `volatile`-qualified aggregates entirely.
+  
+Either of the first two approaches approaches clearly tell the compiler that
+every data member access should be done in a `volatile` manner, and disallows
+accessing that particular aggregate in a non-`volatile` manner.
+
+Issue: Which of the above approaches (deprecate `volatile`-qualified member
+functions, all-or-nothing, `struct volatile`, or deprecate `volatile`
+aggregates, should we pursue?
+
+Issue: If we keep `volatile` aggregates, it seems like `volatile` aggregates
+should have constructors which initialize all members with `volatile` semantics,
+and destroy them with `volatile` semantics. Alternatively, triviality could be
+mandated for constructors and destructors of `volatile` aggregates. The author
+is told by some embedded developers that it’s very common to have an aggregate
+that describes some hardware, and to access hardware registers (member variables
+of the aggregate) by indirection through a pointer to `volatile` struct.
+
+Issue: If we keep `volatile` aggregates, what does it mean to have a `volatile`
+virtual function table pointer?
 
 Issue: It is unclear how `volatile union` should be accessed when all types in
 the `union` aren't stored using the same bits (i.e. should `union { char c; int
@@ -944,22 +962,29 @@ The same guidance would apply to atomic free function overloads.
 ### `volatile` parameters and returns ### {#parret}
 
 Marking parameters as `volatile` makes sense to denote external modification
-through signals or `setjmp` / `longjmp`, but leaks function implementation
-information to the callee. It also has no semantics when it comes to calling
-convention because it is explicitly ignored (and must therefore have the same
-semantics as a non-`volatile` declaration). It's much simpler to have the
-desirable behavior above by copying a non-`volatile` parameter to an automatic
-stack variable marked `volatile`. A compiler could, if stack passing is required
-by the ABI, make no copy at all in this case.
+through signals or `setjmp` / `longjmp`. In that sense it's similar to
+`const`-qualified parameters: it has clear semantics *whithin* the function's
+implementation. However, it leaks function implementation information to the
+callee. It also has no semantics when it comes to calling convention because it
+is explicitly ignored (and must therefore have the same semantics as a
+non-`volatile` declaration). It's much simpler to have the desirable behavior
+above by copying a non-`volatile` parameter to an automatic stack variable
+marked `volatile`. A compiler could, if stack passing is required by the ABI,
+make no copy at all in this case.
 
 `volatile` return values are pure nonsense. Is register return disallowed? What
 does it mean for return value optimization? A caller is better off declaring a
 `volatile` automatic stack variable and assigning the function return to it, and
 the callee will be none the wiser.
 
+Similarly, `const` return values are actively harmful. Both cv-qualifiers
+already have no effect when returning non-class types, and `const`-qualified
+class return types are harmful because they inhibit move semantics.
+
 We propose to deprecate, and eventually remove, non-reference and non-pointer
 `volatile` parameters and return values. That is, `volatile` at the outermost
-level of the parameter type specification.
+level of the parameter type specification. We also propose to deprecate, and
+eventually remove, `const`-qualified return types.
 
 The Slow Regard of Syntactic Things {#srst}
 ===================================
@@ -997,8 +1022,9 @@ Acknowledgements {#ack}
 ================
 
 Early drafts were reviewed by Thomas Rodgers, Arthur O'Dwyer, John McCall, Mike
-Smith, John Regehr, Herb Sutter, Shafik Yaghmour. Thank you for in-depth
-feedback, and apologies if I mistakenly transcribed your feedback.
+Smith, John Regehr, Herb Sutter, Shafik Yaghmour, Hans Boehm, Richard Smith.
+Thank you for in-depth feedback, and apologies if I mistakenly transcribed your
+feedback.
 
 Patrick Rothfuss, for writing amazing books. May he take as much time as he
 needs to finish book 3.
