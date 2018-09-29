@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
-!Draft Revision: 2
+!Draft Revision: 3
 Revision: 0
 Audience: SG1, LEWG, EWG
 Status: D
@@ -10,7 +10,7 @@ URL: http://wg21.link/d1152r0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/d1152r0.bs">github.com/jfbastien/papers/blob/master/source/d1152r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2018-08-02
+Date: 2018-09-28
 Markup Shorthands: markdown yes
 </pre>
 
@@ -62,8 +62,10 @@ cite {
 Abstract {#abstract}
 ========
 
-We propose deprecating most of `volatile`. See [[#prop]] for a short overview,
-and [[#why]] for details.
+We propose deprecating most of `volatile`. This paper explores [[#here]]. See
+[[#prop]] for a short overview, and [[#why]] for details. There is currently no
+proposed wording: this paper tries to capture all of the required context and
+lets WG21 choose whether to tackle everything at once or incrementally. 
 
 
 A Syntax of Three Parts {#notw}
@@ -1018,13 +1020,19 @@ This section will hold future work, wording, etc. It will be published based on
 Committee feedback, when it is ready. The author wants to give the Committee a
 perfectly worded paper. They deserve it.
 
+Here are items which could be discussed in the future:
+
+  1. `asm` statements are implementation-defined. Many compilers also support
+     `asm volatile` statements, which are also implementation-defined and not in
+     scope for this paper.
+
 Acknowledgements {#ack}
 ================
 
 Early drafts were reviewed by Thomas Rodgers, Arthur O'Dwyer, John McCall, Mike
-Smith, John Regehr, Herb Sutter, Shafik Yaghmour, Hans Boehm, Richard Smith.
-Thank you for in-depth feedback, and apologies if I mistakenly transcribed your
-feedback.
+Smith, John Regehr, Herb Sutter, Shafik Yaghmour, Hans Boehm, Richard Smith,
+Will Deacon. Thank you for in-depth feedback, and apologies if I mistakenly
+transcribed your feedback.
 
 Patrick Rothfuss, for writing amazing books. May he take as much time as he
 needs to finish book 3.
