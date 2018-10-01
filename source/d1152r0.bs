@@ -145,7 +145,7 @@ This proposal has the following goals:
   1. Deprecate (and eventually remove) `volatile` compound assignment `op=`, and
      pre / post increment / decrement `--` `++`.
   1. Deprecate (and eventually remove) `volatile`-qualification of member
-     functions.
+     functions. Don't change `volatile`-qualification of data members.
   1. Deprecate (and eventually remove) partial template specializations
      involving `volatile`, overloads on `volatile`, and qualified member
      functions for all but the `atomic` and `numeric_limits` parts of the
@@ -156,7 +156,7 @@ This proposal has the following goals:
      Preserve most `volatile` free function overloads for atomic.
   1. Deprecate (and eventually remove) non-reference and non-pointer `volatile`
      parameters. Deprecate (and eventually remove) `const` as well as `volatile`
-     return values.
+     return values. References and pointers *to* `volatile` data remain valid.
 
 A rationale for each of these is provided in [[#why]].
 
@@ -175,9 +175,9 @@ Colloquially, `volatile` tells the compiler to back off and not optimize code
 too much. If the source code contains a load or store of a `volatile` operation
 then these should occur as many times in the final execution. A `volatile`
 operation cannot be eliminated or fused with a subsequent one, even if the
-compiler can prove that it's useless. A `volatile` operation cannot be
-speculated, even if the compiler can undo or otherwise make that speculation
-benign.
+compiler thinks that it can prove that it's useless. A `volatile` operation
+cannot be speculated, even if the compiler can undo or otherwise make that
+speculation benign.
 
 Importantly, `volatile` does not guarantee that memory operations won't tear,
 meaning that a `volatile` load may observe partial writes and `volatile` stores
@@ -214,6 +214,8 @@ How we got here {#here}
 When discussing `volatile` in C++ it is important to understand that `volatile`
 came from C, before either language acquired a memory model and acknowledged the
 existence of threads.
+
+### Original intent for `volatile` in C ### {#inC}
 
 [[SEBOR]] lays out the original intent for `volatile` in C:
 
@@ -319,7 +321,7 @@ existence of threads.
   accessing the variable via an lvalue of the `volatile`-qualified type `T`
   (where `T` is one of the standard scalar types). Other primitives gurantee
   memory synchronization and visibility but those are orthogonal to the subject
-  of this paper. See [[N4444]].
+  of this paper. See [[P0124R5]].
 
   Similar examples can be found in other system or embedded programs as well as
   in many other pre-C11 and pre-C++11 code bases that don't rely on the Atomic
@@ -329,7 +331,9 @@ existence of threads.
 
 </blockquote>
 
-[[RATIONALE]] lays out the intent for `volatile` in C:
+### C89 intent ### {#C89}
+
+[[RATIONALE]] lays out the intent for `volatile` in C89:
 
   <blockquote>
   
@@ -392,6 +396,8 @@ existence of threads.
   
   </blockquote>
 
+### Intent in C++ ### {#CppIntent}
+
 `volatile` was extended to "fit" into C++ by allowing `volatile`-qualification
 to member functions. [[DE]] states:
 
@@ -416,7 +422,9 @@ shouldn't acquire atomicity and thread visibility semantics. Further, [[BOEHM]]
 makes the a case that threads cannot be implemented as a library. A variety of
 FAQs existed to help programmers make sense of the state of concurrency before
 C++0x became C++11, for example [[FAQ]]. The behavior of `volatile` has slightly
-changed over time [[CWG1054]] [[CHANGE]] [[WHEN]].
+changed over time [[CWG1054]] [[CHANGE]] [[WHEN]]. Importantly, C++11's memory
+model forbids the compiler from introducing races in otherwise correct code,
+modulo compiler bugs [[INVALID]].
 
 
 Current Wording {#nowword}
@@ -745,7 +753,8 @@ modifications. This happens for:
     occur (even though they are allowed to tear).
   - `setjmp` / `longjmp`, where `setjmp` can effectively return twice and
     `volatile` is used to prevent motion of memory operations around this
-    operation.
+    operation. `atomic_signal_fence` is a more coarse-grained solution to this
+    problem.
   - Various other external modifications such as special hardware support—e.g.
     memory-mapped registers—where the compiler cannot assume that memory doesn't
     change or that writes aren't synchronizing externally.
@@ -754,11 +763,16 @@ modifications. This happens for:
   - Casting pointers to `volatile` to denote code expecting `volatile` semantics
     (as opposed having this as a property of data). This type of code is
     commonplace and we intend this paper to leave it alone, e.g. [[TORVALDS]].
+  - Enforcing control dependencies and preventing compiler value speculation
+    (such as through feedback-directed optimization) as discussed in
+    [[CONTROL]].
+  - Avoiding value speculation around some hand-rolled implementations of
+    `memory_order_consume` (until [[P0750R1]] is resolved).
 
 As [[SEBOR]] lays out there have been wording issues around this usage.
-[[TROUBLE]] makes a similar case. This paper doesn't try to address those
-issues. We don't see a reason to change existing syntax denoting external
-modification in this paper: this paper rather focuses on deprecation of
+[[TROUBLE]] and [[ACCESS_ONCE]] make a similar case. This paper doesn't try to
+address those issues. We don't see a reason to change existing syntax denoting
+external modification in this paper: this paper rather focuses on deprecation of
 *invalid* or *misleading* uses of `volatile`. The above uses are valid and have
 no alternative other than inline assembly.
 
@@ -843,7 +857,8 @@ and sometimes not. The above proposal forces developers to recursively
   
 Either of the first two approaches approaches clearly tell the compiler that
 every data member access should be done in a `volatile` manner, and disallows
-accessing that particular aggregate in a non-`volatile` manner.
+accessing that particular aggregate in a non-`volatile` manner. In all cases,
+data members can still be `volatile`-qualified.
 
 Issue: Which of the above approaches (deprecate `volatile`-qualified member
 functions, all-or-nothing, `struct volatile`, or deprecate `volatile`
@@ -851,7 +866,8 @@ aggregates, should we pursue?
 
 Issue: If we keep `volatile` aggregates, it seems like `volatile` aggregates
 should have constructors which initialize all members with `volatile` semantics,
-and destroy them with `volatile` semantics. Alternatively, triviality could be
+and destroy them with `volatile` semantics. Otherwise, we encourage the use of
+initialization / cleanup member functions. Alternatively, triviality could be
 mandated for constructors and destructors of `volatile` aggregates. The author
 is told by some embedded developers that it’s very common to have an aggregate
 that describes some hardware, and to access hardware registers (member variables
@@ -862,12 +878,14 @@ virtual function table pointer?
 
 Issue: It is unclear how `volatile union` should be accessed when all types in
 the `union` aren't stored using the same bits (i.e. should `union { char c; int
-i; }` always access the full union, even when only accessing `c`?). This could
-be outside the scope of the current paper.
+i; }` always access the full union, even when only accessing `c`?). Some
+hardware defines different semantics to MMIO register accesses of different
+sizes to the same address. A union would be a natural way to represent such
+hardware. This could be outside the scope of the current paper.
 
-Issue: We would like guidance on whether `volatile` bit fields should be
+Issue: We would like guidance on whether `volatile` bit-fields should be
 constrained. At the moment no guarantee is made about read-modify-write
-operations required when mixing `volatile` and non-`volatile` bit field data
+operations required when mixing `volatile` and non-`volatile` bit-field data
 members. It seems like, at a minimum, bit fields should always cause alignment
 when subsequent data members change their cv-qualification. This could be
 outside the scope of the current paper.
@@ -1010,8 +1028,9 @@ could even consider full deprecation and replacement with `volatile_load<T>` /
 maybe it should only be allowed on scalars.
 
 It is important that `volatile` dare be entirely itself, be wild enough to
-change itself while somehow staying altogether *true*. Annex C should be
-updated, WG14 should be consulted.
+change itself while somehow staying altogether *true*, lest we end up with The
+Silent Regard of Slow Things. Annex C should be updated, WG14 should be
+consulted.
 
 The Doors of Stone {#dos}
 ==================
@@ -1025,14 +1044,16 @@ Here are items which could be discussed in the future:
   1. `asm` statements are implementation-defined. Many compilers also support
      `asm volatile` statements, which are also implementation-defined and not in
      scope for this paper.
+  2. Standardize a library-like replacement for `volatile` load / store, such as
+     `peek` / `poke`.
 
 Acknowledgements {#ack}
 ================
 
 Early drafts were reviewed by Thomas Rodgers, Arthur O'Dwyer, John McCall, Mike
 Smith, John Regehr, Herb Sutter, Shafik Yaghmour, Hans Boehm, Richard Smith,
-Will Deacon. Thank you for in-depth feedback, and apologies if I mistakenly
-transcribed your feedback.
+Will Deacon, Paul McKenney. Thank you for in-depth feedback, and apologies if I
+mistakenly transcribed your feedback.
 
 Patrick Rothfuss, for writing amazing books. May he take as much time as he
 needs to finish book 3.
@@ -1142,6 +1163,12 @@ needs to finish book 3.
     "date": "2017-05-09",
     "href": "https://lwn.net/Articles/233479/"
 },
+"ACCESS_ONCE": {
+    "title": "ACCESS_ONCE()",
+    "authors": ["corbet"],
+    "date": "2012-08-01",
+    "href": "https://lwn.net/Articles/508991/"
+},
 "CHANGE": {
     "title": "Correct behaviour of trivial statements involving expressions with volatile variables?",
     "date": "2013-11-27",
@@ -1207,6 +1234,19 @@ needs to finish book 3.
 "DRAFT": {
     "title": "C++ Standards draft: volatile",
     "href": "https://github.com/cplusplus/draft/search?l=TeX&q=volatile"
+},
+"INVALID": {
+    "title": "Common compiler optimisations are invalid in the C11 memory model and what we can do about it",
+    "authors": ["Viktor Vafeiadis", "Thibaut Balabonski", "Soham Chakraborty", "Robin Morisset", "Francesco Zappa Nardelli"],
+    "date": "2015/05-11",
+    "publisher": "POPL'15",
+    "href": "https://people.mpi-sws.org/~viktor/papers/popl2015-c11comp.pdf"
+},
+"CONTROL": {
+    "title": "Linux kernel memory barriers: control dependencies",
+    "authors": ["David Howells", "Paul E. McKenney", "Will Deacon", "Peter Zijlstra"],
+    "date": "2018-07-17",
+    "href": "https://github.com/torvalds/linux/blob/7876320f88802b22d4e2daf7eb027dd14175a0f8/Documentation/memory-barriers.txt#L666"
 }
 }
 </pre>
