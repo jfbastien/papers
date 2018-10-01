@@ -10,7 +10,7 @@ URL: http://wg21.link/d1152r0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/d1152r0.bs">github.com/jfbastien/papers/blob/master/source/d1152r0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2018-09-28
+Date: 2018-10-01
 Markup Shorthands: markdown yes
 </pre>
 
@@ -67,6 +67,13 @@ We propose deprecating most of `volatile`. This paper explores [[#here]]. See
 is currently no proposed wording: this paper tries to capture all of the
 required context and lets WG21 choose whether to tackle everything at once or
 incrementally.
+
+The proposed deprecation preserves the useful parts of `volatile`, and removes
+the dubious / already broken ones. This paper aims at breaking at compile-time
+code which is today subtly broken at runtime or through a compiler update. The
+paper might also break another type of code: that which doesn't exist. This
+removes a significant foot-gun and removes unintuitive corner cases from the
+languages.
 
 
 A Syntax of Three Parts {#notw}
