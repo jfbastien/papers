@@ -63,9 +63,10 @@ Abstract {#abstract}
 ========
 
 We propose deprecating most of `volatile`. This paper explores [[#here]]. See
-[[#prop]] for a short overview, and [[#why]] for details. There is currently no
-proposed wording: this paper tries to capture all of the required context and
-lets WG21 choose whether to tackle everything at once or incrementally. 
+[[#prop]] for a short overview, [[#why]] for details, and [[#examples]]. There
+is currently no proposed wording: this paper tries to capture all of the
+required context and lets WG21 choose whether to tackle everything at once or
+incrementally.
 
 
 A Syntax of Three Parts {#notw}
@@ -1057,6 +1058,93 @@ mistakenly transcribed your feedback.
 
 Patrick Rothfuss, for writing amazing books. May he take as much time as he
 needs to finish book 3.
+
+
+Examples {#examples}
+========
+
+Here are dubious uses of `volatile`.
+
+<xmp>
+struct foo {
+  int a : 4;
+  int b : 2;
+};
+volatile foo f;
+// Which instructions get generated? Does this touch the bytes more than once?
+f.a = 3;
+</xmp>
+
+<xmp>
+struct foo {
+  volatile int a : 4;
+  int b : 2;
+};
+foo f;
+f.b = 1; // Can this touch a?
+</xmp>
+
+<xmp>
+union foo {
+  char c;
+  int i;
+};
+volatile foo f;
+// Must this touch sizeof(int) bytes? Or just sizeof(char) bytes?
+f.c = 42;
+</xmp>
+
+<xmp>
+volatile int i;
+// Can each of these touch the bytes only once?
+i += 42;
+++i;
+</xmp>
+
+<xmp>
+volatile int i, j, k;
+// Does this reload j before storing to i?
+i = j = k;
+</xmp>
+
+<xmp>
+struct big { int arr[32]; };
+volatile _Atomic struct big ba;
+struct big b2;
+// Can this tear?
+ba = b2;
+</xmp>
+
+<xmp>
+int what(volatile std::atomic<int> *atom) {
+    int expected = 42;
+    // Can this touch the bytes more than once?
+    atom->compare_exchange_strong(expected, 0xdead);
+    return expected;
+}
+</xmp>
+
+<xmp>
+void what_does_the_caller_care(volatile int);
+</xmp>
+
+<xmp>
+volatile int nonsense(void);
+</xmp>
+
+<xmp>
+struct retme { int i, j; };
+volatile struct retme silly(void);
+</xmp>
+
+<xmp>
+struct device {
+  unsigned reg;
+  device() : reg(0xc0ffee) {}
+  ~device() { reg = 0xdeadbeef; }
+};
+volatile device dev; // Initialization and destruction aren't volatile.
+</xmp>
 
 
 <pre class=biblio>
