@@ -1064,8 +1064,8 @@ Shafik Yaghmour, Hans Boehm, Richard Smith, Will Deacon, Paul McKenney. Thank
 you for in-depth feedback, and apologies if I mistakenly transcribed your
 feedback.
 
-Patrick Rothfuss, for writing amazing books. May he take as much time as he
-needs to finish book 3.
+Patrick Rothfuss, for writing amazing books. May he take as much time as needed
+to ensure forward progress of book 3.
 
 
 Examples {#examples}
