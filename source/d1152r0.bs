@@ -1058,10 +1058,11 @@ Here are items which could be discussed in the future:
 Acknowledgements {#ack}
 ================
 
-Early drafts were reviewed by Thomas Rodgers, Arthur O'Dwyer, John McCall, Mike
-Smith, John Regehr, Herb Sutter, Shafik Yaghmour, Hans Boehm, Richard Smith,
-Will Deacon, Paul McKenney. Thank you for in-depth feedback, and apologies if I
-mistakenly transcribed your feedback.
+Early drafts were reviewed by the C++ Committee's Direction Group, Thomas
+Rodgers, Arthur O'Dwyer, John McCall, Mike Smith, John Regehr, Herb Sutter,
+Shafik Yaghmour, Hans Boehm, Richard Smith, Will Deacon, Paul McKenney. Thank
+you for in-depth feedback, and apologies if I mistakenly transcribed your
+feedback.
 
 Patrick Rothfuss, for writing amazing books. May he take as much time as he
 needs to finish book 3.
