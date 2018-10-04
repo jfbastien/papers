@@ -993,7 +993,7 @@ Marking parameters as `volatile` makes sense to denote external modification
 through signals or `setjmp` / `longjmp`. In that sense it's similar to
 `const`-qualified parameters: it has clear semantics *whithin* the function's
 implementation. However, it leaks function implementation information to the
-callee. It also has no semantics when it comes to calling convention because it
+caller. It also has no semantics when it comes to calling convention because it
 is explicitly ignored (and must therefore have the same semantics as a
 non-`volatile` declaration). It's much simpler to have the desirable behavior
 above by copying a non-`volatile` parameter to an automatic stack variable
@@ -1003,7 +1003,7 @@ make no copy at all in this case.
 `volatile` return values are pure nonsense. Is register return disallowed? What
 does it mean for return value optimization? A caller is better off declaring a
 `volatile` automatic stack variable and assigning the function return to it, and
-the callee will be none the wiser.
+the caller will be none the wiser.
 
 Similarly, `const` return values are actively harmful. Both cv-qualifiers
 already have no effect when returning non-class types, and `const`-qualified
