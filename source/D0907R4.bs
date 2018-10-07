@@ -122,6 +122,13 @@ Edit History {#edit}
 r3 → r4 {#r3r4}
 -------
 
+No update: [[P1236R0]] contains proposed alternate wording for this paper. It
+avoids talking about unobservable bits as much as possible.
+
+The wording presented in P1236R0 also resolves the following core issues:
+
+* [[CWG1857]] Additional questions about bits
+* [[CWG1943]] Unspecified meaning of "bit"
 
 
 r2 → r3 {#r2r3}
@@ -923,6 +930,11 @@ The following straw poll was taken:
 
 <pre class=biblio>
 {
+    "P1236R0": {
+        "href": "http://wg21.link/P1236R0",
+        "title": "Alternative Wording for P0907R3 Signed Integers are Two's Complement",
+        "authors": ["Jens Maurer"]
+    },
     "C11": {
         "href": "http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf",
         "title": "Programming Languages — C",
