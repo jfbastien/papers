@@ -1,13 +1,12 @@
 <pre class='metadata'>
 Title: Feedback on 2D Graphics
-Shortname: D1225
-!Draft Revision: 0
+Shortname: P1225
 Revision: 0
 Audience: LEWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/d1225R0
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1225R0.bs">github.com/jfbastien/papers/blob/master/source/D1225R0.bs</a>
+URL: http://wg21.link/P1225R0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1225R0.bs">github.com/jfbastien/papers/blob/master/source/P1225R0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
 Date: 2018-10-02
@@ -22,15 +21,15 @@ I’ve gathered input from a variety of folks involved in graphics at Apple, and
 We’re worried that the 2D Graphics proposal in [[P0267R8]] might be detrimental to developers, students, and users of devices which contain C++ code. Graphics are important to the Apple ecosystem, and we can see them as an important part of C++. However, we don’t think P0267R8 meets the quality bar for acceptance into C++. We want to see the reference implementation prove orthogonality, extensibility, and performance across a handful of platforms.
 
 
-Technical objections {#tech}
-====================
+Design {#design}
+======
 
 Were we to design a 2D Graphics API, we’d do the following:
 
 1. Multiple output devices: Memory buffer, Window, SVG, PDF, etc.
 
     1. Memory buffer must be directly usable by graphics API
-    1. Support types such as fp16 [[p0303r0]]
+    1. Support types such as `fp16` [[P0303R0]]
     1. Alpha channel support
 
 1. Anti-aliasing should come for free where supported
@@ -44,10 +43,13 @@ Were we to design a 2D Graphics API, we’d do the following:
 
 From the current proposal we like:
 
-1. 2D Matrix is 3x3, so homogeneous, presented as 2x3 in the API
+1. 2D Matrix is 3×3, so homogeneous, presented as 2×3 in the API
 1. Decouples display points from actual points
 1. Vector graphics
 1. Compositing properly handled
+
+Science and teaching {#st}
+====================
 
 We’ve heard the following reasons for including 2D Graphics in C++:
 
@@ -62,7 +64,10 @@ As a teaching tool, the current proposal teaches fairly low-level capabilities (
 
 As a plotting tool it’s clearly falling short because it can’t label any axis (c.f. <a href="https://www.edwardtufte.com/tufte/books_vdqi">Tufte</a>). Even if text were supported, the sample libraries for Matlab, Python, R, and JavaScript are much easier to draw plots with. The 2D Graphics proposal is neither capable nor convenient in that regard.
 
-As a broad generalization, students currently learn data visualization in Matlab or Python if they do science, in R if they do math, and in JavaScript if they do anything else. We urge the Committee members at least try some of these, for example <a href="https://beta.observablehq.com/@mbostock/d3-scatterplot-matrix">scatterplot</a>, <a href="https://beta.observablehq.com/@mbostock/d3-histogram">histogram</a>, <a href="https://www.jasondavies.com/wordtree/">wordtree</a>. These aren’t teaching toys and are used, for example, by the <a href="https://archive.nytimes.com/www.nytimes.com/interactive/2012/10/15/us/politics/swing-history.html">New York Times</a>. There’s value in teaching students to pull themselves up from the language’s bootstraps, we therefore think the type of API in the current 2D Graphics library is useful. However, we want to know—i.e. we want to see it prototyped—that higher-level capabilities are also something that can be implemented. We think higher-level capabilities are more useful for teaching, yet we understand that C++ might want to offer lower-level primitives first.
+As a broad generalization, students currently learn data visualization (beyond what Excel + CSV files can do) in Matlab or Python if they do science, in R if they do math, and in JavaScript if they do anything else. We urge the Committee members at least try some of these, for example <a href="https://beta.observablehq.com/@mbostock/d3-scatterplot-matrix">scatterplot</a>, <a href="https://beta.observablehq.com/@mbostock/d3-histogram">histogram</a>, <a href="https://www.jasondavies.com/wordtree/">wordtree</a>. These aren’t teaching toys and are used, for example, by the <a href="https://archive.nytimes.com/www.nytimes.com/interactive/2012/10/15/us/politics/swing-history.html">New York Times</a>. There’s value in teaching students to pull themselves up from the language’s bootstraps, we therefore think the type of API in the current 2D Graphics library is useful. However, we want to know—i.e. we want to see it prototyped—that higher-level capabilities are also something that can be implemented. We think higher-level capabilities are more useful for teaching, yet we understand that C++ might want to offer lower-level primitives first.
+
+Abstraction Level {#level}
+=================
 
 When we say the current proposal is too low-level, here are things we’d like to see at least prototyped to know that the proposal can grow into a powerful high-level library:
 
@@ -79,6 +84,9 @@ When we say the current proposal is too low-level, here are things we’d like t
 
 In other words, we understand that a proposal might want to start small and grow more features over time. We want to know that this growth is possible, and that features can be composed into higher-level primitives.
 
+Missing Details {#missing}
+===============
+
 When we say the current proposal has key details we find missing, here are what we want to see in an initial version:
 
 * It’s unclear that buffering is implementable, and that’s critical to a high-performance implementation. We’d like to see it implemented. We want to see a deferred mode implementation, not just immediate mode.
@@ -89,12 +97,18 @@ When we say the current proposal has key details we find missing, here are what 
 * The current proposal doesn’t specify which image format can be loaded, yet the reference implementation has PNG, JPEG, TIFF. This lack of specification makes portability difficult.
 * We want to see an implementation generate PDF, SVG, raster output, as well as output in an OS window. This should be doable portably with zero code change.
 
+C++ Aesthetics {#cpp}
+==============
+
 Aesthetically, this lacks the feel of a C++ standard library. In particular:
 
 * The dual error handling mechanism, while reminiscent of filesystem, is quaint in the STL.
 * Most APIs seem to be function-oriented and have a C API feel to them.
 * We’re surprised that we don’t have iterators / ranges for e.g. a path. We’d expect STL algorithms to work on such primitives.
 * We’d like to see linear algebra, trigonometry, and matrix math standardized separately.
+
+Conclusion {#conc}
+==========
 
 We want to offer developers a graphics solution which allows usage of the full capabilities of the hardware we ship, without wasting battery life. Were we to ship the 2D Graphics proposal, we’d be putting our and C++’s good name on an API. We want to be sure it doesn't provides a disservice to developers and users.
 
