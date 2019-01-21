@@ -1,13 +1,12 @@
 <pre class='metadata'>
 Title: Deprecating <code>volatile</code>
-Shortname: D1152
+Shortname: P1152
 Revision: 1
-!Draft Revision: 0
 Audience: SG1, LEWG, EWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D1152R1
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R1.bs">github.com/jfbastien/papers/blob/master/source/D1152R1.bs</a>
+URL: http://wg21.link/P1152R1
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1152R1.bs">github.com/jfbastien/papers/blob/master/source/P1152R1.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
 Date: 2019-01-20
