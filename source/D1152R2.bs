@@ -328,7 +328,7 @@ Modify as follows.
   parameter list consisting of a single unnamed parameter of non-dependent type
   `void` is equivalent to an empty parameter list. Except for this special case,
   a parameter shall not have type *cv* `void`. <ins> A parameter's *declarator*
-  shall only allow `const` as its *parameters-and-qualifiers*'s
+  shall allow only `const` as its *parameters-and-qualifiers*'s
   *cv-qualifier-seq*. </ins>If the *parameter-declaration-clause* terminates
   with an ellipsis or a function parameter pack, the number of arguments shall
   be equal to or greater than the number of parameters that do not have a
@@ -433,7 +433,7 @@ Modify as follows.
 
   Parameter declarations that differ only in the presence or absence of
   `const` <del>and/or `volatile`</del> are equivalent. That is, the
-  `const` <del>and `volatile`</del> type-specifiers for each parameter type are
+  `const` <del>and `volatile` type-specifiers</del><ins>type-specifier</ins> for each parameter type <del>are</del><ins>is</ins>
   ignored when determining which function is being declared, defined, or called.
 
 </blockquote>
