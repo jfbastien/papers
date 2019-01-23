@@ -698,11 +698,11 @@ Modify as follows.
   Then <del>each of the three templates</del><ins>the template</ins> shall meet the `TransformationTrait`
   requirements with a member typedef `type` that names the following type:<ins> `add_const_t<VA::type>`.</ins>
   
-  <ul>
+  <del><ul>
     <li>for the first specialization, `add_const_t<VA::type>`,
     <li>for the second specialization, `add_volatile_t<VA::type>`, and
     <li>for the third specialization, `add_cv_t<VA::type>`.
-  </ul>
+  </ul></del>
 
 </blockquote>
 
@@ -741,7 +741,7 @@ Modify as follows.
 
   *Effects:*  Atomically replaces the value pointed to by `this` with the value of `desired`. Memory is affected according to the value of `order`.
   
-  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   T operator=(T desired) volatile noexcept;
@@ -763,7 +763,7 @@ Modify as follows.
 
   *Returns:* Atomically returns the value pointed to by `this`.
   
-  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   operator T() const volatile noexcept;
@@ -781,7 +781,7 @@ Modify as follows.
 
   *Returns:* Atomically returns the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   bool compare_exchange_weak(T& expected, T desired,
@@ -808,7 +808,7 @@ Modify as follows.
 
   *Returns:* The result of the comparison.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [...]
   
@@ -823,7 +823,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* For signed integer types, the result is as if the object value and parameters were converted to their corresponding unsigned types, the computation performed on those types, and the result converted back to the signed type. [ *Note:* There are no undefined results arising from the computation.  —*end note* ]
 
@@ -834,7 +834,7 @@ Modify as follows.
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   Specializations for floating-point types [**atomics.types.float**]
 
@@ -849,7 +849,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* If the result is not a representable value for its type the result is unspecified, but the operations otherwise have no undefined behavior. Atomic arithmetic operations on <code><i>floating-point</i></code> should conform to the <code>std::numeric_limits&lt;<i>floating-point</i>&gt;</code> traits associated with the floating-point type. The floating-point environment for atomic arithmetic operations on <code><i>floating-point</i></code> may be different than the calling thread's floating-point environment.
 
@@ -875,7 +875,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* The result may be an undefined address, but the operations otherwise have no undefined behavior.
 
@@ -929,7 +929,7 @@ Modify as follows.
 
   *Effects:* Non-atomically initializes `*object` with value `desired`. This function shall only be applied to objects that have been default constructed, and then only once. [ *Note:* These semantics ensure compatibility with C. —*end note* ] [ *Note:* Concurrent access from another thread, even via an atomic operation, constitutes a data race.  —*end note* ]
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always:lock_free` is `true`.</ins>
+  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [ *Note:* The non-member functions enable programmers to write code that can be compiled as either C or C++, for example in a shared header file.  —*end note* ]
 
