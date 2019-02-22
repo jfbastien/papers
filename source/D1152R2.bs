@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 2
-!Draft Revision: 0
+!Draft Revision: 1
 Audience: SG1, LEWG, EWG
 Status: D
 Group: WG21
@@ -10,7 +10,7 @@ URL: http://wg21.link/D1152R2
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R2.bs">github.com/jfbastien/papers/blob/master/source/D1152R2.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2019-01-21
+Date: 2019-02-22
 Markup Shorthands: markdown yes
 </pre>
 
@@ -86,6 +86,33 @@ See [[P1382R0]] for the follow-up paper on `volatile_load<T>` /
 
 Edit History {#edit}
 ============
+
+r1 → r2 {#r1r2}
+-------
+
+[[P1152R1]] was seen by SG1 in Kona. This update does the following:
+
+  * Also edit sections [**expr.post.incr**], [**expr.pre.incr**], [**expr.ass**].
+  * Change *Remarks* to *Constraints* per [[P1369R0]].
+
+<table>
+    <thead>
+        <tr>
+            <th>Poll</th>
+            <th>Group</th>
+            <th>SF</th>
+            <th>F</th>
+            <th>N</th>
+            <th>A</th>
+            <th>SA</th>
+            <th>Outcome</th>
+        </tr>
+    </thead>
+    <tr>
+        <th>Forward this paper—with edits as discussed—to EWG for C++20.</th>
+        <th>SG1</th><th>3</th><th>12</th><th>1</th><th>1</th><th>0</th><th>✅</th>
+    </tr>
+</table>
 
 r0 → r1 {#r0r1}
 -------
@@ -263,6 +290,36 @@ No changes.
 
 </blockquote>
 
+Increment and decrement [**expr.post.incr**] {#expr.post.incr}
+--------------------------------------------
+
+Modify as follows.
+
+<blockquote>
+
+  The value of a postfix `++` expression is the value of its operand. [ *Note:*
+  The value obtained is a copy of the original value —*end note* ] The operand
+  shall be a modifiable lvalue. The type of the operand shall be <del>an
+  arithmetic type other than *cv* `bool`</del> <ins>a non-`volatile` qualified
+  arithmetic type other than `bool`</ins>, or a <ins>non-`volatile` qualified </ins>
+  pointer to a complete object type. The value of the operand object is
+  modified by adding `1` to it. The value computation of the `++` expression is
+  sequenced before the modification of the operand object. With respect to an
+  indeterminately-sequenced function call, the operation of postfix `++` is a
+  single evaluation. [ *Note:* Therefore, a function call shall not intervene
+  between the lvalue-to-rvalue conversion and the side effect associated with
+  any single postfix `++` operator. —*end note* ] The result is a prvalue. The
+  type of the result is the *cv*-unqualified version of the type of the operand.
+  If the operand is a bit-field that cannot represent the incremented value, the
+  resulting value of the bit-field is implementation-defined. See also
+  [**expr.add**] and [**expr.ass**].
+
+  The operand of postfix `--` is decremented analogously to the postfix `++`
+  operator. [ *Note:* For prefix increment and decrement, see
+  [**expr.pre.incr**]. —*end note* ]
+
+</blockquote>
+
 Class member access [**expr.ref**] {#expr.ref}
 ----------------------------------
 
@@ -288,6 +345,137 @@ No changes.
     `mutable` member, then the type of `E1.E2` is “*vq12 T*”. If `E2` is not
     declared to be a `mutable` member, then the type of `E1.E2` is
     “*cq12 vq12 T*”.
+
+</blockquote>
+
+Increment and decrement [**expr.pre.incr**] {#expr.pre.incr}
+-------------------------------------------
+
+Modify as follows.
+
+<blockquote>
+
+  The operand of prefix `++` is modified by adding `1`. The operand shall be a
+  modifiable lvalue. The type of the operand shall be <del>an arithmetic type
+  other than *cv* `bool`</del> <ins>a non-`volatile` qualified arithmetic type
+  other than `bool`</ins>, or a <ins>non-`volatile` qualified </ins>pointer to a
+  completely-defined object type. The result is the updated operand; it is an
+  lvalue, and it is a bit-field if the operand is a bit-field. The expression
+  `++x` is equivalent to `x+=1`. [ *Note:* See the discussions of [**expr.add**]
+  and assignment operators [**expr.ass**] for information on conversions. —*end
+  note* ]
+
+  The operand of prefix `--` is modified by subtracting `1`. The requirements on
+  the operand of prefix `--` and the properties of its result are otherwise the
+  same as those of prefix `++`. [ *Note:* For postfix increment and decrement,
+  see [**expr.post.incr**]. —*end note* ]
+
+</blockquote>
+
+Assignment and compound assignment operators [**expr.ass**] {#expr.ass}
+-----------------------------------------------------------
+
+Modify as follows.
+
+<blockquote>
+
+  <ol>
+  
+  <li>
+  The assignment operator (`=`) and the compound assignment operators all group
+  right-to-left.
+  </li>
+
+  <li>
+  All require a modifiable lvalue as their left operand; their result is an
+  lvalue referring to the left operand. The result in all cases is a bit-field
+  if the left operand is a bit-field. In all cases, the assignment is sequenced
+  after the value computation of the right and left operands, and before the
+  value computation of the assignment expression. The right operand is sequenced
+  before the left operand. With respect to an indeterminately-sequenced function
+  call, the operation of a compound assignment is a single evaluation. [ *Note:*
+  Therefore, a function call shall not intervene between the lvalue-to-rvalue
+  conversion and the side effect associated with any single compound assignment
+  operator. —*end note* ]
+  
+  <pre>
+  <em>assignment-expression</em>
+      <em>conditional-expression</em>
+      <em>logical-or-expression assignment-operator initializer-clause</em>
+      <em>throw-expression</em>
+  
+  <em>assignment-operator</em>: one of
+      <code>=  *=  /=  %=   +=  -=  >>=  <<=  &=  ^=  |=</code>
+  </pre>
+  </li>
+
+  <li>
+  In simple assignment (`=`), the object referred to by the left operand is
+  modified by replacing its value with the result of the right operand.
+  </li>
+
+  <li>
+  If the left operand is not of class type<ins> and is not `volatile`</ins>, the
+  expression is implicitly converted to the cv-unqualified type of the left
+  operand.
+  </li>
+
+  <li>
+  <ins>If the left operand is not of class type and is `volatile`, the
+  expression is `void`.</ins>
+  </li>
+
+  <li>
+  If the left operand is of class type, the class shall be complete. Assignment
+  to objects of a class is defined by the copy/move assignment.
+  </li>
+
+  <li>
+  [ *Note:* For class objects, assignment is not in general the same as
+  initialization. —*end note* ]
+  </li>
+
+  <li>
+  When the left operand of an assignment operator is a bit-field that cannot
+  represent the value of the expression, the resulting value of the bit-field is
+  implementation-defined.
+  </li>
+  
+  <li>
+  <ins>Expressions of the form <code>E1 <em>op</em>= E2</code> where `E1` is a
+  `volatile`-qualified arithmetic or pointer type are ill-formed.</ins>
+  </li>
+  
+  <li>
+  <del>The</del><ins>Otherwise, the</ins> behavior of an expression of the form
+  <code>E1 <em>op</em>= E2</code> is equivalent to
+  <code>E1 = E1 <em>op</em> E2</code>
+  except that `E1` is evaluated only once. In `+=` and `-=`, `E1` shall either
+  have arithmetic type or be a pointer to a possibly cv-qualified
+  completely-defined object type. In all other cases, `E1` shall have arithmetic
+  type.
+  </li>
+
+  <li>
+  If the value being stored in an object is read via another object that
+  overlaps in any way the storage of the first object, then the overlap shall be
+  exact and the two objects shall have the same type, otherwise the behavior is
+  undefined. [ *Note:* This restriction applies to the relationship between the
+  left and right sides of the assignment operation; it is not a statement about
+  how the target of the assignment may be aliased in general.
+  See [**basic.lval**]. —*end note* ]
+  </li>
+
+  <li>
+  A *braced-init-list* may appear on the right-hand side of
+
+    <ol>
+      <li>an assignment to a scalar, in which case the initializer list shall have at most a single element. The meaning of `x = {v}`, where `T` is the scalar type of the expression `x`, is that of `x = T{v}`. The meaning of `x = {}` is `x = T{}`.
+      <li>an assignment to an object of class type, in which case the initializer list is passed as the argument to the assignment operator function selected by overload resolution.
+    </ol>
+  </li>
+  
+  </ol>
 
 </blockquote>
 
@@ -479,7 +667,7 @@ Modify as follows.
   the form
 
   <pre><code>
-  cv12 T&amp; operator->*(cv1 C1*, cv2 T C2::*);
+  <em>cv12</em> T&amp; operator->*(<em>cv1</em> C1*, <em>cv2</em> T C2::*);
   </code></pre>
   
   For every <del>triple</del><ins>pair</ins> (*L*, <del>*vq*, </del>*R*), where *L* is an arithmetic type, and *R* is
@@ -572,9 +760,9 @@ Modify as follows.
 
   <pre><code>
   
-  template&lt;class T&gt; class tuple_size&lt;const T&gt;;
-  <del>template&lt;class T&gt; class tuple_size&lt;volatile T&gt;;</del>
-  <del>template&lt;class T&gt; class tuple_size&lt;const volatile T&gt;;</del>
+  &nbsp;template&lt;class T&gt; class tuple_size&lt;const T&gt;;
+  <del> template&lt;class T&gt; class tuple_size&lt;volatile T&gt;;</del>
+  <del> template&lt;class T&gt; class tuple_size&lt;const volatile T&gt;;</del>
   
   </code></pre>
 
@@ -740,7 +928,7 @@ Modify as follows.
 
   *Effects:*  Atomically replaces the value pointed to by `this` with the value of `desired`. Memory is affected according to the value of `order`.
   
-  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   T operator=(T desired) volatile noexcept;
@@ -762,7 +950,7 @@ Modify as follows.
 
   *Returns:* Atomically returns the value pointed to by `this`.
   
-  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   operator T() const volatile noexcept;
@@ -780,7 +968,7 @@ Modify as follows.
 
   *Returns:* Atomically returns the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overload shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   bool compare_exchange_weak(T& expected, T desired,
@@ -807,7 +995,7 @@ Modify as follows.
 
   *Returns:* The result of the comparison.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [...]
   
@@ -822,7 +1010,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* For signed integer types, the result is as if the object value and parameters were converted to their corresponding unsigned types, the computation performed on those types, and the result converted back to the signed type. [ *Note:* There are no undefined results arising from the computation.  —*end note* ]
 
@@ -833,7 +1021,7 @@ Modify as follows.
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   Specializations for floating-point types [**atomics.types.float**]
 
@@ -848,7 +1036,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* If the result is not a representable value for its type the result is unspecified, but the operations otherwise have no undefined behavior. Atomic arithmetic operations on <code><i>floating-point</i></code> should conform to the <code>std::numeric_limits&lt;<i>floating-point</i>&gt;</code> traits associated with the floating-point type. The floating-point environment for atomic arithmetic operations on <code><i>floating-point</i></code> may be different than the calling thread's floating-point environment.
 
@@ -868,13 +1056,13 @@ Modify as follows.
   T* fetch_<i>key</i>(ptrdiff_t operand, memory_order order = memory_order::seq_cst) noexcept;
   </code></pre>
 
-  *Requires:* T shall be an object type, otherwise the program is ill-formed. [ *Note:* Pointer arithmetic on \tcode{void*} or function pointers is ill-formed. —*end note* ]
+  *Requires:* T shall be an object type, otherwise the program is ill-formed. [ *Note:* Pointer arithmetic on `void*` or function pointers is ill-formed. —*end note* ]
 
   *Effects:* Atomically replaces the value pointed to by `this` with the result of the computation applied to the value pointed to by `this` and the given `operand`. Memory is affected according to the value of `order`. These operations are atomic read-modify-write operations.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* The result may be an undefined address, but the operations otherwise have no undefined behavior.
 
@@ -928,7 +1116,7 @@ Modify as follows.
 
   *Effects:* Non-atomically initializes `*object` with value `desired`. This function shall only be applied to objects that have been default constructed, and then only once. [ *Note:* These semantics ensure compatibility with C. —*end note* ] [ *Note:* Concurrent access from another thread, even via an atomic operation, constitutes a data race.  —*end note* ]
 
-  <ins>*Remarks:* The `volatile` overloads shall only participate in overload resolution when `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [ *Note:* The non-member functions enable programmers to write code that can be compiled as either C or C++, for example in a shared header file.  —*end note* ]
 
