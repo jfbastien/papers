@@ -2,61 +2,19 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 2
-!Draft Revision: 1
-Audience: SG1, LEWG, EWG
+!Draft Revision: 2
+Audience: LEWG, CWG, LWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D1152R2
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R2.bs">github.com/jfbastien/papers/blob/master/source/D1152R2.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2019-02-22
+Date: 2019-03-09
 Markup Shorthands: markdown yes
 </pre>
 
 <style>
-blockquote.book {
-  display: block;
-  border-width: 2px 0;
-  border-style: solid;
-  border-color: #eee;
-  padding: 1.5em 5em 0.5em 5em;
-  margin: 1.5em 0;
-  position: relative;
-  text-align: justify;
-}
-blockquote.book:before {
-  content: '\201C';
-  position: absolute;
-  top: 0em;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  width: 3rem;
-  height: 2rem;
-  font: 6em/1.08em 'PT Sans', sans-serif;
-  color: #666;
-  text-align: center;
-}
-blockquote.book:after {
-  content: '\201D';
-  position: absolute;
-  bottom: -0.25em;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  width: 3rem;
-  height: 2rem;
-  font: 6em/1.08em 'PT Sans', sans-serif;
-  color: #666;
-  text-align: center;
-}
-cite {
-  display: block;
-  text-align: right;
-  color: #e74c3c;
-  margin: 0 -5em 1em 0;
-}
 th { vertical-align: middle; }
 </style>
 
@@ -90,10 +48,11 @@ Edit History {#edit}
 r1 → r2 {#r1r2}
 -------
 
-[[P1152R1]] was seen by SG1 in Kona. This update does the following:
+[[P1152R1]] was seen by SG1 and EWG in Kona. This update does the following:
 
-  * Also edit sections [**expr.post.incr**], [**expr.pre.incr**], [**expr.ass**].
+  * Also edit sections [**expr.post.incr**], [**expr.pre.incr**], [**expr.ass**], which are redundant with other sections already modified by this paper.
   * Change *Remarks* to *Constraints* per [[P1369R0]].
+  * Change language wording to explicitly call out deprecation.
 
 <table>
     <thead>
@@ -111,6 +70,10 @@ r1 → r2 {#r1r2}
     <tr>
         <th>Forward this paper—with edits as discussed—to EWG for C++20.</th>
         <th>SG1</th><th>3</th><th>12</th><th>1</th><th>1</th><th>0</th><th>✅</th>
+    </tr>
+    <tr>
+        <th>Proposal as presented for C++20.</th>
+        <th>EWG</th><th>6</th><th>27</th><th>1</th><th>0</th><th>0</th><th>✅</th>
     </tr>
 </table>
 
@@ -222,6 +185,14 @@ following:
 Wording {#word}
 =======
 
+The proposed wording follows the language and library approach to deprecation:
+
+
+  * Language deprecation is called out in the Standard text itself, and repeated
+    in Annex D.
+  * Library deprecation presents the library without the deprecated feature, and
+    only mentions said feature in Annex D.
+
 Program execution [**intro.execution**] {#intro.execution}
 ---------------------------------------
 
@@ -302,7 +273,9 @@ Modify as follows.
   shall be a modifiable lvalue. The type of the operand shall be <del>an
   arithmetic type other than *cv* `bool`</del> <ins>a non-`volatile` qualified
   arithmetic type other than `bool`</ins>, or a <ins>non-`volatile` qualified </ins>
-  pointer to a complete object type. The value of the operand object is
+  pointer to a complete object type. <ins>The type of the operand can be a `volatile`-qualified
+  arithmetic type other than *cv* `bool`, or a `volatile`-qualified
+  pointer to a complete object type (this usage is deprecated; see [**depr.volatile**]).</ins> The value of the operand object is
   modified by adding `1` to it. The value computation of the `++` expression is
   sequenced before the modification of the operand object. With respect to an
   indeterminately-sequenced function call, the operation of postfix `++` is a
@@ -357,9 +330,11 @@ Modify as follows.
 
   The operand of prefix `++` is modified by adding `1`. The operand shall be a
   modifiable lvalue. The type of the operand shall be <del>an arithmetic type
-  other than *cv* `bool`</del> <ins>a non-`volatile` qualified arithmetic type
-  other than `bool`</ins>, or a <ins>non-`volatile` qualified </ins>pointer to a
-  completely-defined object type. The result is the updated operand; it is an
+  other than *cv* `bool`</del> <ins>a non-`volatile`-qualified arithmetic type
+  other than `bool`</ins>, or a <ins>non-`volatile`-qualified </ins>pointer to a
+  completely-defined object type. <ins>The type of the operand can be a `volatile`-qualified arithmetic type
+  other than *cv* `bool`, or a `volatile`-qualified pointer to a
+  completely-defined object type (this usage is deprecated; see [**depr.volatile**]).</ins> The result is the updated operand; it is an
   lvalue, and it is a bit-field if the operand is a bit-field. The expression
   `++x` is equivalent to `x+=1`. [ *Note:* See the discussions of [**expr.add**]
   and assignment operators [**expr.ass**] for information on conversions. —*end
@@ -422,7 +397,8 @@ Modify as follows.
 
   <li>
   <ins>If the left operand is not of class type and is `volatile`, the
-  expression is `void`.</ins>
+  expression is implicitly converted to the cv-unqualified type of the left
+  operand (this usage is deprecated; see [**depr.volatile**]).</ins>
   </li>
 
   <li>
@@ -443,7 +419,9 @@ Modify as follows.
   
   <li>
   <ins>Expressions of the form <code>E1 <em>op</em>= E2</code> where `E1` is a
-  `volatile`-qualified arithmetic or pointer type are ill-formed.</ins>
+  `volatile`-qualified arithmetic or pointer type shall either be a
+  discarded-value expression or appear in an unevaluated context (other usages
+  are deprecated; see [**depr.volatile**]).</ins>
   </li>
   
   <li>
@@ -515,13 +493,13 @@ Modify as follows.
   *parameter-declaration-clause* is empty, the function takes no arguments. A
   parameter list consisting of a single unnamed parameter of non-dependent type
   `void` is equivalent to an empty parameter list. Except for this special case,
-  a parameter shall not have type *cv* `void`. <ins>A parameter shall not have
-  `volatile`-qualified type. </ins>If the *parameter-declaration-clause*
-  terminates with an ellipsis or a function parameter pack, the number of
-  arguments shall be equal to or greater than the number of parameters that do
-  not have a default argument and are not function parameter packs. Where
-  syntactically correct and where "`...`" is not part of an
-  *abstract-declarator*, "`, ...`" is synonymous with "`...`".
+  a parameter shall not have type *cv* `void`. <ins>A parameter can have a
+  `volatile`-qualified type (this usage is deprecated; see [**depr.volatile**]).</ins>
+  If the *parameter-declaration-clause* terminates with an ellipsis or a
+  function parameter pack, the number of arguments shall be equal to or greater
+  than the number of parameters that do not have a default argument and are not
+  function parameter packs. Where syntactically correct and where "`...`" is not
+  part of an *abstract-declarator*, "`, ...`" is synonymous with "`...`".
   
   [...]
   
@@ -542,7 +520,8 @@ Modify as follows.
   shall be no arrays of functions, although there can be arrays of pointers to
   functions.
   
-  <ins>Functions shall not have a `volatile` qualified return type.</ins>
+  <ins>Functions can have a `volatile` qualified return type (this usage is
+  deprecated; see [**depr.volatile**]).</ins>
 
 </blockquote>
 
@@ -623,6 +602,10 @@ Modify as follows.
   `const` <del>and `volatile` type-specifiers</del><ins>type-specifier</ins> for each parameter type <del>are</del><ins>is</ins>
   ignored when determining which function is being declared, defined, or called.
 
+  <ins>Parameter declarations that differ only in the presence or absence of
+  `volatile` are equivalent (this usage is deprecated; see
+  [**depr.volatile**]).</ins>
+
 </blockquote>
 
 Built-in operators [**over.built**] {#over.built}
@@ -632,33 +615,34 @@ Modify as follows.
 
 <blockquote>
 
-  <del>In the remainder of this section, *vq* represents either `volatile` or no
-  cv-qualifier.</del>
+  In the remainder of this section, *vq* represents either `volatile` or no
+  cv-qualifier<ins> (usage of *vq* representing `volatile` is deprecated; see
+  [**depr.volatile**])</ins>.
   
-  For every <del>pair (*T*, *vq*), where *T* is an</del> arithmetic type<ins>*T*</ins> other than `bool`,
+  For every pair (*T*, *vq*), where *T* is an arithmetic type other than `bool`,
   there exist candidate operator functions of the form
 
   <pre><code>
-  <del>vq </del>T &amp; operator++(<del>vq </del>T &amp;);
-  T operator++(<del>vq </del>T &amp;, int);
+  vq T &amp; operator++(vq T &amp;);
+  T operator++(vq T &amp;, int);
   </code></pre>
 
-  For every <del>pair (*T*, *vq*), where *T* is an</del> arithmetic type<ins>*T*</ins> other than `bool`,
+  For every pair (*T*, *vq*), where *T* is an arithmetic type other than `bool`,
   there exist candidate operator functions of the form
 
   <pre><code>
-  <del>vq </del>T &amp; operator--(<del>vq </del>T &amp;);
-  T operator--(<del>vq </del>T &amp;, int);
+  vq T &amp; operator--(vq T &amp;);
+  T operator--(vq T &amp;, int);
   </code></pre>
 
-  For every <del>pair (*T*, *vq*)</del><ins>*T*</ins>, where *T* is a cv-qualified or cv-unqualified
+  For every pair (*T*, *vq*), where *T* is a cv-qualified or cv-unqualified
   object type, there exist candidate operator functions of the form
 
   <pre><code>
-  T*<del>vq</del>&amp; operator++(T*<del>vq</del>&amp;);
-  T*<del>vq</del>&amp; operator--(T*<del>vq</del>&amp;);
-  T* operator++(T*<del>vq</del>&amp;, int);
-  T* operator--(T*<del>vq</del>&amp;, int);
+  T*vq&amp; operator++(T*vq&amp;);
+  T*vq&amp; operator--(T*vq&amp;);
+  T* operator++(T*vq&amp;, int);
+  T* operator--(T*vq&amp;, int);
   </code></pre>
   
   For every quintuple (*C1*, *C2*, *T*, *cv1*, *cv2*), where *C2* is a class
@@ -670,53 +654,50 @@ Modify as follows.
   <em>cv12</em> T&amp; operator->*(<em>cv1</em> C1*, <em>cv2</em> T C2::*);
   </code></pre>
   
-  For every <del>triple</del><ins>pair</ins> (*L*, <del>*vq*, </del>*R*), where *L* is an arithmetic type, and *R* is
+  For every triple (*L*, *vq*, *R*), where *L* is an arithmetic type, and *R* is
   a promoted arithmetic type, there exist candidate operator functions of the
   form
 
   <pre><code>
-  <ins>void operator=(volatile L&amp;, R);</ins>
-  <del>vq </del>L&amp; operator=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator*=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator/=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator+=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator-=(<del>vq </del>L&amp;, R);
+  vq L&amp; operator=(vq L&amp;, R);
+  vq L&amp; operator*=(vq L&amp;, R);
+  vq L&amp; operator/=(vq L&amp;, R);
+  vq L&amp; operator+=(vq L&amp;, R);
+  vq L&amp; operator-=(vq L&amp;, R);
   </code></pre>
     
-For <del>every pair (*T*, *vq*), where *T* is any type</del><ins>all types *T*</ins>, there exist candidate
+  For every pair (*T*, *vq*), where *T* is any type, there exist candidate
   operator functions of the form
   
   <pre><code>
-  <ins>void operator=(T*volatile&amp;, T*);</ins>
-  T*<del>vq</del>&amp; operator=(T*<del>vq</del>&amp;, T*);
+  T*vq&amp; operator=(T*vq&amp;, T*);
   </code></pre>
 
-  For every <del>pair (*T*, *vq*), where *T* is an</del> enumeration or pointer to member
-  type<ins> *T*</ins>, there exist candidate operator functions of the form
+  For every pair (*T*, *vq*), where *T* is an enumeration or pointer to member
+  type, there exist candidate operator functions of the form
 
   <pre><code>
-  <ins>void operator=(volatile T&amp;, T );</ins>
-  <del>vq </del>T&amp; operator=(<del>vq </del>T&amp;, T );
+  vq T&amp; operator=(vq T&amp;, T );
   </code></pre>
 
-  For every <del>pair (*T*, *vq*)</del><ins>*T*</ins>, where *T* is a cv-qualified or cv-unqualified
+  For every pair (*T*, *vq*), where *T* is a cv-qualified or cv-unqualified
   object type, there exist candidate operator functions of the form
 
   <pre><code>
-  T*<del>vq</del>&amp; operator+=(T*<del>vq</del>&amp;, std::ptrdiff_t);
-  T*<del>vq</del>&amp; operator-=(T*<del>vq</del>&amp;, std::ptrdiff_t);
+  T*vq&amp; operator+=(T*vq&amp;, std::ptrdiff_t);
+  T*vq&amp; operator-=(T*vq&amp;, std::ptrdiff_t);
   </code></pre>
 
-  For every <del>triple</del><ins>pair</ins> (*L*, <del>*vq*, </del>*R*), where *L* is an integral type, and *R* is a
+  For every triple (*L*, *vq*, *R*), where *L* is an integral type, and *R* is a
   promoted integral type, there exist candidate operator functions of the form
 
   <pre><code>
-  <del>vq </del>L&amp; operator%=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator<<=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator>>=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator&amp;=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator^=(<del>vq </del>L&amp;, R);
-  <del>vq </del>L&amp; operator|=(<del>vq </del>L&amp;, R);
+  vq L&amp; operator%=(vq L&amp;, R);
+  vq L&amp; operator<<=(vq L&amp;, R);
+  vq L&amp; operator>>=(vq L&amp;, R);
+  vq L&amp; operator&amp;=(vq L&amp;, R);
+  vq L&amp; operator^=(vq L&amp;, R);
+  vq L&amp; operator|=(vq L&amp;, R);
   </code></pre>
 
 </blockquote>
@@ -1126,8 +1107,9 @@ Modify as follows.
 Annex D {#annexD}
 -------
 
-All deletions above should be added to Annex D, such that `volatile` is now
-deprecated in these use cases.
+All mentions of deprecation in language clauses, and all deletions in library
+clauses above should be added to Annex D under [**depr.volatile**], such that
+`volatile` is now deprecated in these use cases.
 
 
 <pre class=biblio>
