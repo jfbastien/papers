@@ -1,13 +1,12 @@
 <pre class='metadata'>
 Title: Modules Feedback
-Shortname: D1482
+Shortname: P1482
 Revision: 0
-!Draft Revision: 1
 Audience: EWG, SG15
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D1482R0
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1482R0.bs">github.com/jfbastien/papers/blob/master/source/D1482R0.bs</a>
+URL: http://wg21.link/P1482R0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1482R0.bs">github.com/jfbastien/papers/blob/master/source/P1482R0.bs</a>
 Editor: Bruno Cardoso Lopes, Apple, <blopes@apple.com>
 Editor: Michael Spencer, Apple, <michael_spencer@apple.com>
 Editor: JF Bastien, Apple, jfbastien@apple.com
