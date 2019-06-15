@@ -2,8 +2,8 @@
 Title: Deprecating <code>volatile</code>
 Shortname: P1152
 Revision: 3
-Audience: CWG
-Status: D
+Audience: CWG, LWG
+Status: P
 Group: WG21
 URL: http://wg21.link/P1152R3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1152R3.bs">github.com/jfbastien/papers/blob/master/source/P1152R3.bs</a>
@@ -47,7 +47,12 @@ Edit History {#edit}
 r2 → r3 {#r2r3}
 -------
 
-TBD
+[[P1152R2]] was reviewed offline by Alisdair Meredith.
+
+  * `is_volatile<T>` should have been `is_volatile_v<T>`.
+  * Use *Mandates* instead of *Constraints* to allow marking a function as deleted or employing a `static_assert` instead of using `enable_if` or `requires`. This likely provides better error messages.
+  * "`is_volatile_v<T>` is `false`" was erroneously used instead of testing whether the `this` pointer itself was `volatile`. Wording of the *Mandates* clause was updated to only apply to the `volatile` overloads of methods instead.
+
 
 r1 → r2 {#r1r2}
 -------
@@ -913,7 +918,7 @@ Modify as follows.
 
   *Effects:*  Atomically replaces the value pointed to by `this` with the value of `desired`. Memory is affected according to the value of `order`.
   
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   T operator=(T desired) volatile noexcept;
@@ -935,7 +940,7 @@ Modify as follows.
 
   *Returns:* Atomically returns the value pointed to by `this`.
   
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   operator T() const volatile noexcept;
@@ -953,7 +958,7 @@ Modify as follows.
 
   *Returns:* Atomically returns the value pointed to by `this` immediately before the effects.
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   bool compare_exchange_weak(T& expected, T desired,
@@ -980,7 +985,7 @@ Modify as follows.
 
   *Returns:* The result of the comparison.
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [...]
   
@@ -995,7 +1000,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* For signed integer types, the result is as if the object value and parameters were converted to their corresponding unsigned types, the computation performed on those types, and the result converted back to the signed type. [ *Note:* There are no undefined results arising from the computation.  —*end note* ]
 
@@ -1006,7 +1011,7 @@ Modify as follows.
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   Specializations for floating-point types [**atomics.types.float**]
 
@@ -1021,7 +1026,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* If the result is not a representable value for its type the result is unspecified, but the operations otherwise have no undefined behavior. Atomic arithmetic operations on <code><i>floating-point</i></code> should conform to the <code>std::numeric_limits&lt;<i>floating-point</i>&gt;</code> traits associated with the floating-point type. The floating-point environment for atomic arithmetic operations on <code><i>floating-point</i></code> may be different than the calling thread's floating-point environment.
 
@@ -1047,7 +1052,7 @@ Modify as follows.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* The result may be an undefined address, but the operations otherwise have no undefined behavior.
 
@@ -1101,7 +1106,7 @@ Modify as follows.
 
   *Effects:* Non-atomically initializes `*object` with value `desired`. This function shall only be applied to objects that have been default constructed, and then only once. [ *Note:* These semantics ensure compatibility with C. —*end note* ] [ *Note:* Concurrent access from another thread, even via an atomic operation, constitutes a data race.  —*end note* ]
 
-  <ins>*Constraints:* `is_volatile<T>` is `false`, or `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [ *Note:* The non-member functions enable programmers to write code that can be compiled as either C or C++, for example in a shared header file.  —*end note* ]
 
@@ -1114,14 +1119,3 @@ Annex D {#annexD}
 All mentions of deprecation in language clauses, and all deletions in library
 clauses above should be added to Annex D under [**depr.volatile**], such that
 `volatile` is now deprecated in these use cases.
-
-
-<pre class=biblio>
-{
-    "P1382R0": {
-        "href": "http://wg21.link/P1382R0",
-        "title": "volatile_load<T> and volatile_store<T>",
-        "authors": ["Paul Mckenney", "JF Bastien"]
-    }
-}
-</pre>
