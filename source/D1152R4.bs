@@ -52,6 +52,8 @@ Edit wording of the following sections as suggested by Jens Maurer:
 [**expr.post.incr**], [**expr.pre.incr**], [**expr.ass**], [**dcl.fct**],
 [**over.load**].
 
+Drop one word from [**tuple**] as suggested by Arthur O'Dwyer.
+
 
 r2 → r3 {#r2r3}
 -------
@@ -791,7 +793,7 @@ Modify as follows.
   Let `TE` denote `tuple_element_t<I, T>` of the *cv*-unqualified type `T`.
   Then <del>each of the three templates</del><ins>the template</ins> shall satisfy
   the `TransformationTrait` requirements with a member typedef `type` that names
-  the following type:<ins> `add_const_t<TE>`.</ins>
+  the <del>following </del>type:<ins> `add_const_t<TE>`.</ins>
 
   <del><ul>
     <li>for the first specialization, `add_const_t<TE>`,
