@@ -48,6 +48,9 @@ Edit History {#edit}
 r3 → r4 {#r3r4}
 -------
 
+Edit wording of the following sections as suggested by Jens Maurer:
+[**expr.post.incr**], [**expr.pre.incr**], [**expr.ass**], [**dcl.fct**],
+[**over.load**].
 
 
 r2 → r3 {#r2r3}
@@ -285,12 +288,10 @@ Modify as follows.
 
   The value of a postfix `++` expression is the value of its operand. [ *Note:*
   The value obtained is a copy of the original value —*end note* ] The operand
-  shall be a modifiable lvalue. The type of the operand shall be <del>an
-  arithmetic type other than *cv* `bool`</del> <ins>a non-`volatile` qualified
-  arithmetic type other than `bool`</ins>, or a <ins>non-`volatile` qualified </ins>
-  pointer to a complete object type. <ins>The type of the operand can be a `volatile`-qualified
-  arithmetic type other than *cv* `bool`, or a `volatile`-qualified
-  pointer to a complete object type (this usage is deprecated; see [**depr.volatile**]).</ins> The value of the operand object is
+  shall be a modifiable lvalue. The type of the operand shall be an
+  arithmetic type other than *cv* `bool`, or a
+  pointer to a complete object type. <ins>An operand with `volatile`-qualified
+  type is deprecated; see [**depr.volatile**].</ins> The value of the operand object is
   modified by adding `1` to it. The value computation of the `++` expression is
   sequenced before the modification of the operand object. With respect to an
   indeterminately-sequenced function call, the operation of postfix `++` is a
@@ -344,12 +345,10 @@ Modify as follows.
 <blockquote>
 
   The operand of prefix `++` is modified by adding `1`. The operand shall be a
-  modifiable lvalue. The type of the operand shall be <del>an arithmetic type
-  other than *cv* `bool`</del> <ins>a non-`volatile`-qualified arithmetic type
-  other than `bool`</ins>, or a <ins>non-`volatile`-qualified </ins>pointer to a
-  completely-defined object type. <ins>The type of the operand can be a `volatile`-qualified arithmetic type
-  other than *cv* `bool`, or a `volatile`-qualified pointer to a
-  completely-defined object type (this usage is deprecated; see [**depr.volatile**]).</ins> The result is the updated operand; it is an
+  modifiable lvalue. The type of the operand shall be an arithmetic type
+  other than *cv* `bool`, or a pointer to a
+  completely-defined object type. <ins>An operand with `volatile`-qualified type
+  is deprecated; see [**depr.volatile**].</ins> The result is the updated operand; it is an
   lvalue, and it is a bit-field if the operand is a bit-field. The expression
   `++x` is equivalent to `x+=1`. [ *Note:* See the discussions of [**expr.add**]
   and assignment operators [**expr.ass**] for information on conversions. —*end
@@ -405,9 +404,9 @@ Modify as follows.
   </li>
 
   <li>
-  If the left operand is not of class type<ins> and is not `volatile`</ins>, the
+  If the left operand is not of class type, the
   expression is implicitly converted to the cv-unqualified type of the left
-  operand.
+  operand. <ins>This behavior is deprecated if the left operand is of `volatile`-qualified type; see  [**depr.volatile**].</ins>
   </li>
 
   <li>
@@ -440,13 +439,15 @@ Modify as follows.
   </li>
   
   <li>
-  <del>The</del><ins>Otherwise, the</ins> behavior of an expression of the form
+  The behavior of an expression of the form
   <code>E1 <em>op</em>= E2</code> is equivalent to
   <code>E1 = E1 <em>op</em> E2</code>
   except that `E1` is evaluated only once. In `+=` and `-=`, `E1` shall either
   have arithmetic type or be a pointer to a possibly cv-qualified
   completely-defined object type. In all other cases, `E1` shall have arithmetic
-  type.
+  type. <ins>If `E1` has `volatile`-qualified type, the expression not being a
+  discarded-value expression or appearing outside of an unevaluated operand is
+  deprecated; see [**depr.volatile**].</ins>
   </li>
 
   <li>
@@ -508,8 +509,8 @@ Modify as follows.
   *parameter-declaration-clause* is empty, the function takes no arguments. A
   parameter list consisting of a single unnamed parameter of non-dependent type
   `void` is equivalent to an empty parameter list. Except for this special case,
-  a parameter shall not have type *cv* `void`. <ins>A parameter can have a
-  `volatile`-qualified type (this usage is deprecated; see [**depr.volatile**]).</ins>
+  a parameter shall not have type *cv* `void`. <ins>A parameter with
+  `volatile`-qualified type is deprecated; see [**depr.volatile**].</ins>
   If the *parameter-declaration-clause* terminates with an ellipsis or a
   function parameter pack, the number of arguments shall be equal to or greater
   than the number of parameters that do not have a default argument and are not
@@ -535,8 +536,8 @@ Modify as follows.
   shall be no arrays of functions, although there can be arrays of pointers to
   functions.
   
-  <ins>Functions can have a `volatile` qualified return type (this usage is
-  deprecated; see [**depr.volatile**]).</ins>
+  <ins>A `volatile` qualified return type is
+  deprecated; see [**depr.volatile**].</ins>
 
 </blockquote>
 
@@ -608,18 +609,14 @@ No changes.
 Overloadable declarations [**over.load**] {#over.load}
 -----------------------------------------
 
-Modify as follows.
+No changes since [**dcl.fct**] already handles deprecation.
 
 <blockquote>
 
   Parameter declarations that differ only in the presence or absence of
-  `const` <del>and/or `volatile`</del> are equivalent. That is, the
-  `const` <del>and `volatile` type-specifiers</del><ins>type-specifier</ins> for each parameter type <del>are</del><ins>is</ins>
+  `const` and/or `volatile` are equivalent. That is, the
+  `const` and `volatile` type-specifiers for each parameter type are
   ignored when determining which function is being declared, defined, or called.
-
-  <ins>Parameter declarations that differ only in the presence or absence of
-  `volatile` are equivalent (this usage is deprecated; see
-  [**depr.volatile**]).</ins>
 
 </blockquote>
 
