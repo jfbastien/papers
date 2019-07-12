@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 0
+!Draft Revision: 1
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -10,7 +10,7 @@ URL: http://wg21.link/D1152R4
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R4.bs">github.com/jfbastien/papers/blob/master/source/D1152R4.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2019-07-11
+Date: 2019-07-12
 Markup Shorthands: markdown yes
 </pre>
 
@@ -409,12 +409,6 @@ Modify as follows.
   If the left operand is not of class type, the
   expression is implicitly converted to the cv-unqualified type of the left
   operand. <ins>This behavior is deprecated if the left operand is of `volatile`-qualified type; see  [**depr.volatile**].</ins>
-  </li>
-
-  <li>
-  <ins>If the left operand is not of class type and is `volatile`, the
-  expression is implicitly converted to the cv-unqualified type of the left
-  operand (this usage is deprecated; see [**depr.volatile**]).</ins>
   </li>
 
   <li>
