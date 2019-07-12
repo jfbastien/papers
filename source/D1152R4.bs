@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 1
+!Draft Revision: 2
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -425,13 +425,6 @@ Modify as follows.
   When the left operand of an assignment operator is a bit-field that cannot
   represent the value of the expression, the resulting value of the bit-field is
   implementation-defined.
-  </li>
-  
-  <li>
-  <ins>Expressions of the form <code>E1 <em>op</em>= E2</code> where `E1` is a
-  `volatile`-qualified arithmetic or pointer type shall either be a
-  discarded-value expression or appear in an unevaluated context (other usages
-  are deprecated; see [**depr.volatile**]).</ins>
   </li>
   
   <li>
