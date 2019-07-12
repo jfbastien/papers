@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 2
+!Draft Revision: 3
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -136,11 +136,11 @@ following:
         <th>EWG</th><th>6</th><th>9</th><th>3</th><th>0</th><th>0</th><th>✅</th>
     </tr>
     <tr>
-        <th>SG1 would be OK if we deprecated `volatile` qualified member functions (pending separate decision on what we do with `volatile` atomic).</th>
+        <th>SG1 would be OK if we deprecated `volatile`-qualified member functions (pending separate decision on what we do with `volatile` atomic).</th>
         <th>SG1</th><th>1</th><th>5</th><th>10</th><th>4</th><th>3</th><th>❌</th>
     </tr>
     <tr>
-        <th>EWG would be OK if we deprecated `volatile` qualified member functions (pending separate decision on what we do with `volatile` atomic).</th>
+        <th>EWG would be OK if we deprecated `volatile`-qualified member functions (pending separate decision on what we do with `volatile` atomic).</th>
         <th>EWG</th><th>2</th><th>7</th><th>7</th><th>1</th><th>0</th><th>✅</th>
     </tr>
     <tr>
@@ -434,9 +434,8 @@ Modify as follows.
   except that `E1` is evaluated only once. In `+=` and `-=`, `E1` shall either
   have arithmetic type or be a pointer to a possibly cv-qualified
   completely-defined object type. In all other cases, `E1` shall have arithmetic
-  type. <ins>If `E1` has `volatile`-qualified type, the expression not being a
-  discarded-value expression or appearing outside of an unevaluated operand is
-  deprecated; see [**depr.volatile**].</ins>
+  type. <ins>Such expressions are deprecated if `E1` has `volatile`-qualified type;
+  see [**depr.volatile**].</ins>
   </li>
 
   <li>
@@ -525,7 +524,7 @@ Modify as follows.
   shall be no arrays of functions, although there can be arrays of pointers to
   functions.
   
-  <ins>A `volatile` qualified return type is
+  <ins>A `volatile`-qualified return type is
   deprecated; see [**depr.volatile**].</ins>
 
 </blockquote>
@@ -884,7 +883,7 @@ Modify as follows.
 
   Operations on atomic types [**atomics.types.operations**]
   
-  [ *Note:* Many operations are volatile-qualified. The "volatile as device
+  [ *Note:* Many operations are `volatile`-qualified. The "volatile as device
   register" semantics have not changed in the standard. This qualification means
   that volatility is preserved when applying these operations to volatile
   objects. It does not mean that operations on non-volatile objects become
