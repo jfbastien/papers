@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 3
+!Draft Revision: 5
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -10,7 +10,7 @@ URL: http://wg21.link/D1152R4
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R4.bs">github.com/jfbastien/papers/blob/master/source/D1152R4.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2019-07-12
+Date: 2019-07-15
 Markup Shorthands: markdown yes
 </pre>
 
@@ -50,9 +50,11 @@ r3 → r4 {#r3r4}
 
 Edit wording of the following sections as suggested by Jens Maurer:
 [**expr.post.incr**], [**expr.pre.incr**], [**expr.ass**], [**dcl.fct**],
-[**over.load**].
+[**over.load**], [**over.built**].
 
 Drop one word from [**tuple**] as suggested by Arthur O'Dwyer.
+
+Add Annex D.
 
 
 r2 → r3 {#r2r3}
@@ -611,13 +613,13 @@ No changes since [**dcl.fct**] already handles deprecation.
 Built-in operators [**over.built**] {#over.built}
 -----------------------------------
 
-Modify as follows.
+No changes since [**expr.post.incr**], [**expr.pre.incr**], and [**expr.ass**]
+already handle deprecation.
 
 <blockquote>
 
   In the remainder of this section, *vq* represents either `volatile` or no
-  cv-qualifier<ins> (usage of *vq* representing `volatile` is deprecated; see
-  [**depr.volatile**])</ins>.
+  cv-qualifier.
   
   For every pair (*T*, *vq*), where *T* is an arithmetic type other than `bool`,
   there exist candidate operator functions of the form
@@ -749,7 +751,7 @@ Modify as follows.
 
   Let `TS` denote `tuple_size<T>` of the *cv*-unqualified type `T`. If the
   expression `TS::value` is well-formed when treated as an unevaluated operand,
-  then each of the three templates shall satisfy the `TransformationTrait`
+  then <del>each of the three templates</del><ins>the template</ins> shall satisfy the `TransformationTrait`
   requirements with a base characteristic of
 
   <pre><code>integral_constant&lt;size_t, TS::value&gt;</code></pre>
@@ -1107,6 +1109,171 @@ Modify as follows.
 Annex D {#annexD}
 -------
 
-All mentions of deprecation in language clauses, and all deletions in library
-clauses above should be added to Annex D under [**depr.volatile**], such that
-`volatile` is now deprecated in these use cases.
+Add the following wording to Annex D in [**depr.volatile**]:
+
+### `volatile` increment and decrement  [**depr.expr.post.incr**] ### {#depr.expr.post.incr}
+
+Postfix `++` and postfix `--` expressions of `volatile`-qualified arithmetic and
+pointer types are deprecated.
+
+### `volatile` increment and decrement  [**depr.expr.pre.incr**] ### {#depr.expr.pre.incr}
+
+Prefix `++` and postfix `--` expressions of `volatile`-qualified arithmetic and
+pointer types are deprecated.
+
+### Assignment and compound assignment operators [**depr.expr.ass**] ### {#depr.expr.ass}
+
+Assignments where the left operand is a `volatile`-qualified non-class type are
+deprecated.
+
+Compound assignments where the left operand is a `volatile`-qualified non-class
+type are deprecated.
+
+### Functions [**depr.dcl.fct**] ### {#depr.dcl.fct}
+
+Function types with either:
+
+  * parameters with `volatile`-qualified types; or
+  * `volatile`-qualified return types
+
+are deprecated.
+
+### Tuple [**depr.tuple**] ### {#depr.tuple}
+
+  Header `<tuple>` synopsis [**depr.tuple.syn**]:
+  
+  <pre><code>
+    namespace std {
+    
+    [...]
+    
+    // [<i>tuple.helper</i>, tuple helper classes
+    template&lt;class T&gt; class tuple_size&lt;volatile T&gt;;
+    template&lt;class T&gt; class tuple_size&lt;const volatile T&gt;;
+    
+    template&lt;size_t I, class T&gt; class tuple_element&lt;I, volatile T&gt;;
+    template&lt;size_t I, class T&gt; class tuple_element&lt;I, const volatile T&gt;;
+
+    [...]
+    
+    }
+    
+  </code></pre>
+
+  Tuple helper classes [**depr.tuple.helper**]
+
+  <pre><code>
+  
+  template&lt;class T&gt; class tuple_size&lt;volatile T&gt;;
+  template&lt;class T&gt; class tuple_size&lt;const volatile T&gt;;
+  
+  </code></pre>
+
+  Let `TS` denote `tuple_size<T>` of the *cv*-unqualified type `T`. If the
+  expression `TS::value` is well-formed when treated as an unevaluated operand,
+  then each of the two templates shall satisfy the `TransformationTrait`
+  requirements with a base characteristic of
+
+  <pre><code>integral_constant&lt;size_t, TS::value&gt;</code></pre>
+  
+  Otherwise, they shall have no member `value`.
+  
+  Access checking is performed as if in a context unrelated to `TS` and `T`.
+  Only the validity of the immediate context of the expression is considered.
+
+  In addition to being available via inclusion of the `<tuple>` header, the two
+  templates are available when any of the headers `<array>`, `<ranges>`, or
+  `<utility>` are included.
+
+  <pre><code>
+  
+  template&lt;size_t I, class T&gt; class tuple_element&lt;I, volatile T&gt;;
+  template&lt;size_t I, class T&gt; class tuple_element&lt;I, const volatile T&gt;;
+
+  </code></pre>
+
+  Let `TE` denote `tuple_element_t<I, T>` of the *cv*-unqualified type `T`. Then
+  each of the two templates shall satisfy the `TransformationTrait` requirements
+  with a member typedef `type` that names the following type:
+
+  <ul>
+    <li>for the first specialization, `add_volatile_t<TE>`, and
+    <li>for the second specialization, `add_cv_t<TE>`.
+  </ul>
+
+  In addition to being available via inclusion of the `<tuple>` header, the two
+  templates are available when any of the headers `<array>`, `<ranges>`, or
+  `<utility>` are included.
+
+### Variant [**depr.variant**] ### {#depr.variant}
+
+  `<variant>` synopsis [**depr.variant.syn**]
+  
+  <pre><code>
+  
+  namespace std {
+
+  // [<i>variant.helper</i>], variant helper classes
+  template&lt;class T&gt; struct variant_size&lt;volatile T&gt;;
+  template&lt;class T&gt; struct variant_size&lt;const volatile T&gt;;
+
+  template&lt;size_t I, class T&gt; struct variant_alternative&lt;I, volatile T&gt;;
+  template&lt;size_t I, class T&gt; struct variant_alternative&lt;I, const volatile T&gt;;
+  
+  }
+  
+  </code></pre>
+  
+  `variant` helper classes [**depr.variant.helper**]
+  
+
+  <pre></code>
+  
+  template&lt;class T&gt; class variant_size&lt;volatile T&gt;;
+  template&lt;class T&gt; class variant_size&lt;const volatile T&gt;;
+  
+  </code></pre>
+
+  Let `VS` denote `variant_size<T>` of the *cv*-unqualified type `T`. Then each
+  of the two templates shall satisfy the `UnaryTypeTrait` requirements with a
+  base characteristic of `integral_constant<size_t, VS::value>`.
+
+  <pre><code>
+  template&lt;size_t I, class T&gt; class variant_alternative&lt;I, volatile T&gt;;
+  template&lt;size_t I, class T&gt; class variant_alternative&lt;I, const volatile T&gt;;
+  </code></pre>
+
+  Let `VA` denote `variant_alternative<I, T>` of the *cv*-unqualified type `T`.
+  Then each of the two templates shall meet the `TransformationTrait`
+  requirements with a member typedef `type` that names the following type:
+  
+  <ul>
+    <li>for the first specialization, `add_volatile_t<VA::type>`, and
+    <li>for the second specialization, `add_cv_t<VA::type>`.
+  </ul>
+
+### Atomic operations library [**depr.atomics**] ### {#depr.atomics}
+
+If an atomic specialization has one of The following overloads, then that
+overload is available when `atomic<T>::is_always_lock_free` is `false`:
+
+<pre><code>
+  void store(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  T load(memory_order order = memory_order::seq_cst) const volatile noexcept;
+  T exchange(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  bool compare_exchange_weak(T&amp; expected, T desired, memory_order success, memory_order failure) volatile noexcept;
+  bool compare_exchange_strong(T&amp; expected, T desired, memory_order success, memory_order failure) volatile noexcept;
+  bool compare_exchange_weak(T&amp; expected, T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  bool compare_exchange_strong(T&amp; expected, T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  T fetch_<i>key</i>(T operand, memory_order order = memory_order::seq_cst) volatile noexcept;
+  T operator <i>op</i>=(T operand) volatile noexcept;
+  T* fetch_<i>key</i>(ptrdiff_t operand, memory_order order = memory_order::seq_cst) volatile noexcept;
+</code></pre>
+
+The following non-member function is available when
+`atomic<T>::is_always_lock_free` is `false`:
+
+  <pre><code>
+  template&lt;class T&gt;
+    void atomic_init(volatile atomic&lt;T&gt;* object, typename atomic&lt;T&gt;::value_type desired) noexcept;
+  </code></pre>
