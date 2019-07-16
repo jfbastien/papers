@@ -241,7 +241,7 @@ private:
 Any object of `expected<T, E>` either contains a value of type `T` or a value of
 type `unexpected<E>` within its own storage. Implementations are not permitted
 to use additional storage, such as dynamic memory, to allocate the object of
-type `T` or the object of type `unexpected<E>`. These objects shall be allocated
+type `T` or the object of type `unexpected<E>`. These objects are allocated
 in a region of the `expected<T, E>` storage suitably aligned for the types `T`
 and `unexpected<E>`. Members `has_val`, `val` and `unex` are provided for
 exposition only. `has_val` indicates whether the `expected<T, E>` object
@@ -254,10 +254,10 @@ ill-formed. A program that instantiates the definition of template
 `expected<E>` with the `E` parameter that is not a valid template parameter
 for `unexpected` is ill-formed.
 
-When `T` is not *cv* `void`, it shall satisfy the requirements of `Destructible`
+When `T` is not *cv* `void`, it shall meet the requirements of `Cpp17Destructible`
 (Table 27).
 
-`E` shall satisfy the requirements of `Destructible` (Table 27).
+`E` shall meet the requirements of `Cpp17Destructible` (Table 27).
 
 
 �.�.4.1 Constructors [*expected.object.ctor*] {#expected.object.ctor}
@@ -274,8 +274,9 @@ constexpr expected();
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
 *Remarks*: If value-initialization of `T` is a constant subexpression or `T` is
-*cv* `void` this constructor shall be constexpr. This constructor shall not participate in
-overload resolution unless `is_default_constructible_v<T>` is `true` or `T` is *cv* `void`.
+*cv* `void` this constructor is constexpr.
+
+*Constraints*: `is_default_constructible_v<T>` is `true` or `T` is *cv* `void`.
 
 ```c++
 constexpr expected(const expected& rhs);
@@ -291,12 +292,12 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
-*Remarks*: This constructor shall be defined as deleted unless:
+*Remarks*: This constructor is defined as deleted unless:
 
   * `is_copy_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_copy_constructible_v<E>` is `true`.
 
-This constructor shall be a constexpr constructor if:
+This constructor is a constexpr constructor if:
 
   * `is_trivially_copy_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_trivially_copy_constructible_v<E>` is `true`.
@@ -322,15 +323,15 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
   * `is_nothrow_move_constructible_v<T>` is `true` or `T `is *cv* `void`; and
   * `is_nothrow_move_constructible_v<E>` is `true`.
 
-This constructor shall not participate in overload resolution unless:
-
-  * `is_move_constructible_v<T>` is `true`; and
-  * `is_move_constructible_v<E>` is `true`.
-
-This constructor shall be a constexpr constructor if:
+*Remarks*: This constructor is a constexpr constructor if:
 
   * `is_trivially_move_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_trivially_move_constructible_v<E>` is `true`.
+
+*Constraints*:
+
+  * `is_move_constructible_v<T>` is `true`; and
+  * `is_move_constructible_v<E>` is `true`.
 
 ```c++
     template<class U, class G>
@@ -347,8 +348,7 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
-*Remarks*: This constructor shall not participate in overload resolution unless
-`T` and `U` are *cv* `void` or:
+*Constraints*: `T` and `U` are *cv* `void` or:
 
   * `is_constructible_v<T, const U&>` is `true` ; and
   * `is_constructible_v<T, expected<U, G>&>` is `false`; and
@@ -393,8 +393,12 @@ of type `unexpected<E> ` with the expression
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
-*Remarks*: This constructor shall not participate in overload resolution unless:
-`T` and `U` are *cv* `void` or:
+*Remarks*: The constructor is explicit if and only if
+
+  * `T` and `U` are not *cv* `void` and `is_convertible_v<U&&, T>` is `false` or
+  * `is_convertible_v<G&&, E>` is `false`.
+
+*Constraints*: `T` and `U` are *cv* `void` or:
 
   * `is_constructible_v<T, U&&>` is `true`; and
   * `is_constructible_v<T, expected<U, G>&>` is `false`; and
@@ -415,11 +419,6 @@ of type `unexpected<E> ` with the expression
   * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
   * `is_convertible_v<const expected<U, G>&&, unexpected<E>>` is `false`.
 
-The constructor is explicit if and only if
-
-  * `T` and `U` are not *cv* `void` and `is_convertible_v<U&&, T>` is `false` or
-  * `is_convertible_v<G&&, E>` is `false`.
-
 ```c++
 template<class U = T>
     EXPLICIT constexpr expected(U&& v);
@@ -433,16 +432,17 @@ object of type `T` with the expression `std::forward<U>(v)`.
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
 *Remarks*: If `T`'s selected constructor is a constant subexpression, this
-constructor shall be a constexpr constructor. This constructor shall not
-participate in overload resolution unless:
+constructor is a constexpr constructor.
+
+*Remarks*: The constructor is explicit if and only if `is_convertible_v<U&&, T>` is `false`.
+
+*Constraints*:
 
   * `T` is not *cv* `void`; and
   * `is_constructible_v<T, U&&>` is `true`; and
   * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
   * `is_same_v<expected<T, E>, remove_cvref_t<U>>` is `false`; and
   * `is_same_v<unexpected<E>, remove_cvref_t<U>>` is `false`.
-
-The constructor is explicit if and only if `is_convertible_v<U&&, T>` is `false`.
 
 ```c++
 template<class G = E>
@@ -456,11 +456,12 @@ an object of type `unexpected<E>` with the expression `e`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s selected constructor is a constant subexpression,
-this constructor shall be a constexpr constructor. This constructor shall not
-participate in overload resolution unless `is_constructible_v<E, const G&>` is `true`. The
-constructor is explicit if and only if `is_convertible_v<const G&, E>` is `false`.
+*Remarks*: If `unexpected<E>`'s selected constructor is a constant
+subexpression, this constructor shall be a constexpr constructor. The
+constructor is explicit if and only if `is_convertible_v<const G&, E>` is
+`false`.
 
+*Constraints*: `is_constructible_v<E, const G&>` is `true`.
 
 ```c++
 template<class G = E>
@@ -474,13 +475,13 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s selected constructor is a constant subexpression,
-this constructor shall be a constexpr constructor. The expression inside
-`noexcept` is equivalent to: `is_nothrow_constructible_v<E, G&&>` is `true`. This
-constructor shall not participate in overload resolution unless
-`is_constructible_v<E, G&&>` is `true`. The constructor is explicit if and only if
-`is_convertible_v<G&&, E>` is `false`.
+*Remarks*: If `unexpected<E>`'s selected constructor is a constant
+subexpression, this constructor is a constexpr constructor. The expression
+inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G&&>` is
+`true`. The constructor is explicit if and only if `is_convertible_v<G&&, E>` is
+`false`.
 
+*Constraints*: `is_constructible_v<E, G&&>` is `true`.
 
 ```c++
 template<class... Args>
@@ -496,8 +497,9 @@ direct-non-list-initializing an object of type `T` with the arguments
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
 *Remarks*: If `T`'s constructor selected for the initialization is a constant subexpression,
-this constructor shall be a constexpr constructor. This
-constructor shall not participate in overload resolution unless:
+this constructor is a constexpr constructor.
+
+*Constraints*:
 
   * `T` is *cv* `void` and `sizeof...(Args) == 0`; or
   * `T` is not *cv* `void` and `is_constructible_v<T, Args...>` is `true`.
@@ -516,11 +518,10 @@ object of type `T` with the arguments `il, std::forward<Args>(args)...`.
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
 *Remarks*: If `T`'s constructor selected for the initialization is a constant subexpression,
-this constructor shall be a constexpr constructor. This
-constructor shall not participate in overload resolution unless `T` is not
-*cv* `void` and `is_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
+this constructor is a constexpr constructor.
 
-
+*Constraints*: `T` is not *cv* `void` and `is_constructible_v<T,
+initializer_list<U>&, Args...>` is `true`.
 
 ```c++
 template<class... Args>
@@ -536,9 +537,9 @@ an object of type `unexpected<E>`with the arguments
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
 *Remarks*: If `unexpected<E>`'s constructor selected for the initialization is a
-constant subexpression, this constructor shall be a constexpr constructor. This
-constructor shall not participate in overload resolution unless
-`is_constructible_v<E, Args...>` is `true`.
+constant subexpression, this constructor is a constexpr constructor.
+
+*Constraints*: `is_constructible_v<E, Args...>` is `true`.
 
 ```c++
 template<class U, class... Args>
@@ -554,9 +555,9 @@ std::forward<Args>(args)...`.
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
 *Remarks*: If `unexpected<E>`'s constructor selected for the initialization is a
-constant subexpression, this constructor shall be a constexpr constructor. This
-constructor shall not participate in overload resolution unless
-`is_constructible_v<E, initializer_list<U>&, Args...>` is `true`.
+constant subexpression, this constructor is a constexpr constructor.
+
+*Constraints*: `is_constructible_v<E, initializer_list<U>&, Args...>` is `true`.
 
 
 �.�.4.2 Destructor [*expected.object.dtor*] {#expected.object.dtor}
@@ -572,7 +573,7 @@ and `bool(*this)`, calls `val.~T()`. If `is_trivially_destructible_v<E>` is
 
 *Remarks*: If either `T` is *cv* `void` or `is_trivially_destructible_v<T>` is
 `true`, and `is_trivially_destructible_v<E>` is `true`, then this destructor
-shall be a trivial destructor.
+is a trivial destructor.
 
 �.�.4.3 Assignment [*expected.object.assign*] {#expected.object.assign}
 ---------------------------------------------
@@ -669,7 +670,7 @@ constructor, no effect. If an exception is thrown during the call to `T`'s or
 `unexpected<E>`'s copy assignment, the state of its contained value is as defined
 by the exception safety guarantee of `T`'s or `unexpected<E>`'s copy assignment.
 
-This operator shall be defined as deleted unless:
+This operator is defined as deleted unless:
 
   * `T` is *cv* `void` and `is_copy_assignable_v<E>` is `true` and `is_copy_constructible_v<E>` is `true`; or
   * `T` is not *cv* `void` and `is_copy_assignable_v<T>` is `true` and
@@ -759,7 +760,7 @@ of `T`'s copy assignment. If an exception is thrown during the call to `E`'s
 copy assignment, the state of its contained `unex` is as defined by
 the exception safety guarantee of `E`'s copy assignment.
 
-This operator shall be defined as deleted unless:
+This operator is defined as deleted unless:
 
   * `T` is *cv* `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`; or
   * `T` is not *cv* `void` and `is_move_constructible_v<T>` is `true` and
@@ -812,7 +813,7 @@ otherwise
  state of its contained value is as defined by the exception safety guarantee of
  `T`'s copy assignment.
 
-This function shall not participate in overload resolution unless:
+*Constraints*:
 
   * `is_void_v<T>` is `false`; and
   * `is_same_v<expected<T,E>, remove_cvref_t<U>>` is `false`; and
@@ -851,8 +852,7 @@ template<class G = E>
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
-This signature shall not participate in overload resolution unless
-`is_nothrow_copy_constructible_v<E>` is `true` and `is_copy_assignable_v<E>` is `true`.
+*Constraints*: `is_nothrow_copy_constructible_v<E>` is `true` and `is_copy_assignable_v<E>` is `true`.
 
 ```c++
 expected<T, E>& operator=(unexpected<G>&& e);
@@ -885,8 +885,7 @@ expected<T, E>& operator=(unexpected<G>&& e);
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
-This signature shall not participate in overload resolution unless
-`is_nothrow_move_constructible_v<E>` is `true` and `is_move_assignable_v<E>` is `true`.
+*Constraints*: `is_nothrow_move_constructible_v<E>` is `true` and `is_move_assignable_v<E>` is `true`.
 
 ```c++
 void expected<void, E>::emplace();
@@ -945,8 +944,7 @@ otherwise
 *Remarks*: If an exception is thrown during the call to `T`'s assignment, nothing
 changes.
 
-This signature shall not participate in overload resolution unless:
-`T` is not *cv* `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
+*Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
 
 
 ```c++
@@ -992,8 +990,7 @@ otherwise
 *Remarks*: If an exception is thrown during the call to `T`'s assignment nothing
 changes.
 
-The function shall not participate in overload resolution unless:
-`T` is not *cv* `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
+*Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
 
 �.�.4.4 Swap [*expected.object.swap*] {#expected.object.swap}
 -------------------------------------
@@ -1060,7 +1057,7 @@ void swap(expected<T, E>& rhs) noexcept(see below);
 `is_nothrow_move_constructible_v<T>` is `true` and `is_nothrow_swappable_v<T>` is `true` and
  `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_swappable_v<E>` is `true`.
 
-The function shall not participate in overload resolution unless:
+*Constraints*:
 
   * Lvalues of type `T` are `Swappable`; and
   * Lvalues of type `E` are `Swappable`; and
@@ -1081,22 +1078,18 @@ T* operator->();
 
 *Returns*: `addressof(val)`.
 
-*Remarks*: Unless `T` is a user-defined type with overloaded unary `operator&`,
-the first operator shall be a constexpr function.
-The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
+*Constraints*: `T` is not *cv* `void`.
 
 ```c++
 constexpr const T& operator*() const&;
 T& operator*() &;
 ```
 
-*Requires*: `bool(*this)` .
+*Requires*: `bool(*this)`.
 
-*Returns*:
-`val`.
+*Returns*: `val`.
 
-*Remarks*: The first operator shall be a constexpr function.
-The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
+*Constraints*: `T` is not *cv* `void`.
 
 ```c++
 constexpr T&& operator*() &&;
@@ -1107,8 +1100,7 @@ constexpr const T&& operator*() const&&;
 
 *Returns*: `std::move(val)`.
 
-*Remarks*: This operator shall be a constexpr function.
-The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
+*Constraints*: `T` is not *cv* `void`.
 
 ```c++
 constexpr explicit operator bool() noexcept;
@@ -1116,15 +1108,11 @@ constexpr explicit operator bool() noexcept;
 
 *Returns*: `has_val`.
 
-*Remarks*: This operator shall be a constexpr function.
-
 ```c++
 constexpr bool has_value() const noexcept;
 ```
 
 *Returns*: `has_val`.
-
-*Remarks*: This function shall be a constexpr function.
 
 ```c++
 constexpr void expected<void, E>::value() const;
@@ -1142,8 +1130,7 @@ constexpr T& expected::value() &;
 
 *Throws*: `bad_expected_access(error())` if `!bool(*this)`.
 
-*Remarks*: These functions shall be constexpr functions.
-The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
+*Constraints*: `T` is not *cv* `void`.
 
 
 ```c++
@@ -1155,8 +1142,7 @@ constexpr const T&& expected::value() const&&;
 
 *Throws*: `bad_expected_access(error())` if `!bool(*this)`.
 
-*Remarks*: These functions shall be constexpr functions.
-The operator shall not participate in overload resolution unless: `T` is not *cv* `void`.
+*Constraints*: `T` is not *cv* `void`.
 
 ```c++
 constexpr const E& error() const&;
@@ -1167,8 +1153,6 @@ constexpr E& error() &;
 
 *Returns*: `unexpect.value()`.
 
-*Remarks*: The first function shall be a constexpr function.
-
 ```c++
 constexpr E&& error() &&;
 constexpr const E&& error() const&&;
@@ -1177,9 +1161,6 @@ constexpr const E&& error() const&&;
 *Requires*: `!bool(*this)`.
 
 *Returns*: `std::move(unexpect.value())`.
-
-*Remarks*: The first function shall be a constexpr function.
-
 
 ```c++
 template<class U>
@@ -1220,8 +1201,8 @@ shall be convertible to `bool`.
 `x.error() == y.error()`; otherwise `true` if `T1` and `T2` are *cv* `void` or `*x == *y` otherwise.
 
 *Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
-`*x == *y` and `x.error() == y.error()` are core constant expression, shall be
-`constexpr` functions.
+`*x == *y` and `x.error() == y.error()` are core constant expression, are
+constexpr functions.
 
 ```c++
 template<class T1, class E1, class T2, class E2>
@@ -1237,7 +1218,7 @@ well-formed and its result shall be convertible to `bool`.
 
 *Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
 `*x != *y` and `x.error() != y.error()` are core
-constant expression, shall be constexpr functions.
+constant expression, are constexpr functions.
 
 �.�.4.7 Comparison with `T` [*expected.comparison_T*] {#expected.comparison_T}
 ---------------------------------------------------
@@ -1299,7 +1280,7 @@ void swap(expected<T1, E1>& x, expected<T1, E1>& y) noexcept(noexcept(x.swap(y))
 
 *Effects*: Calls `x.swap(y)`.
 
-*Remarks*: This function shall not participate in overload resolution unless:
+*Constraints*:
 
   * `T1` is *cv* `void` or `is_move_constructible_v<T1>` is `true`; and
   * `is_swappable_v<T1>` is `true`; and
@@ -1350,7 +1331,7 @@ public:
     constexpr const E&& value() const&& noexcept;
     constexpr E&& value() && noexcept;
 
-    void swap(unexpected& other) noexcept(see bellow);
+    void swap(unexpected& other) noexcept(see below);
 
     template<class E1, class E2>
         friend constexpr bool
@@ -1361,7 +1342,6 @@ public:
 
     template<class E1>
     friend void swap(unexpected<E1>& x, unexpected<E1>& y) noexcept(noexcept(x.swap(y)));
-
 
 private:
     E val; // exposition only
@@ -1375,7 +1355,7 @@ type, an array type, a specialization of `unexpected` or an cv-qualified type is
 ill-formed.
 
 
-�.�.5.2.1 Constructors [*expected.unexpected.ctor*] {#expected.unexpected.ctor}
+### �.�.5.2.1 Constructors [*expected.unexpected.ctor*] ### {#expected.unexpected.ctor}
 
 
 ```c++
@@ -1388,9 +1368,10 @@ object of type `E` with the expression `std::forward<Err>(e)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If E’s selected constructor is a constant subexpression, this
-constructor shall be a constexpr constructor. This constructor shall not
-participate in overload resolution unless:
+*Remarks*: If `E`’s selected constructor is a constant subexpression, this
+constructor is a constexpr constructor.
+
+*Constraints*:
 
   * `is_constructible_v<E, Err>` is `true`; and
   * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
@@ -1408,8 +1389,9 @@ object of type `E` with the arguments `std::forward<Args>(args)...`.
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
 *Remarks*:
-If E’s selected constructor is a constant subexpression, this constructor shall be a constexpr constructor.
-This constructor shall not participate in overload resolution unless `is_constructible_v<E, Args...>` is `true`.
+If `E`’s selected constructor is a constant subexpression, this constructor is a constexpr constructor.
+
+*Constraints*: `is_constructible_v<E, Args...>` is `true`.
 
 ```c++
 template<class U, class... Args>
@@ -1423,8 +1405,9 @@ object of type `E` with the arguments `il, std::forward<Args>(args)...`.
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
 *Remarks*:
-If E’s selected constructor is a constant subexpression, this constructor shall be a constexpr constructor.
-This constructor shall not participate in overload resolution unless `is_constructible_v<E, initializer_list<U>&, Args...>` is `true`.
+If `E`’s selected constructor is a constant subexpression, this constructor is a constexpr constructor.
+
+*Constraints*: `is_constructible_v<E, initializer_list<U>&, Args...>` is `true`.
 
 
 ```c++
@@ -1437,7 +1420,9 @@ object of type `E` with the expression `e.val`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: This constructor participates in overload resolution unless:
+*Remarks*: This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`.
+
+*Constraints*:
 
  * `std::is_constructible_v<E, Err>` is `true`; and
  * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
@@ -1448,8 +1433,6 @@ object of type `E` with the expression `e.val`.
  * `is_convertible_v<unexpected<Err>, E>` is `false`; and
  * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
-
-This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`.
 
 ```c++
 template<class Err>
@@ -1461,7 +1444,9 @@ object of type `E` with the expression `std::move(e.val)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: This constructor participates in overload resolution unless:
+*Remarks*: This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`
+
+*Constraints*:
 
  * `std::is_constructible_v<E, Err>` is `true`; and
  * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
@@ -1473,12 +1458,11 @@ object of type `E` with the expression `std::move(e.val)`.
  * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
 
-This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`
+### �.�.5.2.2 Assignment [*expected.unexpected.assign*] ### {#expected.unexpected.assign}
 
-�.�.5.2.2 Assignment [*expected.unexpected.assign*] {#expected.unexpected.assign}
+<!-- TODO Wako will send a PR -->
 
-
-�.�.5.2.3 Observers [*expected.unexpected.observe*] {#expected.unexpected.observe}
+### �.�.5.2.3 Observers [*expected.unexpected.observe*] ### {#expected.unexpected.observe}
 
 
 ```c++
@@ -1495,17 +1479,17 @@ constexpr const E&& value() const&&;
 
 *Returns*: `std::move(val)`.
 
-�.�.5.2.4 Swap [*expected.unexpected.ctor*] {#expected.unexpected.swap}
+### �.�.5.2.4 Swap [*expected.unexpected.ctor*] ### {#expected.unexpected.swap}
 
 ```c++
-    void swap(unexpected& other) noexcept(see bellow);
+    void swap(unexpected& other) noexcept(see below);
 ```
 
-*Requires*: `is_swappable_v<E>` is `true`
+*Requires*: `is_swappable_v<E>` is `true`.
 
 *Effects*: Equivalent to `using std::swap; swap(val, other.val);`.
 
-*Throws*:
+*Throws*: Any exceptions thrown by the operations in the relevant part of [**expected.swap**].
 
 *Remarks*: The expression inside `noexcept` is equivalent to: `is_nothrow_swappable_v<E>` is `true`.
 
@@ -1526,7 +1510,7 @@ template<class E1, class E2>
 
 *Returns*: `x.value() != y.value()`.
 
-�.�.5.2.5 Specialized algorithms [*expected.unexpected.specalg*] {#expected.unexpected.specalg}
+### �.�.5.2.5 Specialized algorithms [*expected.unexpected.specalg*] ### {#expected.unexpected.specalg}
 
 
 ```c++
@@ -1536,7 +1520,7 @@ template<class E1>
 
 *Effects*: Equivalent to `x.swap(y)`.
 
-*Remarks*: This function shall not participate in overload resolution unless `is_swappable_v<E1>` is `true`.
+*Constraints*: `is_swappable_v<E1>` is `true`.
 
 
 
@@ -1568,7 +1552,7 @@ of `expected` object that contains an `unexpected<E>`.
 bad_expected_access::bad_expected_access(E e);
 ```
 
-*Effects*: Initialize `val` with `e`.
+*Effects*: Initializes `val` with `e`.
 
 *Postconditions*: `what()` returns an implementation-defined NTBS.
 
@@ -1608,12 +1592,13 @@ public:
 �.�.8 `unexpect` tag [*expected.unexpect*] {#expected.unexpect}
 ------------------------------------------
 
-```c++
-struct unexpect_t {
-    explicit unexpect_t() = default;
-};
-inline constexpr unexpect_t unexpect{};
-```
+<pre><code>
+struct unexpect_t(<i>see below</i>);
+inline constexpr unexpect_t unexpect(<i>unspecified</i>);
+</code></pre>
+
+Type `unexpect_t` does not have a default constructor or an initializer-list
+constructor, and is not an aggregate.
 
 
 Open Questions {#qq}
