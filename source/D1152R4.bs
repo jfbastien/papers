@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 5
+!Draft Revision: 6
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -10,7 +10,7 @@ URL: http://wg21.link/D1152R4
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R4.bs">github.com/jfbastien/papers/blob/master/source/D1152R4.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2019-07-15
+Date: 2019-07-17
 Markup Shorthands: markdown yes
 </pre>
 
