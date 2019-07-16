@@ -408,10 +408,15 @@ Modify as follows.
   </li>
 
   <li>
-  If the left operand is not of class type, the
-  expression is implicitly converted to the cv-unqualified type of the left
-  operand. <ins>This behavior is deprecated if the left operand is of `volatile`-qualified type; see  [**depr.volatile**].</ins>
+  If the left operand is not of class type, the expression is implicitly
+  converted to the cv-unqualified type of the left operand.
   </li>
+  
+  <li><ins>
+  Simple assignments where the left operand is a `volatile`-qualified type that
+  is not of class type shall either be a discarded-value expression or appear in
+  an unevaluated context (other usages are deprecated; see [**depr.volatile**]).
+  </ins></li>
 
   <li>
   If the left operand is of class type, the class shall be complete. Assignment
@@ -530,6 +535,138 @@ Modify as follows.
   deprecated; see [**depr.volatile**].</ins>
 
 </blockquote>
+<!--
+Structured binding declarations [**dcl.struct.bind**] {#dcl.struct.bind}
+----------------------------------------------------- structured binding declaration introduces the \grammarterm{identifier}{s}
+`v`_0$, `v`_1$, `v`_2, \dotsc$
+of the
+\grammarterm{identifier-list} as names\iref{basic.scope.declarative}
+of \defn{structured binding}{s}.
+Let \cv{} denote the \grammarterm{cv-qualifier}{s} in
+the \grammarterm{decl-specifier-seq} and
+\placeholder{S} consist of the \grammarterm{storage-class-specifier}{s} of
+the \grammarterm{decl-specifier-seq} (if any).
+First, a variable with a unique name \exposid{e} is introduced. If the
+\grammarterm{assignment-expression} in the \grammarterm{initializer}
+has array type \tcode{A} and no \grammarterm{ref-qualifier} is present,
+\exposid{e} is defined by
+
+\begin{ncbnf}
+\opt{attribute-specifier-seq} \placeholder{S} \cv{} \terminal{A} \exposid{e} \terminal{;}
+\end{ncbnf}
+
+and each element is copy-initialized or direct-initialized
+from the corresponding element of the \grammarterm{assignment-expression} as specified
+by the form of the \grammarterm{initializer}.
+Otherwise, \exposid{e}
+is defined as-if by
+
+\begin{ncbnf}
+\opt{attribute-specifier-seq} decl-specifier-seq \opt{ref-qualifier} \exposid{e} initializer \terminal{;}
+\end{ncbnf}
+
+where
+the declaration is never interpreted as a function declaration and
+the parts of the declaration other than the \grammarterm{declarator-id} are taken
+from the corresponding structured binding declaration.
+The type of the \grammarterm{id-expression}
+\exposid{e} is called \tcode{E}.
+\begin{note}
+\tcode{E} is never a reference type\iref{expr.prop}.
+\end{note}
+
+
+If the \grammarterm{initializer} refers to
+one of the names introduced by the structured binding declaration,
+the program is ill-formed.
+
+
+If \tcode{E} is an array type with element type \tcode{T}, the number
+of elements in the \grammarterm{identifier-list} shall be equal to the
+number of elements of \tcode{E}. Each \tcode{v}$_i$ is the name of an
+lvalue that refers to the element $i$ of the array and whose type
+is \tcode{T}; the referenced type is \tcode{T}.
+\begin{note}
+The top-level cv-qualifiers of \tcode{T} are \cv.
+\end{note}
+\begin{example}
+\begin{codeblock}
+  auto f() -> int(&)[2];
+  auto [ x, y ] = f();          // \tcode{x} and \tcode{y} refer to elements in a copy of the array return value
+  auto& [ xr, yr ] = f();       // \tcode{xr} and \tcode{yr} refer to elements in the array referred to by \tcode{f}'s return value
+\end{codeblock}
+\end{example}
+
+
+Otherwise, if
+the \grammarterm{qualified-id} \tcode{std::tuple_size<E>}
+names a complete class type with a member named \tcode{value},
+the expression \tcode{std::tuple_size<E>::value}
+shall be a well-formed integral constant expression
+and
+the number of elements in
+the \grammarterm{identifier-list} shall be equal to the value of that
+expression.
+Let \tcode{i} be an index prvalue of type \tcode{std::size_t}
+corresponding to `v`_\tcode{i}$.
+The \grammarterm{unqualified-id} \tcode{get} is looked up
+in the scope of \tcode{E} by class member access lookup\iref{basic.lookup.classref},
+and if that finds at least one declaration
+that is a function template whose first template parameter
+is a non-type parameter,
+the initializer is
+\tcode{\exposid{e}.get<i>()}. Otherwise, the initializer is \tcode{get<i>(\exposid{e})},
+where \tcode{get} is looked up in the associated namespaces\iref{basic.lookup.argdep}.
+In either case, \tcode{get<i>} is interpreted as a \grammarterm{template-id}.
+\begin{note}
+Ordinary unqualified lookup\iref{basic.lookup.unqual} is not performed.
+\end{note}
+In either case, \exposid{e} is an lvalue if the type of the entity \exposid{e}
+is an lvalue reference and an xvalue otherwise.
+Given the type `T`_i$ designated by
+\tcode{std::tuple_element<i, E>::type} and
+the type `U`_i$ designated by
+either \tcode{`T`_i$\&} or \tcode{`T`_i$\&\&},
+where `U`_i$ is an lvalue reference if
+the initializer is an lvalue and an rvalue reference otherwise,
+variables are introduced with unique names `r`_i$ as follows:
+
+\begin{ncbnf}
+\placeholder{S} \terminal{U$_i$ r$_i$ =} initializer \terminal{;}
+\end{ncbnf}
+
+Each `v`_i$ is the name of an lvalue of type `T`_i$
+that refers to the object bound to `r`_i$;
+the referenced type is `T`_i$.
+
+
+Otherwise,
+all of \tcode{E}'s non-static data members
+shall be direct members of \tcode{E} or
+of the same base class of \tcode{E},
+well-formed when named as \tcode{\exposid{e}.\placeholder{name}}
+in the context of the structured binding,
+\tcode{E} shall not have an anonymous union member, and
+the number of elements in the \grammarterm{identifier-list} shall be
+equal to the number of non-static data members of \tcode{E}.
+Designating the non-static data members of \tcode{E} as
+`m`_0$, `m`_1$, `m`_2, \dotsc$
+(in declaration order),
+each \tcode{v}$_i$ is the
+name of an lvalue that refers to the member \tcode{m}$_i$ of \exposid{e} and
+whose type is \cv{}~`T`_i$, where `T`_i$ is the declared type of
+that member; the referenced type is \cv{}~`T`_i$. The lvalue is a
+bit-field if that member is a bit-field.
+\begin{example}
+\begin{codeblock}
+struct S { int x1 : 2; volatile double y1; };
+S f();
+const auto [ x, y ] = f();
+\end{codeblock}
+The type of the \grammarterm{id-expression} \tcode{x} is ``\tcode{const int}'',
+the type of the \grammarterm{id-expression} \tcode{y} is ``\tcode{const volatile double}''.
+\end{example}
+-->
 
 Non-static member functions [**class.mfct.non-static**] {#class.mfct.non-static}
 -------------------------------------------------------
@@ -718,7 +855,7 @@ Modify as follows.
     
     [...]
     
-    // [<i>tuple.helper</i>, tuple helper classes
+    // [<i>tuple.helper</i>], tuple helper classes
     template&lt;class T&gt; class tuple_size;                  // not defined
     template&lt;class T&gt; class tuple_size&lt;const T&gt;;
     <del>template&lt;class T&gt; class tuple_size&lt;volatile T&gt;;</del>
@@ -781,7 +918,7 @@ Modify as follows.
   Let `TE` denote `tuple_element_t<I, T>` of the *cv*-unqualified type `T`.
   Then <del>each of the three templates</del><ins>the template</ins> shall satisfy
   the `TransformationTrait` requirements with a member typedef `type` that names
-  the <del>following </del>type:<ins> `add_const_t<TE>`.</ins>
+  the <del>following </del>type<del>:</del><ins> `add_const_t<TE>`.</ins>
 
   <del><ul>
     <li>for the first specialization, `add_const_t<TE>`,
@@ -866,7 +1003,7 @@ Modify as follows.
 
   Let `VA` denote `variant_alternative<I, T>` of the *cv*-unqualified type `T`.
   Then <del>each of the three templates</del><ins>the template</ins> shall meet the `TransformationTrait`
-  requirements with a member typedef `type` that names the following type:<ins> `add_const_t<VA::type>`.</ins>
+  requirements with a member typedef `type` that names the <del>following</del> type<del>:</del><ins> `add_const_t<VA::type>`.</ins>
   
   <del><ul>
     <li>for the first specialization, `add_const_t<VA::type>`,
@@ -909,14 +1046,16 @@ Modify as follows.
 
   *Requires:* The `order` argument shall not be `memory_order::consume`, `memory_order::acquire`, nor `memory_order::acq_rel`.
 
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:*  Atomically replaces the value pointed to by `this` with the value of `desired`. Memory is affected according to the value of `order`.
   
-  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
-
   <pre><code>
   T operator=(T desired) volatile noexcept;
   T operator=(T desired) noexcept;
   </code></pre>
+
+  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:*  Equivalent to `store(desired)`.
 
@@ -929,16 +1068,18 @@ Modify as follows.
 
   *Requires:* The `order` argument shall not be `memory_order::release` nor `memory_order::acq_rel`.
 
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:*  Memory is affected according to the value of `order`.
 
   *Returns:* Atomically returns the value pointed to by `this`.
   
-  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
-
   <pre><code>
   operator T() const volatile noexcept;
   operator T() const noexcept;
   </code></pre>
+
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:*  Equivalent to: `return load();`
 
@@ -947,11 +1088,11 @@ Modify as follows.
   T exchange(T desired, memory_order order = memory_order::seq_cst) noexcept;
   </code></pre>
 
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:*  Atomically replaces the value pointed to by `this` with `desired`. Memory is affected according to the value of `order`. These operations are atomic read-modify-write operations.
 
   *Returns:* Atomically returns the value pointed to by `this` immediately before the effects.
-
-  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   <pre><code>
   bool compare_exchange_weak(T& expected, T desired,
@@ -974,11 +1115,11 @@ Modify as follows.
 
   *Requires:* The `failure` argument shall not be `memory_order::release` nor `memory_order::acq_rel`.
 
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:*  Retrieves the value in `expected`. It then atomically compares the value representation of the value pointed to by `this` for equality with that previously retrieved from `expected`,eand if true, replaces the value pointed to by `this` with that in `desired`. If and only if the comparison is true, memory is affected according to the value of `success`, and if the comparison is false, memory is affected according to the value of `failure`. When only one `memory_order` argument is supplied, the value of `success` is `order`, and the value of `failure` is `order` except that a value of `memory_order::acq_rel` shall be replaced by the value `memory_order::acquire` and a value of `memory_order::release` shall be replaced by the value `memory_order::relaxed`. If and only if the comparison is false then, after the atomic operation, the value in `expected` is replaced by the value pointed to by `this` during the atomic comparison. If the operation returns `true`, these operations are atomic read-modify-write operations on the memory pointed to by `this`. Otherwise, these operations are atomic load operations on that memory.
 
   *Returns:* The result of the comparison.
-
-  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   [...]
   
@@ -989,11 +1130,11 @@ Modify as follows.
   T fetch_<i>key</i>(T operand, memory_order order = memory_order::seq_cst) noexcept;
   </code></pre>
 
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:* Atomically replaces the value pointed to by `this` with the result of the computation applied to the value pointed to by `this` and the given `operand`. Memory is affected according to the value of `order`. These operations are atomic read-modify-write operations.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
-
-  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* For signed integer types, the result is as if the object value and parameters were converted to their corresponding unsigned types, the computation performed on those types, and the result converted back to the signed type. [ *Note:* There are no undefined results arising from the computation.  —*end note* ]
 
@@ -1002,9 +1143,9 @@ Modify as follows.
   T operator <i>op</i>=(T operand) noexcept;
   </code></pre>
 
-  *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
+  <ins>*Constraints:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
-  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
   Specializations for floating-point types [**atomics.types.float**]
 
@@ -1015,11 +1156,11 @@ Modify as follows.
   T A::fetch_<i>key</i>(T operand, memory_order order = memory_order_seq_cst) noexcept;
   </code></pre>
 
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:* Atomically replaces the value pointed to by `this` with the result of the computation applied to the value pointed to by `this` and the given `operand`. Memory is affected according to the value of `order`. These operations are atomic read-modify-write operations.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
-
-  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* If the result is not a representable value for its type the result is unspecified, but the operations otherwise have no undefined behavior. Atomic arithmetic operations on <code><i>floating-point</i></code> should conform to the <code>std::numeric_limits&lt;<i>floating-point</i>&gt;</code> traits associated with the floating-point type. The floating-point environment for atomic arithmetic operations on <code><i>floating-point</i></code> may be different than the calling thread's floating-point environment.
 
@@ -1027,6 +1168,8 @@ Modify as follows.
   T operator <i>op</i>=(T operand) volatile noexcept;
   T operator <i>op</i>=(T operand) noexcept;
   </code></pre>
+
+  <ins>*Constraints:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
@@ -1041,11 +1184,11 @@ Modify as follows.
 
   *Requires:* T shall be an object type, otherwise the program is ill-formed. [ *Note:* Pointer arithmetic on `void*` or function pointers is ill-formed. —*end note* ]
 
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:* Atomically replaces the value pointed to by `this` with the result of the computation applied to the value pointed to by `this` and the given `operand`. Memory is affected according to the value of `order`. These operations are atomic read-modify-write operations.
 
   *Returns:* Atomically, the value pointed to by `this` immediately before the effects.
-
-  <ins>*Mandates:* for the `volatile` overloads of these methods, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Remarks:* The result may be an undefined address, but the operations otherwise have no undefined behavior.
 
@@ -1053,6 +1196,8 @@ Modify as follows.
   T* operator <i>op</i>=(ptrdiff_t operand) volatile noexcept;
   T* operator <i>op</i>=(ptrdiff_t operand) noexcept;
   </code></pre>
+
+  <ins>*Constraints:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
@@ -1063,12 +1208,16 @@ Modify as follows.
   T operator++(int) noexcept;
   </code></pre>
 
+  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:* Equivalent to: `return fetch_add(1);`
 
   <pre><code>
   T operator--(int) volatile noexcept;
   T operator--(int) noexcept;
   </code></pre>
+
+  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: `return fetch_sub(1);`
 
@@ -1077,12 +1226,16 @@ Modify as follows.
   T operator++() noexcept;
   </code></pre>
 
+  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+
   *Effects:* Equivalent to: `return fetch_add(1) + 1;`
 
   <pre><code>
   T operator--() volatile noexcept;
   T operator--() noexcept;
   </code></pre>
+
+  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: `return fetch_sub(1) - 1;`
 
@@ -1097,9 +1250,9 @@ Modify as follows.
     void atomic_init(atomic&lt;T&gt;* object, typename atomic&lt;T&gt;::value_type desired) noexcept;
   </code></pre>
 
-  *Effects:* Non-atomically initializes `*object` with value `desired`. This function shall only be applied to objects that have been default constructed, and then only once. [ *Note:* These semantics ensure compatibility with C. —*end note* ] [ *Note:* Concurrent access from another thread, even via an atomic operation, constitutes a data race.  —*end note* ]
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
-  <ins>*Mandates:* for the `volatile` overload of this method, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  *Effects:* Non-atomically initializes `*object` with value `desired`. This function shall only be applied to objects that have been default constructed, and then only once. [ *Note:* These semantics ensure compatibility with C. —*end note* ] [ *Note:* Concurrent access from another thread, even via an atomic operation, constitutes a data race.  —*end note* ]
 
   [ *Note:* The non-member functions enable programmers to write code that can be compiled as either C or C++, for example in a shared header file.  —*end note* ]
 
@@ -1147,7 +1300,7 @@ are deprecated.
     
     [...]
     
-    // [<i>tuple.helper</i>, tuple helper classes
+    // [<i>tuple.helper</i>], tuple helper classes
     template&lt;class T&gt; class tuple_size&lt;volatile T&gt;;
     template&lt;class T&gt; class tuple_size&lt;const volatile T&gt;;
     
@@ -1254,12 +1407,14 @@ are deprecated.
 
 ### Atomic operations library [**depr.atomics**] ### {#depr.atomics}
 
-If an atomic specialization has one of The following overloads, then that
+If an atomic specialization has one of the following overloads, then that
 overload is available when `atomic<T>::is_always_lock_free` is `false`:
 
 <pre><code>
   void store(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
+  T operator=(T desired) volatile noexcept;
   T load(memory_order order = memory_order::seq_cst) const volatile noexcept;
+  operator T() const volatile noexcept;
   T exchange(T desired, memory_order order = memory_order::seq_cst) volatile noexcept;
   bool compare_exchange_weak(T&amp; expected, T desired, memory_order success, memory_order failure) volatile noexcept;
   bool compare_exchange_strong(T&amp; expected, T desired, memory_order success, memory_order failure) volatile noexcept;
