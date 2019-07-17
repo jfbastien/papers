@@ -1039,7 +1039,7 @@ Modify as follows.
   T operator=(T desired) noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:*  Equivalent to `store(desired)`.
 
@@ -1127,7 +1127,7 @@ Modify as follows.
   T operator <i>op</i>=(T operand) noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
@@ -1153,7 +1153,7 @@ Modify as follows.
   T operator <i>op</i>=(T operand) noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
@@ -1181,7 +1181,7 @@ Modify as follows.
   T* operator <i>op</i>=(ptrdiff_t operand) noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overloads of these functions, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: <code>return fetch_<i>key</i>(operand) <i>op</i> operand;</code>
 
@@ -1192,7 +1192,7 @@ Modify as follows.
   T operator++(int) noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: `return fetch_add(1);`
 
@@ -1201,7 +1201,7 @@ Modify as follows.
   T operator--(int) noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: `return fetch_sub(1);`
 
@@ -1210,7 +1210,7 @@ Modify as follows.
   T operator++() noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: `return fetch_add(1) + 1;`
 
@@ -1219,7 +1219,7 @@ Modify as follows.
   T operator--() noexcept;
   </code></pre>
 
-  <ins>*Constraints:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
+  <ins>*Mandates:* For the `volatile` overload of this function, `atomic<T>::is_always_lock_free` is `true`.</ins>
 
   *Effects:* Equivalent to: `return fetch_sub(1) - 1;`
 
