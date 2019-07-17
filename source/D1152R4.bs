@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 6
+!Draft Revision: 7
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -53,6 +53,8 @@ Edit wording of the following sections as suggested by Jens Maurer:
 [**over.load**], [**over.built**].
 
 Drop one word from [**tuple**] as suggested by Arthur O'Dwyer.
+
+Add [**dcl.struct.bind**].
 
 Add Annex D.
 
@@ -535,138 +537,120 @@ Modify as follows.
   deprecated; see [**depr.volatile**].</ins>
 
 </blockquote>
-<!--
+
 Structured binding declarations [**dcl.struct.bind**] {#dcl.struct.bind}
------------------------------------------------------ structured binding declaration introduces the \grammarterm{identifier}{s}
-`v`_0$, `v`_1$, `v`_2, \dotsc$
-of the
-\grammarterm{identifier-list} as names\iref{basic.scope.declarative}
-of \defn{structured binding}{s}.
-Let \cv{} denote the \grammarterm{cv-qualifier}{s} in
-the \grammarterm{decl-specifier-seq} and
-\placeholder{S} consist of the \grammarterm{storage-class-specifier}{s} of
-the \grammarterm{decl-specifier-seq} (if any).
-First, a variable with a unique name \exposid{e} is introduced. If the
-\grammarterm{assignment-expression} in the \grammarterm{initializer}
-has array type \tcode{A} and no \grammarterm{ref-qualifier} is present,
-\exposid{e} is defined by
+-----------------------------------------------------
 
-\begin{ncbnf}
-\opt{attribute-specifier-seq} \placeholder{S} \cv{} \terminal{A} \exposid{e} \terminal{;}
-\end{ncbnf}
+Modify as follows:
 
-and each element is copy-initialized or direct-initialized
-from the corresponding element of the \grammarterm{assignment-expression} as specified
-by the form of the \grammarterm{initializer}.
-Otherwise, \exposid{e}
-is defined as-if by
+<blockquote>
 
-\begin{ncbnf}
-\opt{attribute-specifier-seq} decl-specifier-seq \opt{ref-qualifier} \exposid{e} initializer \terminal{;}
-\end{ncbnf}
+A structured binding declaration introduces the *identifier*s
+<code>v<sub>0</sub></code>, <code>v<sub>1</sub></code>,
+<code>v<sub>2</sub></code>, ... of the *identifier-list* as names of *structured
+binding*s. Let *cv* denote the *cv-qualifier*s in the *decl-specifier-seq* and
+*S* consist of the *storage-class-specifier*s of the *decl-specifier-seq* (if
+any). First, a variable with a unique name `e` is introduced. If the
+*assignment-expression* in the *initializer* has array type `A` and no
+*ref-qualifier* is present, `e` is defined by
 
-where
-the declaration is never interpreted as a function declaration and
-the parts of the declaration other than the \grammarterm{declarator-id} are taken
-from the corresponding structured binding declaration.
-The type of the \grammarterm{id-expression}
-\exposid{e} is called \tcode{E}.
-\begin{note}
-\tcode{E} is never a reference type\iref{expr.prop}.
-\end{note}
+*attribute-specifier-seq*<sub>*opt*</sub> *S* *cv* `A` `e` `;`
 
+and each element is copy-initialized or direct-initialized from the
+corresponding element of the *assignment-expression* as specified by the form of
+the *initializer*. Otherwise, `e` is defined as-if by
 
-If the \grammarterm{initializer} refers to
-one of the names introduced by the structured binding declaration,
-the program is ill-formed.
+*attribute-specifier-seq*<sub>*opt*</sub> *decl-specifier-seq* *ref-qualifier*<sub>*opt*</sub> `e` *initializer* `;`
 
+where the declaration is never interpreted as a function declaration and the
+parts of the declaration other than the *declarator-id* are taken from the
+corresponding structured binding declaration. The type of the *id-expression*
+`e` is called `E`.
 
-If \tcode{E} is an array type with element type \tcode{T}, the number
-of elements in the \grammarterm{identifier-list} shall be equal to the
-number of elements of \tcode{E}. Each \tcode{v}$_i$ is the name of an
-lvalue that refers to the element $i$ of the array and whose type
-is \tcode{T}; the referenced type is \tcode{T}.
-\begin{note}
-The top-level cv-qualifiers of \tcode{T} are \cv.
-\end{note}
-\begin{example}
-\begin{codeblock}
-  auto f() -> int(&)[2];
-  auto [ x, y ] = f();          // \tcode{x} and \tcode{y} refer to elements in a copy of the array return value
-  auto& [ xr, yr ] = f();       // \tcode{xr} and \tcode{yr} refer to elements in the array referred to by \tcode{f}'s return value
-\end{codeblock}
-\end{example}
+<ins>A `volatile`-qualified `E` is deprecated; see [**depr.volatile**].</ins>
+
+[ *Note:*
+  `E` is never a reference type.
+ —*end note* ]
+
+If the *initializer* refers to one of the names introduced by the structured
+binding declaration, the program is ill-formed.
+
+If `E` is an array type with element type `T`, the number of elements in the
+*identifier-list* shall be equal to the number of elements of `E`. Each
+`v`<sub>i</sub> is the name of an lvalue that refers to the element i of the
+array and whose type is `T`; the referenced type is `T`.
+
+<ins>A `volatile`-qualified `T` is deprecated; see [**depr.volatile**].</ins>
+
+[ *Note:*
+  The top-level cv-qualifiers of `T` are *cv*.
+ —*end note* ]
+
+[ *Example:*
+<pre><code>
+  auto f() -&gt; int(&amp;)[2];
+  auto [ x, y ] = f();          // `x` and `y` refer to elements in a copy of the array return value
+  auto&amp; [ xr, yr ] = f();       // `xr` and `yr` refer to elements in the array referred to by `f`'s return value
+</code></pre>
+ —*end example* ]
 
 
-Otherwise, if
-the \grammarterm{qualified-id} \tcode{std::tuple_size<E>}
-names a complete class type with a member named \tcode{value},
-the expression \tcode{std::tuple_size<E>::value}
-shall be a well-formed integral constant expression
-and
-the number of elements in
-the \grammarterm{identifier-list} shall be equal to the value of that
-expression.
-Let \tcode{i} be an index prvalue of type \tcode{std::size_t}
-corresponding to `v`_\tcode{i}$.
-The \grammarterm{unqualified-id} \tcode{get} is looked up
-in the scope of \tcode{E} by class member access lookup\iref{basic.lookup.classref},
-and if that finds at least one declaration
-that is a function template whose first template parameter
-is a non-type parameter,
-the initializer is
-\tcode{\exposid{e}.get<i>()}. Otherwise, the initializer is \tcode{get<i>(\exposid{e})},
-where \tcode{get} is looked up in the associated namespaces\iref{basic.lookup.argdep}.
-In either case, \tcode{get<i>} is interpreted as a \grammarterm{template-id}.
-\begin{note}
-Ordinary unqualified lookup\iref{basic.lookup.unqual} is not performed.
-\end{note}
-In either case, \exposid{e} is an lvalue if the type of the entity \exposid{e}
-is an lvalue reference and an xvalue otherwise.
-Given the type `T`_i$ designated by
-\tcode{std::tuple_element<i, E>::type} and
-the type `U`_i$ designated by
-either \tcode{`T`_i$\&} or \tcode{`T`_i$\&\&},
-where `U`_i$ is an lvalue reference if
-the initializer is an lvalue and an rvalue reference otherwise,
-variables are introduced with unique names `r`_i$ as follows:
+Otherwise, if the *qualified-id* `std::tuple_size<E>` names a complete class
+type with a member named `value`, the expression `std::tuple_size<E>::value`
+shall be a well-formed integral constant expression and the number of elements
+in the *identifier-list* shall be equal to the value of that expression. Let `i`
+be an index prvalue of type `std::size_t` corresponding to `v`<sub>`i`</sub>.
+The *unqualified-id* `get` is looked up in the scope of `E` by class member
+access lookup, and if that finds at least one declaration that is a function
+template whose first template parameter is a non-type parameter, the initializer
+is `e.get<i>()`. Otherwise, the initializer is `get<i>(e)`, where `get` is
+looked up in the associated namespaces. In either case, `get<i>` is interpreted
+as a *template-id*.
 
-\begin{ncbnf}
-\placeholder{S} \terminal{U$_i$ r$_i$ =} initializer \terminal{;}
-\end{ncbnf}
+[ *Note:*
+  Ordinary unqualified lookup is not performed.
+ —*end note* ]
 
-Each `v`_i$ is the name of an lvalue of type `T`_i$
-that refers to the object bound to `r`_i$;
-the referenced type is `T`_i$.
+In either case, `e` is an lvalue if the type of the entity `e` is an lvalue
+reference and an xvalue otherwise. Given the type `T`<sub>i</sub> designated by
+`std::tuple_element<i, E>::type` and the type `U`<sub>i</sub> designated by
+either <code>T<sub>i<sub>&amp;</code> or <code>T<sub>i<sub>&amp;&amp;</code>,
+where `U`<sub>i</sub> is an lvalue reference if the initializer is an lvalue and
+an rvalue reference otherwise, variables are introduced with unique names
+`r`<code>i</code> as follows:
+
+  *S* <code>U<sub>i</sub> r<sub>i</sub> =</code> initializer `;`
+
+Each `v`<sub>i</sub> is the name of an lvalue of type `T`<sub>i</sub> that
+refers to the object bound to `r`<sub>i</sub>; the referenced type is
+`T`<sub>i</sub>.
 
 
-Otherwise,
-all of \tcode{E}'s non-static data members
-shall be direct members of \tcode{E} or
-of the same base class of \tcode{E},
-well-formed when named as \tcode{\exposid{e}.\placeholder{name}}
-in the context of the structured binding,
-\tcode{E} shall not have an anonymous union member, and
-the number of elements in the \grammarterm{identifier-list} shall be
-equal to the number of non-static data members of \tcode{E}.
-Designating the non-static data members of \tcode{E} as
-`m`_0$, `m`_1$, `m`_2, \dotsc$
-(in declaration order),
-each \tcode{v}$_i$ is the
-name of an lvalue that refers to the member \tcode{m}$_i$ of \exposid{e} and
-whose type is \cv{}~`T`_i$, where `T`_i$ is the declared type of
-that member; the referenced type is \cv{}~`T`_i$. The lvalue is a
-bit-field if that member is a bit-field.
-\begin{example}
-\begin{codeblock}
-struct S { int x1 : 2; volatile double y1; };
-S f();
-const auto [ x, y ] = f();
-\end{codeblock}
-The type of the \grammarterm{id-expression} \tcode{x} is ``\tcode{const int}'',
-the type of the \grammarterm{id-expression} \tcode{y} is ``\tcode{const volatile double}''.
-\end{example}
--->
+Otherwise, all of `E`'s non-static data members shall be direct members of `E`
+or of the same base class of `E`, well-formed when named as
+<code>e.*name*</code> in the context of the structured binding, `E` shall not
+have an anonymous union member, and the number of elements in the
+*identifier-list* shall be equal to the number of non-static data members of
+`E`. Designating the non-static data members of `E` as `m`<sub>0</sub>,
+`m`<sub>1</sub>, `m`<sub>2</sub>, ... (in declaration order), each
+`v`<sub>i</sub> is the name of an lvalue that refers to the member
+`m`<sub>i</sub> of `e` and whose type is *cv* `T`<sub>i</sub>, where
+`T`<sub>i</sub> is the declared type of that member; the referenced type is *cv*
+`T`<sub>i</sub>. The lvalue is a bit-field if that member is a bit-field.
+
+[ *Example:*
+<pre><code>
+  struct S { int x1 : 2; <del>volatile </del>double y1; };
+  S f();
+  const auto [ x, y ] = f();
+</pre></code>
+The type of the *id-expression* `x` is `const int`,
+the type of the *id-expression* `y` is <code>const <del>volatile </del>double</code>.
+ —*end example* ]
+
+</blockquote>
+
 
 Non-static member functions [**class.mfct.non-static**] {#class.mfct.non-static}
 -------------------------------------------------------
@@ -1290,6 +1274,11 @@ Function types with either:
   * `volatile`-qualified return types
 
 are deprecated.
+
+### Structured binding declarations [**depr.dcl.struct.bind**] ### {#depr.dcl.struct.bind}
+
+Structured bindings of `volatile`-qualified types, as well as structured
+bindings of arrays with `volatile`-qualified elements, are deprecated.
 
 ### Tuple [**depr.tuple**] ### {#depr.tuple}
 
