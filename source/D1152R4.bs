@@ -2,7 +2,7 @@
 Title: Deprecating <code>volatile</code>
 Shortname: D1152
 Revision: 4
-!Draft Revision: 7
+!Draft Revision: 8
 Audience: CWG, LWG
 Status: D
 Group: WG21
@@ -10,7 +10,7 @@ URL: http://wg21.link/D1152R4
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1152R4.bs">github.com/jfbastien/papers/blob/master/source/D1152R4.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2019-07-17
+Date: 2019-07-19
 Markup Shorthands: markdown yes
 </pre>
 
@@ -297,7 +297,7 @@ Modify as follows.
   shall be a modifiable lvalue. The type of the operand shall be an
   arithmetic type other than *cv* `bool`, or a
   pointer to a complete object type. <ins>An operand with `volatile`-qualified
-  type is deprecated; see [**depr.volatile**].</ins> The value of the operand object is
+  type is deprecated; see [**depr.volatile.type**].</ins> The value of the operand object is
   modified by adding `1` to it. The value computation of the `++` expression is
   sequenced before the modification of the operand object. With respect to an
   indeterminately-sequenced function call, the operation of postfix `++` is a
@@ -354,7 +354,7 @@ Modify as follows.
   modifiable lvalue. The type of the operand shall be an arithmetic type
   other than *cv* `bool`, or a pointer to a
   completely-defined object type. <ins>An operand with `volatile`-qualified type
-  is deprecated; see [**depr.volatile**].</ins> The result is the updated operand; it is an
+  is deprecated; see [**depr.volatile.type**].</ins> The result is the updated operand; it is an
   lvalue, and it is a bit-field if the operand is a bit-field. The expression
   `++x` is equivalent to `x+=1`. [ *Note:* See the discussions of [**expr.add**]
   and assignment operators [**expr.ass**] for information on conversions. —*end
@@ -414,12 +414,6 @@ Modify as follows.
   converted to the cv-unqualified type of the left operand.
   </li>
   
-  <li><ins>
-  Simple assignments where the left operand is a `volatile`-qualified type that
-  is not of class type shall either be a discarded-value expression or appear in
-  an unevaluated context (other usages are deprecated; see [**depr.volatile**]).
-  </ins></li>
-
   <li>
   If the left operand is of class type, the class shall be complete. Assignment
   to objects of a class is defined by the copy/move assignment.
@@ -436,15 +430,22 @@ Modify as follows.
   implementation-defined.
   </li>
   
+  <li><ins>
+  Simple assignments where the left operand is a `volatile`-qualified type that
+  is not of class type are deprecated (see [**depr.volatile.type**]) unless they are
+  either a discarded-value expression or appear in an unevaluated context.
+  </ins></li>
+
   <li>
   The behavior of an expression of the form
   <code>E1 <em>op</em>= E2</code> is equivalent to
   <code>E1 = E1 <em>op</em> E2</code>
-  except that `E1` is evaluated only once. In `+=` and `-=`, `E1` shall either
+  except that `E1` is evaluated only once. <ins>Such expressions are deprecated
+  if `E1` has `volatile`-qualified type;
+  see [**depr.volatile.type**].</ins> In `+=` and `-=`, `E1` shall either
   have arithmetic type or be a pointer to a possibly cv-qualified
   completely-defined object type. In all other cases, `E1` shall have arithmetic
-  type. <ins>Such expressions are deprecated if `E1` has `volatile`-qualified type;
-  see [**depr.volatile**].</ins>
+  type.
   </li>
 
   <li>
@@ -507,7 +508,7 @@ Modify as follows.
   parameter list consisting of a single unnamed parameter of non-dependent type
   `void` is equivalent to an empty parameter list. Except for this special case,
   a parameter shall not have type *cv* `void`. <ins>A parameter with
-  `volatile`-qualified type is deprecated; see [**depr.volatile**].</ins>
+  `volatile`-qualified type is deprecated; see [**depr.volatile.type**].</ins>
   If the *parameter-declaration-clause* terminates with an ellipsis or a
   function parameter pack, the number of arguments shall be equal to or greater
   than the number of parameters that do not have a default argument and are not
@@ -534,7 +535,7 @@ Modify as follows.
   functions.
   
   <ins>A `volatile`-qualified return type is
-  deprecated; see [**depr.volatile**].</ins>
+  deprecated; see [**depr.volatile.type**].</ins>
 
 </blockquote>
 
@@ -550,107 +551,14 @@ A structured binding declaration introduces the *identifier*s
 <code>v<sub>2</sub></code>, ... of the *identifier-list* as names of *structured
 binding*s. Let *cv* denote the *cv-qualifier*s in the *decl-specifier-seq* and
 *S* consist of the *storage-class-specifier*s of the *decl-specifier-seq* (if
-any). First, a variable with a unique name `e` is introduced. If the
-*assignment-expression* in the *initializer* has array type `A` and no
-*ref-qualifier* is present, `e` is defined by
+any). <ins>A *cv* that includes `volatile` is deprecated; see
+[**depr.volatile.type**].</ins> First, a variable with a unique name `e` is
+introduced. If the *assignment-expression* in the *initializer* has array type
+`A` and no *ref-qualifier* is present, `e` is defined by
 
 *attribute-specifier-seq*<sub>*opt*</sub> *S* *cv* `A` `e` `;`
 
-and each element is copy-initialized or direct-initialized from the
-corresponding element of the *assignment-expression* as specified by the form of
-the *initializer*. Otherwise, `e` is defined as-if by
-
-*attribute-specifier-seq*<sub>*opt*</sub> *decl-specifier-seq* *ref-qualifier*<sub>*opt*</sub> `e` *initializer* `;`
-
-where the declaration is never interpreted as a function declaration and the
-parts of the declaration other than the *declarator-id* are taken from the
-corresponding structured binding declaration. The type of the *id-expression*
-`e` is called `E`.
-
-<ins>A `volatile`-qualified `E` is deprecated; see [**depr.volatile**].</ins>
-
-[ *Note:*
-  `E` is never a reference type.
- —*end note* ]
-
-If the *initializer* refers to one of the names introduced by the structured
-binding declaration, the program is ill-formed.
-
-If `E` is an array type with element type `T`, the number of elements in the
-*identifier-list* shall be equal to the number of elements of `E`. Each
-`v`<sub>i</sub> is the name of an lvalue that refers to the element i of the
-array and whose type is `T`; the referenced type is `T`.
-
-<ins>A `volatile`-qualified `T` is deprecated; see [**depr.volatile**].</ins>
-
-[ *Note:*
-  The top-level cv-qualifiers of `T` are *cv*.
- —*end note* ]
-
-[ *Example:*
-<pre><code>
-  auto f() -&gt; int(&amp;)[2];
-  auto [ x, y ] = f();          // `x` and `y` refer to elements in a copy of the array return value
-  auto&amp; [ xr, yr ] = f();       // `xr` and `yr` refer to elements in the array referred to by `f`'s return value
-</code></pre>
- —*end example* ]
-
-
-Otherwise, if the *qualified-id* `std::tuple_size<E>` names a complete class
-type with a member named `value`, the expression `std::tuple_size<E>::value`
-shall be a well-formed integral constant expression and the number of elements
-in the *identifier-list* shall be equal to the value of that expression. Let `i`
-be an index prvalue of type `std::size_t` corresponding to `v`<sub>`i`</sub>.
-The *unqualified-id* `get` is looked up in the scope of `E` by class member
-access lookup, and if that finds at least one declaration that is a function
-template whose first template parameter is a non-type parameter, the initializer
-is `e.get<i>()`. Otherwise, the initializer is `get<i>(e)`, where `get` is
-looked up in the associated namespaces. In either case, `get<i>` is interpreted
-as a *template-id*.
-
-[ *Note:*
-  Ordinary unqualified lookup is not performed.
- —*end note* ]
-
-In either case, `e` is an lvalue if the type of the entity `e` is an lvalue
-reference and an xvalue otherwise. Given the type `T`<sub>i</sub> designated by
-`std::tuple_element<i, E>::type` and the type `U`<sub>i</sub> designated by
-either <code>T<sub>i<sub>&amp;</code> or <code>T<sub>i<sub>&amp;&amp;</code>,
-where `U`<sub>i</sub> is an lvalue reference if the initializer is an lvalue and
-an rvalue reference otherwise, variables are introduced with unique names
-`r`<code>i</code> as follows:
-
-  *S* <code>U<sub>i</sub> r<sub>i</sub> =</code> initializer `;`
-
-Each `v`<sub>i</sub> is the name of an lvalue of type `T`<sub>i</sub> that
-refers to the object bound to `r`<sub>i</sub>; the referenced type is
-`T`<sub>i</sub>.
-
-
-Otherwise, all of `E`'s non-static data members shall be direct members of `E`
-or of the same base class of `E`, well-formed when named as
-<code>e.*name*</code> in the context of the structured binding, `E` shall not
-have an anonymous union member, and the number of elements in the
-*identifier-list* shall be equal to the number of non-static data members of
-`E`. Designating the non-static data members of `E` as `m`<sub>0</sub>,
-`m`<sub>1</sub>, `m`<sub>2</sub>, ... (in declaration order), each
-`v`<sub>i</sub> is the name of an lvalue that refers to the member
-`m`<sub>i</sub> of `e` and whose type is *cv* `T`<sub>i</sub>, where
-`T`<sub>i</sub> is the declared type of that member; the referenced type is *cv*
-`T`<sub>i</sub>. The lvalue is a bit-field if that member is a bit-field.
-
-[ *Example:*
-<pre><code>
-  struct S { int x1 : 2; <del>volatile </del>double y1; };
-  S f();
-  const auto [ x, y ] = f();
-</pre></code>
-The type of the *id-expression* `x` is `const int`,
-the type of the *id-expression* `y` is <code>const <del>volatile </del>double</code>.
- —*end example* ]
-
 </blockquote>
-
 
 Non-static member functions [**class.mfct.non-static**] {#class.mfct.non-static}
 -------------------------------------------------------
@@ -1246,39 +1154,22 @@ Modify as follows.
 Annex D {#annexD}
 -------
 
-Add the following wording to Annex D in [**depr.volatile**]:
+Add the following wording to Annex D:
 
-### `volatile` increment and decrement  [**depr.expr.post.incr**] ### {#depr.expr.post.incr}
+### Deprecated `volatile` types [**depr.volatile.type**] ### {#depr.volatile.type}
 
-Postfix `++` and postfix `--` expressions of `volatile`-qualified arithmetic and
+Postfix `++` and `--` expressions ([**expr.post.incr**]) and prefix `++` and
+`--` expressions ([**expr.pre.incr**]) of `volatile`-qualified arithmetic and
 pointer types are deprecated.
 
-### `volatile` increment and decrement  [**depr.expr.pre.incr**] ### {#depr.expr.pre.incr}
+Certain assignments where the left operand is a `volatile`-qualified non-class
+type are deprecated; see [**expr.ass**].
 
-Prefix `++` and postfix `--` expressions of `volatile`-qualified arithmetic and
-pointer types are deprecated.
+A function type ([**dcl.fct**]) with a parameter with `volatile`-qualified type
+or with a `volatile`-qualified return type is deprecated.
 
-### Assignment and compound assignment operators [**depr.expr.ass**] ### {#depr.expr.ass}
-
-Assignments where the left operand is a `volatile`-qualified non-class type are
+A structured binding ([**dcl.struct.bind**]) of a `volatile`-qualified type is
 deprecated.
-
-Compound assignments where the left operand is a `volatile`-qualified non-class
-type are deprecated.
-
-### Functions [**depr.dcl.fct**] ### {#depr.dcl.fct}
-
-Function types with either:
-
-  * parameters with `volatile`-qualified types; or
-  * `volatile`-qualified return types
-
-are deprecated.
-
-### Structured binding declarations [**depr.dcl.struct.bind**] ### {#depr.dcl.struct.bind}
-
-Structured bindings of `volatile`-qualified types, as well as structured
-bindings of arrays with `volatile`-qualified elements, are deprecated.
 
 ### Tuple [**depr.tuple**] ### {#depr.tuple}
 
