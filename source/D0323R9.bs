@@ -1460,7 +1460,33 @@ object of type `E` with the expression `std::move(e.val)`.
 
 ### �.�.5.2.2 Assignment [*expected.unexpected.assign*] ### {#expected.unexpected.assign}
 
-<!-- TODO Wako will send a PR -->
+```c++
+template<class Err = E>
+    constexpr unexpected& operator=(const unexpected<Err>& e);
+```
+
+*Constraints*: `is_assignable_v<E, const Err&>` is `true`.
+
+*Effects*: Equivalent to `val = e.val`.
+
+*Returns*: `*this`.
+
+*Remarks*: If `E`’s selected assignment operator is a constant subexpression,
+this function is a constexpr function.
+
+```c++
+template<class Err = E>
+    constexpr unexpected& operator=(unexpected<Err>&& e);
+```
+
+*Constraints*: `is_assignable_v<E, Err>` is `true`.
+
+*Effects*: Equivalent to `val = std::move(e.val)`.
+
+*Returns*: `*this`.
+
+*Remarks*: If `E`’s selected assignment operator is a constant subexpression,
+this function is a constexpr function.
 
 ### �.�.5.2.3 Observers [*expected.unexpected.observe*] ### {#expected.unexpected.observe}
 
