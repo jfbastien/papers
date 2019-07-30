@@ -1482,7 +1482,7 @@ constexpr const E&& value() const&&;
 ### �.�.5.2.4 Swap [*expected.unexpected.ctor*] ### {#expected.unexpected.swap}
 
 ```c++
-    void swap(unexpected& other) noexcept(see below);
+void swap(unexpected& other) noexcept(see below);
 ```
 
 *Requires*: `is_swappable_v<E>` is `true`.
