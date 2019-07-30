@@ -132,12 +132,12 @@ public:
     constexpr expected(const expected&);
     constexpr expected(expected&&) noexcept(see below);
     template<class U, class G>
-        EXPLICIT constexpr expected(const expected<U, G>&);
+        explicit(see below) constexpr expected(const expected<U, G>&);
     template<class U, class G>
-        EXPLICIT constexpr expected(expected<U, G>&&);
+        explicit(see below) constexpr expected(expected<U, G>&&);
 
     template<class U = T>
-        EXPLICIT constexpr expected(U&& v);
+        explicit(see below) constexpr expected(U&& v);
 
     template<class G = E>
         constexpr expected(const unexpected<G>&);
@@ -334,8 +334,8 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
   * `is_trivially_move_constructible_v<E>` is `true`.
 
 ```c++
-    template<class U, class G>
-    EXPLICIT constexpr expected(const expected<U, G>& rhs);
+template<class U, class G>
+    explicit(see below) constexpr expected(const expected<U, G>& rhs);
 ```
 
 *Constraints*: `T` and `U` are *cv* `void` or:
@@ -370,7 +370,7 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
 *Remarks*:
-This constructor is explicit if and only if
+The expression inside `explicit` is `true` if and only if:
 
   * `T` and `U` are not *cv* `void` and `is_convertible_v<const U&, T>` is `false` or
   * `is_convertible_v<const G&, E>` is `false`.
@@ -378,7 +378,7 @@ This constructor is explicit if and only if
 
 ```c++
 template<class U, class G>
-    EXPLICIT constexpr expected(expected<U, G>&& rhs);
+    explicit(see below) constexpr expected(expected<U, G>&& rhs);
 ```
 
 *Constraints*: `T` and `U` are *cv* `void` or:
@@ -414,14 +414,14 @@ of type `unexpected<E> ` with the expression
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
-*Remarks*: The constructor is explicit if and only if
+*Remarks*: The explression inside `explicit` is `true` if and only if
 
   * `T` and `U` are not *cv* `void` and `is_convertible_v<U&&, T>` is `false` or
   * `is_convertible_v<G&&, E>` is `false`.
 
 ```c++
 template<class U = T>
-    EXPLICIT constexpr expected(U&& v);
+    explicit(see below) constexpr expected(U&& v);
 ```
 
 *Constraints*:
@@ -442,11 +442,11 @@ object of type `T` with the expression `std::forward<U>(v)`.
 *Remarks*: If `T`'s selected constructor is a constant subexpression, this
 constructor is a constexpr constructor.
 
-*Remarks*: The constructor is explicit if and only if `is_convertible_v<U&&, T>` is `false`.
+*Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<U&&, T>`.
 
 ```c++
 template<class G = E>
-    EXPLICIT constexpr expected(const unexpected<G>& e);
+    explicit(see below) constexpr expected(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_constructible_v<E, const G&>` is `true`.
@@ -459,13 +459,12 @@ an object of type `unexpected<E>` with the expression `e`.
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
 *Remarks*: If `unexpected<E>`'s selected constructor is a constant
-subexpression, this constructor shall be a constexpr constructor. The
-constructor is explicit if and only if `is_convertible_v<const G&, E>` is
-`false`.
+subexpression, this constructor shall be a constexpr constructor.
+The expression inside `explicit` is equivalent to `!is_convertible_v<const G&, E>`.
 
 ```c++
 template<class G = E>
-    EXPLICIT constexpr expected(unexpected<G>&& e);
+    explicit(see below) constexpr expected(unexpected<G>&& e);
 ```
 
 *Constraints*: `is_constructible_v<E, G&&>` is `true`.
@@ -480,8 +479,8 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 *Remarks*: If `unexpected<E>`'s selected constructor is a constant
 subexpression, this constructor is a constexpr constructor. The expression
 inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G&&>` is
-`true`. The constructor is explicit if and only if `is_convertible_v<G&&, E>` is
-`false`.
+`true`.
+The expression inside `explicit` is equivalent to `!is_convertible_v<G&&, E>`.
 
 ```c++
 template<class... Args>
@@ -1314,9 +1313,9 @@ public:
     template<class Err = E>
         constexpr explicit unexpected(Err&&);
     template<class Err>
-        constexpr EXPLICIT unexpected(const unexpected<Err>&);
+        constexpr explicit(see below) unexpected(const unexpected<Err>&);
     template<class Err>
-        constexpr EXPLICIT unexpected(unexpected<Err>&&);
+        constexpr explicit(see below) unexpected(unexpected<Err>&&);
 
     constexpr unexpected& operator=(const unexpected&) = default;
     constexpr unexpected& operator=(unexpected&&) = default;
@@ -1409,12 +1408,12 @@ If `E`’s selected constructor is a constant subexpression, this constructor is
 
 ```c++
 template<class Err>
-constexpr EXPLICIT unexpected(const unexpected<Err>& e);
+constexpr explicit(see below) unexpected(const unexpected<Err>& e);
 ```
 
 *Constraints*:
 
- * `std::is_constructible_v<E, Err>` is `true`; and
+ * `is_constructible_v<E, Err>` is `true`; and
  * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
  * `is_constructible_v<E, unexpected<Err>>` is `false`; and
  * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
@@ -1429,16 +1428,16 @@ object of type `E` with the expression `e.val`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`.
+*Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<Err, E>`.
 
 ```c++
 template<class Err>
-constexpr EXPLICIT unexpected(unexpected<Err>&& e);
+constexpr explicit(see below) unexpected(unexpected<Err>&& e);
 ```
 
 *Constraints*:
 
- * `std::is_constructible_v<E, Err>` is `true`; and
+ * `is_constructible_v<E, Err>` is `true`; and
  * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
  * `is_constructible_v<E, unexpected<Err>>` is `false`; and
  * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
@@ -1453,7 +1452,7 @@ object of type `E` with the expression `std::move(e.val)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: This constructor is `explicit` if and only if `std::is_convertible_v<Err, E>` is `false`
+*Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<Err, E>`.
 
 ### �.�.5.2.2 Assignment [*expected.unexpected.assign*] ### {#expected.unexpected.assign}
 
