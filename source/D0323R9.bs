@@ -877,8 +877,6 @@ expected<T, E>& operator=(unexpected<G>&& e);
   </tr>
 </table>
 
-*Effects*:
-
 *Returns*: `*this`.
 
 *Ensures*: `bool(*this)` is `false`.
