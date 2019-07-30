@@ -1538,7 +1538,7 @@ private:
 };
 ```
 
-Issue: Wondering if we just need an `const&` overload as we do for `system_error`.
+Issue: Wondering if we just need a `const&` overload as we do for `system_error`.
 
 The template class `bad_expected_access` defines the type of objects thrown as
 exceptions to report the situation where an attempt is made to access the value
