@@ -267,7 +267,7 @@ When `T` is not *cv* `void`, it shall meet the requirements of `Cpp17Destructibl
 constexpr expected();
 ```
 
-*Effects*: Value-Initializes `val` if `T` is not *cv* `void`.
+*Effects*: Value-initializes `val` if `T` is not *cv* `void`.
 
 *Postconditions*: `bool(*this)`.
 
