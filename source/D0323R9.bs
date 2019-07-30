@@ -1072,9 +1072,9 @@ constexpr const T* operator->() const;
 T* operator->();
 ```
 
-*Requires*: `bool(*this)` .
-
 *Constraints*: `T` is not *cv* `void`.
+
+*Expects*: `bool(*this)` is `true`.
 
 *Returns*: `addressof(val)`.
 
@@ -1083,9 +1083,9 @@ constexpr const T& operator*() const&;
 T& operator*() &;
 ```
 
-*Requires*: `bool(*this)`.
-
 *Constraints*: `T` is not *cv* `void`.
+
+*Expects*: `bool(*this)` is `true`.
 
 *Returns*: `val`.
 
@@ -1094,9 +1094,9 @@ constexpr T&& operator*() &&;
 constexpr const T&& operator*() const&&;
 ```
 
-*Requires*: `bool(*this)` .
-
 *Constraints*: `T` is not *cv* `void`.
+
+*Expects*: `bool(*this)` is `true`.
 
 *Returns*: `std::move(val)`.
 
@@ -1147,7 +1147,7 @@ constexpr const E& error() const&;
 constexpr E& error() &;
 ```
 
-*Requires*: `!bool(*this)`.
+*Expects*: `bool(*this)` is `false`.
 
 *Returns*: `unexpect.value()`.
 
@@ -1156,7 +1156,7 @@ constexpr E&& error() &&;
 constexpr const E&& error() const&&;
 ```
 
-*Requires*: `!bool(*this)`.
+*Expects*: `bool(*this)` is `false`.
 
 *Returns*: `std::move(unexpect.value())`.
 
@@ -1191,15 +1191,15 @@ template<class T1, class E1, class T2, class E2>
     friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Requires*: The expressions `*x == *y` and
-`unexpected(x.error()) == unexpected(y.error())` shall be well-formed and its result
-shall be convertible to `bool`.
+*Expects*: The expressions `*x == *y` and
+`unexpected(x.error()) == unexpected(y.error())` are well-formed and their results
+are convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
 `x.error() == y.error()`; otherwise `true` if `T1` and `T2` are *cv* `void` or `*x == *y` otherwise.
 
 *Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
-`*x == *y` and `x.error() == y.error()` are core constant expression, are
+`*x == *y` and `x.error() == y.error()` is a core constant expression, are
 constexpr functions.
 
 ```c++
@@ -1207,15 +1207,15 @@ template<class T1, class E1, class T2, class E2>
     constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Requires*: The expressions `*x != *y` and `x.error() != y.error()` shall be
-well-formed and its result shall be convertible to `bool`.
+*Mandates*: The expressions `*x != *y` and `x.error() != y.error()` are
+well-formed and their results are convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `true`; otherwise if `bool(x) == false`,
 `x.error() != y.error()`; otherwise `true` if `T1` and `T2` are
 *cv* `void` or `*x != *y`.
 
 *Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
-`*x != *y` and `x.error() != y.error()` are core
+`*x != *y` and `x.error() != y.error()` is a core
 constant expression, are constexpr functions.
 
 �.�.4.7 Comparison with `T` [*expected.comparison_T*] {#expected.comparison_T}
@@ -1226,8 +1226,8 @@ template<class T1, class E1, class T2> constexpr bool operator==(const expected<
 template<class T1, class E1, class T2> constexpr bool operator==(const T2& v, const expected<T1, E1>& x);
 ```
 
-*Requires*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` shall be well-formed
-and its result shall be convertible to
+*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
+and its result is convertible to
 `bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
 
 *Returns*: `bool(x) ? *x == v : false;`.
@@ -1238,8 +1238,8 @@ template<class T1, class E1, class T2> constexpr bool operator!=(const expected<
 template<class T1, class E1, class T2> constexpr bool operator!=(const T2& v, const expected<T1, E1>& x);
 ```
 
-*Requires*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` shall be well-formed
-and its result shall be convertible to
+*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
+and its result is convertible to
 `bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
 
 *Returns*: `bool(x) ? *x != v : false;`.
@@ -1253,8 +1253,8 @@ template<class T1, class E1, class E2> constexpr bool operator==(const expected<
 template<class T1, class E1, class E2> constexpr bool operator==(const unexpected<E2>& e, const expected<T1, E1>& x);
 ```
 
-*Requires*: The expression `unexpected(x.error()) == e` shall be well-formed and
-its result shall be convertible to `bool`.
+*Mandates*: The expression `unexpected(x.error()) == e` is well-formed and
+its result is convertible to `bool`.
 
 *Returns*: `bool(x) ? false : unexpected(x.error()) == e;`.
 
@@ -1263,8 +1263,9 @@ template<class T1, class E1, class E2> constexpr bool operator!=(const expected<
 template<class T1, class E1, class E2> constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x);
 ```
 
-*Requires*: The expression `unexpected(x.error()) != e` shall be well-formed and
-its result shall be convertible to `bool`.
+*Mandates*: The expression `unexpected(x.error()) != e` is well-formed and
+its result is convertible to `bool`.
+
 *Returns*: `bool(x) ? true : unexpected(x.error()) != e;`.
 
 
@@ -1481,7 +1482,7 @@ constexpr const E&& value() const&&;
 void swap(unexpected& other) noexcept(see below);
 ```
 
-*Requires*: `is_swappable_v<E>` is `true`.
+*Mandates*: `is_swappable_v<E>` is `true`.
 
 *Effects*: Equivalent to `using std::swap; swap(val, other.val);`.
 
