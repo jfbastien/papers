@@ -3,7 +3,7 @@ Title: Deprecating <code>volatile</code>
 Shortname: P1152
 Revision: 4
 Audience: CWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P1152R4
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1152R4.bs">github.com/jfbastien/papers/blob/master/source/P1152R4.bs</a>
