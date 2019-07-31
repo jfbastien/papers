@@ -414,7 +414,7 @@ of type `unexpected<E> ` with the expression
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
-*Remarks*: The explression inside `explicit` is `true` if and only if
+*Remarks*: The expression inside `explicit` is `true` if and only if
 
   * `T` and `U` are not *cv* `void` and `is_convertible_v<U&&, T>` is `false` or
   * `is_convertible_v<G&&, E>` is `false`.
