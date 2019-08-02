@@ -1415,7 +1415,7 @@ constexpr explicit(see below) unexpected(const unexpected<Err>& e);
 
 *Constraints*:
 
- * `is_constructible_v<E, Err>` is `true`; and
+ * `is_constructible_v<E, const Err&>` is `true`; and
  * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
  * `is_constructible_v<E, unexpected<Err>>` is `false`; and
  * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
@@ -1430,7 +1430,7 @@ object of type `E` with the expression `e.val`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<Err, E>`.
+*Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<const Err&, E>`.
 
 ```c++
 template<class Err>
