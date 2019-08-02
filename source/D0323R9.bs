@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 9
-!Draft Revision: 0
+!Draft Revision: 1
 Audience: LWG
 Status: P
 Group: WG21
@@ -11,13 +11,15 @@ URL: https://wg21.link/P0323R9
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2019-07-16
+Date: 2019-08-02
 Markup Shorthands: markdown yes
 </pre>
 
-This paper is an update to [[P0323r7]]. Revision 7 was published a year prior to
-revision 8. No LWG reviews have occurred between revision 7 and 8. As you read
-this paper, it has been:
+This paper is an update to [[P0323r8]], with significant wording fixes provided
+by the most wonderful Jonathan Wakely.
+
+Revision 7 was published a year prior to revision 8. No official LWG reviews
+have occurred between revision 7 and 9. As you read this paper, it has been:
 
   * <span id="N4015"></span> since [[N4015]] was initially published.
   * <span id="firstLEWGReview"></span> since the first LEWG review.
