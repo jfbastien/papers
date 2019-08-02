@@ -1,9 +1,9 @@
 <pre class='metadata'>
 Title: Deprecating <code>volatile</code>: library
-Shortname: D1831
+Shortname: P1831
 Revision: 0
 Audience: LWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P1831R0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1831R0.bs">github.com/jfbastien/papers/blob/master/source/P1831R0.bs</a>
