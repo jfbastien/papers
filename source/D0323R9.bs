@@ -1193,7 +1193,7 @@ template<class T1, class E1, class T2, class E2>
 ```
 
 *Expects*: The expressions `*x == *y` and
-`unexpected(x.error()) == unexpected(y.error())` are well-formed and their results
+`x.error())== y.error()` are well-formed and their results
 are convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
