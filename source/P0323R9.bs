@@ -1,17 +1,16 @@
 <pre class='metadata'>
 Title: std::expected
-Shortname: D0323
+Shortname: P0323
 Revision: 9
-!Draft Revision: 1
 Audience: LWG
 Status: P
 Group: WG21
 URL: https://wg21.link/P0323R9
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D0323R9.bs">github.com/jfbastien/papers/blob/master/source/D0323R9.bs</a>
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0323R9.bs">github.com/jfbastien/papers/blob/master/source/P0323R9.bs</a>
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2019-08-02
+Date: 2019-08-03
 Markup Shorthands: markdown yes
 </pre>
 
