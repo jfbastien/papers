@@ -1,0 +1,16 @@
+<pre class='metadata'>
+Title: Language Evolution Issue List
+Shortname: P2151
+Revision: 0
+Audience: EWG
+Status: D
+Group: WG21
+URL: http://wg21.link/P2151r0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2151r0.bs">github.com/jfbastien/papers/blob/master/source/P2151r0.bs</a>
+Editor: JF Bastien, Apple, jfbastien@apple.com
+Date: 2020-04-10
+Markup Shorthands: markdown yes
+Toggle Diffs: no
+No abstract: true
+</pre>
+
