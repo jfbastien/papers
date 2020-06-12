@@ -14,3 +14,12 @@ Toggle Diffs: no
 No abstract: true
 </pre>
 
+The purpose of this document is to record the status of issues which have come before the Evolution Working Group (EWG) of the INCITS PL22.16 and ISO WG21 C++ Standards Committee. Issues represent potential defects in the C++ Standard. Issues against Core Language, Library, and Library Evolution are tracked separately.
+
+EWG issues were previously tracked by [[N4539]].
+
+This document contains:
+
+* Evolution issues which are actively being considered by the Evolution Working Group, i.e., issues which have a status of New, Open, Ready, or Review.
+* Evolution issues which have have been closed since the document was last updated.
+
