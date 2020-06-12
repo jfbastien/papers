@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Removing Garbage Collection Support
 Shortname: D2186
-!Draft Revision: 1
+!Draft Revision: 2
 Revision: 0
 Audience: EWG, LEWG
 Status: D
@@ -48,6 +48,23 @@ Proposal {#proposal}
 
 Remove all of **[basic.stc.dynamic.safety]**.
 
+In **[expr.reinterpret.cast]**, remove as follows:
+
+<blockquote>
+
+A value of integral type or enumeration type can be explicitly converted to a pointer. A pointer converted to an integer of sufficient size (if any such exists on the implementation) and back to the same pointer type will have its original value; mappings between pointers and integers are otherwise implementation-defined. <del>[*Note:* Except as described in **[basic.stc.dynamic.safety]**, the result of such a conversion will not be a safely-derived pointer value.
+— *end note* ]</del>
+
+</blockquote>
+
+In **[new.delete]**, remove the six instances as follows:
+
+<blockquote>
+
+<del>Preconditions: If an implementation has strict pointer safety **[basic.stc.dynamic.safety]** then ptr is a safely-derived pointer.</del>
+
+</blockquote>
+
 In **[memory.syn]**, remove as follows:
 
 <blockquote>
@@ -78,5 +95,5 @@ In **[cpp.predefined]**, remove as follows:
 In **[c.malloc]**, remove as follows:
 
 <blockquote><del>
-Storage allocated directly with these functions is implicitly declared reachable on allocation, ceases to be declared reachable on deallocation, and need not cease to be declared reachable as the result of an `undeclare_reachable()` call. [ *Note:* — This allows existing C libraries to remain unaffected by restrictions on pointers that are not safely derived, at the expense of providing far fewer garbage collection and leak detection options for `malloc()`-allocated objects. It also allows `malloc()` to be implemented with a separate allocation arena, bypassing the normal `declare_reachable()` implementation. The above functions should never intentionally be used as a replacement for `declare_reachable()`, and newly written code is strongly encouraged to treat memory allocated with these functions as though it were allocated with `operator new`. — *end note* ]
+Storage allocated directly with these functions is implicitly declared reachable on allocation, ceases to be declared reachable on deallocation, and need not cease to be declared reachable as the result of an `undeclare_reachable()` call. [ *Note:* This allows existing C libraries to remain unaffected by restrictions on pointers that are not safely derived, at the expense of providing far fewer garbage collection and leak detection options for `malloc()`-allocated objects. It also allows `malloc()` to be implemented with a separate allocation arena, bypassing the normal `declare_reachable()` implementation. The above functions should never intentionally be used as a replacement for `declare_reachable()`, and newly written code is strongly encouraged to treat memory allocated with these functions as though it were allocated with `operator new`. — *end note* ]
 </del></blockquote>
