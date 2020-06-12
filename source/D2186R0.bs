@@ -1,0 +1,80 @@
+<pre class='metadata'>
+Title: Removing Garbage Collection Support
+Shortname: D2186
+!Draft Revision: 0
+Revision: 0
+Audience: LEWG
+Status: D
+Group: WG21
+URL: http://wg21.link/P2186R0
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2186R0.bs">github.com/jfbastien/papers/blob/master/source/P2186R0.bs</a>
+Editor: JF Bastien, Apple, jfbastien@apple.com
+No abstract: true
+Date: 2020-06-12
+Markup Shorthands: markdown yes
+</pre>
+
+Abstract {#abstract}
+========
+
+We propose removing (not deprecating) C++'s Garbage Collection support. Specifically, these five library functions:
+
+  * `declare_reachable`
+  * `undeclare_reachable`
+  * `declare_no_pointers`
+  * `undeclare_no_pointers`
+  * `get_pointer_safety`
+
+As well as the `pointer_safety` enum, and the `__STDCPP_STRICT_POINTER_SAFETY__` macro.
+
+History {#history}
+=======
+
+Garbage Collection support was added to C++0x back in 2008, by [[N2670]]. There have been successful garbage collectors for C++, for example the <a href="https://www.hboehm.info/gc/">Boehm GC</a> as well as Garbage Collectors in language virtual machines where the VM is implemented in C++, to support a garbage-collected language. This allows the implementation language to reference objects in the garbage collected language, and lets them interface very closely. You're likely reading this paper in such a virtual machine, implemented in C++, with support for garbage collection: JavaScript VMs do this. Similarly, you've probably played games which mix C++ and C# using the Unity game engine, which <a href="https://docs.unity3d.com/Manual/UnderstandingAutomaticMemoryManagement.html">relies on the Boehm GC</a>.
+
+Rationale {#rationale}
+=========
+
+Based on the above history, Garbage Collection in C++ is clearly useful for particular applications.
+
+However, Garbage Collection as specified by the Standard is not useful for those applications. In fact, the author is not aware of any implementations of the facility. Unsurprisingly, the author is not aware of any uses either.
+
+It's unclear whether the Standard should make Garbage Collection an (optional?) first-class feature, because the aforementioned language VMs function differently. What is clear is that the current specification isn't helpful for any of them.
+
+We propose outright removal instead of deprecation because lack of implementation makes deprecation moot.
+
+Proposal {#proposal}
+========
+
+In **[memory.syn]**, remove as follows:
+
+<blockquote>
+
+<pre><code><del>
+// 20.10.5, pointer safety
+enum class pointer_safety { relaxed, preferred, strict };
+void declare_reachable(void* p);
+template<class T>
+T* undeclare_reachable(T* p);
+void declare_no_pointers(char* p, size_t n);
+void undeclare_no_pointers(char* p, size_t n);
+pointer_safety get_pointer_safety() noexcept;
+</del></code></pre>
+
+</blockquote>
+
+Remove all of **[util.dynamic.safety]**, and associated implementation-defined behavior in the annex.
+
+In **[cpp.predefined]**, remove as follows:
+
+<blockquote>
+  <del>`__STDCPP_STRICT_POINTER_SAFETY__`</del>
+  <br>  
+  <del>Defined, and has the value integer literal `1`, if and only if the implementation has strict pointer safety.</del>
+</blockquote>
+
+In **[c.malloc]**, remove as follows:
+
+<blockquote><del>
+Storage allocated directly with these functions is implicitly declared reachable on allocation, ceases to be declared reachable on deallocation, and need not cease to be declared reachable as the result of an `undeclare_reachable()` call. [ *Note:* — This allows existing C libraries to remain unaffected by restrictions on pointers that are not safely derived, at the expense of providing far fewer garbage collection and leak detection options for `malloc()`-allocated objects. It also allows `malloc()` to be implemented with a separate allocation arena, bypassing the normal `declare_reachable()` implementation. The above functions should never intentionally be used as a replacement for `declare_reachable()`, and newly written code is strongly encouraged to treat memory allocated with these functions as though it were allocated with `operator new`. — *end note* ]
+</del></blockquote>
