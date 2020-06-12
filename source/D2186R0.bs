@@ -1,9 +1,9 @@
 <pre class='metadata'>
 Title: Removing Garbage Collection Support
 Shortname: D2186
-!Draft Revision: 0
+!Draft Revision: 1
 Revision: 0
-Audience: LEWG
+Audience: EWG, LEWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P2186R0
@@ -45,6 +45,8 @@ We propose outright removal instead of deprecation because lack of implementatio
 
 Proposal {#proposal}
 ========
+
+Remove all of **[basic.stc.dynamic.safety]**.
 
 In **[memory.syn]**, remove as follows:
 
