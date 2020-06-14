@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Removing Garbage Collection Support
 Shortname: D2186
-!Draft Revision: 2
+!Draft Revision: 3
 Revision: 0
 Audience: EWG, LEWG
 Status: D
@@ -10,14 +10,14 @@ URL: http://wg21.link/P2186R0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2186R0.bs">github.com/jfbastien/papers/blob/master/source/P2186R0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 No abstract: true
-Date: 2020-06-12
+Date: 2020-06-13
 Markup Shorthands: markdown yes
 </pre>
 
 Abstract {#abstract}
 ========
 
-We propose removing (not deprecating) C++'s Garbage Collection support. Specifically, these five library functions:
+We propose removing (*not* deprecating) C++'s Garbage Collection support. Specifically, these five library functions:
 
   * `declare_reachable`
   * `undeclare_reachable`
@@ -25,44 +25,123 @@ We propose removing (not deprecating) C++'s Garbage Collection support. Specific
   * `undeclare_no_pointers`
   * `get_pointer_safety`
 
-As well as the `pointer_safety` enum, and the `__STDCPP_STRICT_POINTER_SAFETY__` macro.
+As well as the `pointer_safety` enum, the `__STDCPP_STRICT_POINTER_SAFETY__` macro, and the Core Language wording.
+
 
 History {#history}
 =======
 
-Garbage Collection support was added to C++0x back in 2008, by [[N2670]]. There have been successful garbage collectors for C++, for example the <a href="https://www.hboehm.info/gc/">Boehm GC</a> as well as Garbage Collectors in language virtual machines where the VM is implemented in C++, to support a garbage-collected language. This allows the implementation language to reference objects in the garbage collected language, and lets them interface very closely. You're likely reading this paper in such a virtual machine, implemented in C++, with support for garbage collection: JavaScript VMs do this. Similarly, you've probably played games which mix C++ and C# using the Unity game engine, which <a href="https://docs.unity3d.com/Manual/UnderstandingAutomaticMemoryManagement.html">relies on the Boehm GC</a>.
+Minimal support for Garbage Collection was added to C++0x in 2008 by [[N2670]]. The main addition was the concept of "strict pointer safety", as well as library support for this pointer safety. Most of the rationale leading to the wording in this paper is captured in the two preceding proposals that merged to form this minimal paper, [[N2310]] and [[N2585]].
+
+There have been successful garbage collectors for C++, for example the <a href="https://www.hboehm.info/gc/">Boehm GC</a> as well as Garbage Collectors in language virtual machines where the VM is implemented in C++, to support a garbage-collected language. This allows the implementation language to reference objects in the garbage collected language, and lets them interface very closely. You're likely reading this paper in such a virtual machine, implemented in C++, with support for garbage collection: JavaScript VMs do this. Similarly, you've probably played games which mix C++ and C# using the Unity game engine, which <a href="https://docs.unity3d.com/Manual/UnderstandingAutomaticMemoryManagement.html">relies on the Boehm GC</a>.
+
+Example of virtual machines written in C++ with support for garbage collection include:
+
+  * WebKit's JavaScriptCore use a garbage collector called <a href="https://webkit.org/blog/7122/introducing-riptide-webkits-retreating-wavefront-concurrent-garbage-collector/">Riptide</a>.
+  * Chromium's <a href="https://chromium.googlesource.com/chromium/src/+/master/third_party/blink/renderer/platform/heap/BlinkGCAPIReference.md">Blink GC called Oilpan</a>. The V8 blog has <a href="https://v8.dev/blog/high-performance-cpp-gc">a good overview of Oilpan</a>. The V8 JavaScript engine used by Chromium also has its own garbage collector called <a href="https://v8.dev/blog/trash-talk">Orinoco</a>.
+  * Firefox's SpiderMonkey JavaScript engine also <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Internals/Garbage_collection">has a garbage collector</a>.
+  * Lua and LuaJIT <a href="http://wiki.luajit.org/New-Garbage-Collector">use garbage collection</a>.
+
+As you can see from their documentation, each garbage collector has its own set of design criteria which influence how the language itself is implemented, and how the C++ runtime is written to obey the chosen design. These languages use similar ideas, but the design is different in each case, and the constraints on C++ code are different.
+
 
 Rationale {#rationale}
 =========
 
 Based on the above history, Garbage Collection in C++ is clearly useful for particular applications.
 
-However, Garbage Collection as specified by the Standard is not useful for those applications. In fact, the author is not aware of any implementations of the facility. Unsurprisingly, the author is not aware of any uses either.
+However, Garbage Collection as specified by the Standard is not useful for those applications. In fact, the authors are not aware of any implementations of the strict pointer safety facility. Unsurprisingly, the authors are not aware of any uses either. Indeed, <a href="https://codesearch.isocpp.org/">ISOCpp code search only finds hits in GCC and LLVM</a>.
 
-It's unclear whether the Standard should make Garbage Collection an (optional?) first-class feature, because the aforementioned language VMs function differently. What is clear is that the current specification isn't helpful for any of them.
+It's unclear whether the Standard should make Garbage Collection an (optional?) first-class feature, because the aforementioned language VMs function differently from each other. What is clear is that the current specification isn't helpful for any of them. The library facilities are clearly unused. The Core wording intends to offer minimal guarantees for garbage collectors, but doesn't actually provide any actionable guidance to implementations, even if "strict" pointer safety were offered. Even then, libc++, libstdc++, and Microsoft's Standard Library <a href="https://godbolt.org/z/ANaGAH">all offer relaxed pointer safety and not strict pointer safety</a>. In other words, the Core wording currently provides no restrictions on implementations, and the implementations nonetheless decided to go for the weaker "relaxed" option. Further, garbage collectors rely on other quality-of-implementations factors which Core wording is silent on.
 
 We propose outright removal instead of deprecation because lack of implementation makes deprecation moot.
+
+
+Other Concerns {#other}
+==============
+
+There are several other features in C++ that deal with the validity of pointers, or allocating memory. After some consideration, the following features were reviewed, but determined to have no impact on the strict pointer safety model. They are listed here so that the reader is aware that they were not overlooked.
+
+  * `std::launder`
+  * allocation for coroutines
+  * allocation for exception objects
+
 
 Proposal {#proposal}
 ========
 
-Remove all of **[basic.stc.dynamic.safety]**.
-
-In **[expr.reinterpret.cast]**, remove as follows:
+Remove all of **[basic.stc.dynamic.safety]** as follows:
 
 <blockquote>
+  <del>
+  A *traceable pointer object* is
 
-A value of integral type or enumeration type can be explicitly converted to a pointer. A pointer converted to an integer of sufficient size (if any such exists on the implementation) and back to the same pointer type will have its original value; mappings between pointers and integers are otherwise implementation-defined. <del>[*Note:* Except as described in **[basic.stc.dynamic.safety]**, the result of such a conversion will not be a safely-derived pointer value.
-— *end note* ]</del>
+    * an object of an object pointer type, or
+    * an object of an integral type that is at least as large as `std::intptr_t`, or
+    * a sequence of elements in an array of narrow character type, where the size and alignment of the sequence match those of some object pointer type.
 
+  </del>
+
+  <del>A pointer value is a *safely-derived pointer* to an object with dynamic storage duration only if the pointer value has an object pointer type and is one of the following:
+
+    * the value returned by a call to the C++ standard library implementation of `::operator new(std::size_t)` or `::operator new(std::size_t, std::align_val_t)`
+    * the result of taking the address of an object (or one of its subobjects) designated by an lvalue resulting from indirection through a safely-derived pointer value;
+    * the result of well-defined pointer arithmetic using a safely-derived pointer value;
+    * the result of a well-defined pointer conversion of a safely-derived pointer value;
+    * the result of a `reinterpret_cast` of a safely-derived pointer value;
+    * the result of a `reinterpret_cast` of an integer representation of a safely-derived pointer value;
+    * the value of an object whose value was copied from a traceable pointer object, where at the time of the copy the source object contained a copy of a safely-derived pointer value.
+
+    </del>
+
+  <del>
+  An integer value is an *integer representation of a safely-derived pointer* only if its type is at least as large as `std::intptr_t` and it is one of the following:
+
+    * the result of a `reinterpret_cast` of a safely-derived pointer value;
+    * the result of a valid conversion of an integer representation of a safely-derived pointer value;
+    * the value of an object whose value was copied from a traceable pointer object, where at the time of the copy the source object contained an integer representation of a safely-derived pointer value;
+    * the result of an additive or bitwise operation, one of whose operands is an integer representation of a safely-derived pointer value `P`, if that result converted by `reinterpret_cast<void*>` would compare equal to a safely-derived pointer computable from `reinterpret_cast<void*>(P)`.
+
+    </del>
+
+  <del>
+  An implementation may have `relaxed pointer safety`, in which case the validity of a pointer value does not depend on whether it is a safely-derived pointer value. Alternatively, an implementation may have `strict pointer safety`, in which case a pointer value referring to an object with dynamic storage duration that is not a safely-derived pointer value is an invalid pointer value unless the referenced complete object has previously been declared reachable. [*Note:* The effect of using an invalid pointer value (including passing it to a deallocation function) is undefined. This is true even if the unsafely-derived pointer value might compare equal to some safely-derived pointer value. — *end note* ] It is implementation defined whether an implementation has relaxed or strict pointer safety.
+  </del>
 </blockquote>
 
-In **[new.delete]**, remove the six instances as follows:
+In **[expr.reinterpret.cast]**, remove the note as follows:
 
 <blockquote>
+  A value of integral type or enumeration type can be explicitly converted to a pointer. A pointer converted to an integer of sufficient size (if any such exists on the implementation) and back to the same pointer type will have its original value; mappings between pointers and integers are otherwise implementation-defined. <del>[*Note:* Except as described in **[basic.stc.dynamic.safety]**, the result of such a conversion will not be a safely-derived pointer value.
+— *end note* ]</del>
+</blockquote>
 
-<del>Preconditions: If an implementation has strict pointer safety **[basic.stc.dynamic.safety]** then ptr is a safely-derived pointer.</del>
+In **[new.delete]**, remove the six instances of the pointer safety precondition on `operator delete` overloads as follows:
 
+<blockquote>
+  <pre><code>
+  void operator delete(void* ptr) noexcept;
+  void operator delete(void* ptr, std::size_t size) noexcept;
+  void operator delete(void* ptr, std::align_val_t alignment) noexcept;
+  void operator delete(void* ptr, std::size_t size, std::align_val_t alignment) noexcept;
+
+  void operator delete(void* ptr, const std::nothrow_t&) noexcept;
+  void operator delete(void* ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept;
+
+  void operator delete[](void* ptr) noexcept;
+  void operator delete[](void* ptr, std::size_t size) noexcept;
+  void operator delete[](void* ptr, std::align_val_t alignment) noexcept;
+  void operator delete[](void* ptr, std::size_t size, std::align_val_t alignment) noexcept;
+
+  void operator delete[](void* ptr, const std::nothrow_t&) noexcept;
+  void operator delete[](void* ptr, std::align_val_t alignment, const std::nothrow_t&) noexcept;
+
+  void operator delete(void* ptr, void*) noexcept;
+
+  void operator delete[](void* ptr, void*) noexcept;
+  </code></pre>
+
+  <del>*Preconditions:* If an implementation has strict pointer safety **[basic.stc.dynamic.safety]** then ptr is a safely-derived pointer.</del>
 </blockquote>
 
 In **[memory.syn]**, remove as follows:
@@ -95,5 +174,5 @@ In **[cpp.predefined]**, remove as follows:
 In **[c.malloc]**, remove as follows:
 
 <blockquote><del>
-Storage allocated directly with these functions is implicitly declared reachable on allocation, ceases to be declared reachable on deallocation, and need not cease to be declared reachable as the result of an `undeclare_reachable()` call. [ *Note:* This allows existing C libraries to remain unaffected by restrictions on pointers that are not safely derived, at the expense of providing far fewer garbage collection and leak detection options for `malloc()`-allocated objects. It also allows `malloc()` to be implemented with a separate allocation arena, bypassing the normal `declare_reachable()` implementation. The above functions should never intentionally be used as a replacement for `declare_reachable()`, and newly written code is strongly encouraged to treat memory allocated with these functions as though it were allocated with `operator new`. — *end note* ]
+  Storage allocated directly with these functions is implicitly declared reachable on allocation, ceases to be declared reachable on deallocation, and need not cease to be declared reachable as the result of an `undeclare_reachable()` call. [ *Note:* This allows existing C libraries to remain unaffected by restrictions on pointers that are not safely derived, at the expense of providing far fewer garbage collection and leak detection options for `malloc()`-allocated objects. It also allows `malloc()` to be implemented with a separate allocation arena, bypassing the normal `declare_reachable()` implementation. The above functions should never intentionally be used as a replacement for `declare_reachable()`, and newly written code is strongly encouraged to treat memory allocated with these functions as though it were allocated with `operator new`. — *end note* ]
 </del></blockquote>
