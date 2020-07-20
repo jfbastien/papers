@@ -58,7 +58,7 @@ The complete list of ways to create a safely-derived pointer is itemized in **[b
 However, the most troubling example is using in-place new to create object in local arrays, a common strategy to avoid unnecessary heap usage:
 
 <pre><code>
-  #include <new>
+  #include &ltnew&gt;
 
   int main() {
      char buffer[sizeof(int)] alignas(int); // automatic storage duration
