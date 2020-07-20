@@ -1,17 +1,16 @@
 <pre class='metadata'>
 Title: Removing Garbage Collection Support
-Shortname: D2186
-!Draft Revision: 4
+Shortname: P2186
 Revision: 0
 Audience: EWG, LEWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P2186R0
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2186R0.bs">github.com/jfbastien/papers/blob/master/source/P2186R0.bs</a>
 Editor: JF Bastien, Apple, jfbastien@apple.com
 Editor: Alisdair Meredith, Bloomberg, ameredith1@bloomberg.net
 No abstract: true
-Date: 2020-06-15
+Date: 2020-07-12
 Markup Shorthands: markdown yes
 </pre>
 
@@ -102,7 +101,7 @@ Our current best guess is that the two terms are intended to be distinct. From t
 
 According to **[basic.stc.dynamic.safety]** ❡3, a *traceable pointer object* may be "a sequence of elements in an array of narrow character type, where the size and alignment of the sequence match those of some object pointer type." This seems reasonable for types `char` and `unsigned char`, which have special dispensation to be trafficked as raw memory. However, it may be more surprising to find this applies to arrays of `signed char` and `char8_t` as well, which other than in this one paragraph, have no such memory aliasing properties. Similarly, it is surprising that arrays of `std::byte`, a type deliberately introduced to describe raw memory, do not have this property.
 
-Preferred Pointer Safety {#preffer}
+Preferred Pointer Safety {#prefer}
 ------------------------
 
 A call to `std::get_pointer_safety` can return a value indicating `strict`, `relaxed`, or `preferred`. It is not clear what the difference between `preferred` and `relaxed` memory safety is. From a core wording perspective, there is no difference, so the domain of well-defined behavior does not change. Other than this one mention on the specification for the `get_pointer_safety` there is no description of what it means, and how programs should behave differently when informed of this. It appears to raise confusion, for no clear benefit. For example, should a program with concerns about `strict` pointer safety check that an implementation has `relaxed` pointer safety, or merely that it does not have `strict` pointer safety? While these two questions are equivalent according to the core language specification, they can produce different results when querying the library API intended for this purpose.
@@ -111,7 +110,7 @@ A call to `std::get_pointer_safety` can return a value indicating `strict`, `rel
 C Compatibility {#c}
 ---------------
 
-Despite a decade of standards since C++11 (C11,C18, and the pending C2X), there has been no enthusiasm in WG14 to add similar garbage collection support to the C language.
+Despite a decade of standards since C++11 (C11, C18, and the pending C2X), there has been no enthusiasm in WG14 to add similar garbage collection support to the C language.
 
 `malloc` and Related Functions {#malloc}
 ------------------------------
