@@ -532,7 +532,7 @@ template<class... Args>
 
 *Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>`with the arguments
-`std::forward<Args>(args)...`.
+`in_place, std::forward<Args>(args)...`.
 
 *Ensures*: `bool(*this)` is `false`.
 
@@ -549,7 +549,7 @@ template<class U, class... Args>
 *Constraints*: `is_constructible_v<E, initializer_list<U>&, Args...>` is `true`.
 
 *Effects*: Initializes `unex` as if direct-non-list-initializing
-an object of type `unexpected<E>` with the arguments `il,
+an object of type `unexpected<E>` with the arguments `in_place, il,
 std::forward<Args>(args)...`.
 
 *Ensures*: `bool(*this)` is `false`.
@@ -697,7 +697,7 @@ expected& operator=(expected&& rhs) noexcept(see below);
     <td>move assign `*rhs` to `val` if `T` is not *cv* `void`</td>
 <td>
 
-  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()`
+  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
@@ -706,7 +706,7 @@ expected& operator=(expected&& rhs) noexcept(see below);
 
   * otherwise
 
-    * move constructs an `unexpected_type<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
+    * move constructs an `unexpected_type<E> tmp` from `unexpected(move(this->error())` (which can't throw as `E` is nothrow-move-constructible),
     * destroys `unex` by calling `unexpect.~unexpected<E>() `,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`. Either,
 
@@ -750,7 +750,8 @@ expected& operator=(expected&& rhs) noexcept(see below);
 *Ensures*: `bool(rhs) == bool(*this)`.
 
 *Remarks*: The expression inside noexcept is equivalent to:
-`is_nothrow_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<T>` is `true`.
+`is_nothrow_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<T>` is `true` and
+`is_nothrow_move_assignable_v<E>` is `true` and `is_nothrow_move_constructible_v<E>` is `true`.
 
 If any exception is thrown, `bool(*this)` and `bool(rhs)` remain
 unchanged. If an exception is thrown during the call to `T`'s copy constructor,
@@ -762,10 +763,10 @@ the exception safety guarantee of `E`'s copy assignment.
 
 This operator is defined as deleted unless:
 
-  * `T` is *cv* `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`; or
+  * `T` is *cv* `void` and `is_move_constructible_v<E>` is `true` and `is_move_assignable_v<E>` is `true`; or
   * `T` is not *cv* `void` and `is_move_constructible_v<T>` is `true` and
-    `is_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<E>`
-    is `true` and `is_nothrow_move_assignable_v<E>` is `true`.
+    `is_move_assignable_v<T>` is `true` and `is_move_constructible_v<E>`
+    is `true` and `is_move_assignable_v<E>` is `true`and (`is_nothrow_move_constructible_v<E>` is `true` or `is_nothrow_move_constructible_v<T>` is `true`).
 
 ```c++
 template<class U = T>
@@ -801,7 +802,7 @@ if `is_nothrow_constructible_v<T, U>` is `true`
 
 otherwise
 
-  * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
+  * move constructs an `unexpected<E> tmp` from `unexpected(move(this->error())` (which can't throw as `E` is nothrow-move-constructible),
   * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)`. Either,
 
@@ -838,13 +839,15 @@ template<class G = E>
     <td>`!bool(*this)`</td>
   </tr>
   <tr>
-    <td>assigns `unexpected(e.error())` to `unex`</td>
 <td>
 
+  * move constructs an `unexpected<E> tmp` from `e.value()` (which may throw)
   * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
-  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `move(tmp)` (which can't throw as `E` is nothrow-move-constructible)
+  * sets `has_val` to `false`.
 
 </td>
+    <td>assigns `unexpected(e.value())` to `unex`</td>
   </tr>
 </table>
 
@@ -869,11 +872,13 @@ expected<T, E>& operator=(unexpected<G>&& e);
   <tr>
 <td>
 
+  * move constructs an `unexpected<E> tmp` from `move(e.value())` (which may throw)
   * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
-  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `move(tmp)` (which can't throw as `E` is nothrow-move-constructible)
+  * sets `has_val` to `false`.
 
 </td>
-    <td>move assign `unexpected(e.error())` to `unex`</td>
+    <td>move assign `unexpected(move(e.value())` to `unex`</td>
   </tr>
 </table>
 
@@ -894,7 +899,7 @@ void expected<void, E>::emplace();
 If `!bool(*this)`
 
   * destroys `unex` by calling `unexpect.~unexpected<E>() `,
-  * set `has_val` to `true`
+  * sets `has_val` to `true`
 
 *Ensures*: `bool(*this)` is `true`.
 
@@ -905,7 +910,7 @@ template<class... Args>
     T& emplace(Args&&... args);
 ```
 
-*Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
+*Constraints*: `T` is not *cv* `void` and `is_constructible_v<T, Args...>` is `true` and (`is_nothrow_constructible_v<T, Args...>` is `true` or `is_nothrow_move_constructible_v<T>` is `true` or `is_nothrow_move_constructible_v<E>` is `true`).
 
 *Effects*:
 
@@ -917,14 +922,14 @@ otherwise if `is_nothrow_constructible_v<T, Args...>` is `true`
 
   * destroys `unex` by calling `unexpect.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...` and
-  * set `has_val` to `true`;
+  * sets `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `std::forward<Args>(args)...` (which can throw),
   * destroys `unex` by calling `unexpect.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
-  * set `has_val` to `true`;
+  * sets `has_val` to `true`;
 
 otherwise
 
@@ -941,8 +946,8 @@ otherwise
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
-*Remarks*: If an exception is thrown during the call to `T`'s assignment, nothing
-changes.
+*Remarks*: If an exception is thrown during the call to `T`'s assignment, `*this` remains
+unchanged.
 
 
 ```c++
@@ -950,7 +955,7 @@ template<class U, class... Args>
     T& emplace(initializer_list<U> il, Args&&... args);
 ```
 
-*Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
+*Constraints*: `T` is not *cv* `void` and `is_constructible_v<T, initializer_list<U>, Args...>` is `true` and (`is_nothrow_constructible_v<T, initializer_list<U>, Args...>` is `true` or `is_nothrow_move_constructible_v<T>` is `true` or `is_nothrow_move_constructible_v<E>` is `true`).
 
 *Effects*:
 
@@ -987,8 +992,8 @@ otherwise
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
-*Remarks*: If an exception is thrown during the call to `T`'s assignment nothing
-changes.
+*Remarks*: If an exception is thrown during the call to `T`'s assignment, `*this` remains
+unchanged.
 
 �.�.4.4 Swap [*expected.object.swap*] {#expected.object.swap}
 -------------------------------------
@@ -1003,8 +1008,8 @@ void swap(expected<T, E>& rhs) noexcept(see below);
   * Lvalues of type `E` are `Swappable`; and
   * `is_void_v<T>` is `true` or `is_void_v<T>` is `false` and either:
 
-    * `is_move_constructible_v<T>` is `true`; or
-    * `is_move_constructible_v<E>` is `true`.
+    * `is_nothrow_move_constructible_v<T>` is `true`; or
+    * `is_nothrow_move_constructible_v<E>` is `true`.
 
 *Effects*: See Table *editor-please-pick-a-number-5*
 
@@ -1026,7 +1031,7 @@ void swap(expected<T, E>& rhs) noexcept(see below);
 
   * if `T` is *cv* `void`
 
-    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
+    * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs.error()))`. Either
 
       * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unexpect.~unexpected<E>()` set `rhs.has_val` to `true`.
       * the constructor did throw, rethrow the exception.
@@ -1238,11 +1243,11 @@ template<class T1, class E1, class T2> constexpr bool operator!=(const expected<
 template<class T1, class E1, class T2> constexpr bool operator!=(const T2& v, const expected<T1, E1>& x);
 ```
 
-*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
+*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x != v` is well-formed
 and its result is convertible to
 `bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
 
-*Returns*: `bool(x) ? *x != v : false;`.
+*Returns*: `bool(x) ? *x != v : true;`.
 
 
 �.�.4.8 Comparison with `unexpected<E>` [*expected.comparison_unexpected_E*] {#expected.comparison_unexpected_E}
@@ -1279,10 +1284,12 @@ void swap(expected<T1, E1>& x, expected<T1, E1>& y) noexcept(noexcept(x.swap(y))
 
 *Constraints*:
 
-  * `T1` is *cv* `void` or `is_move_constructible_v<T1>` is `true`; and
-  * `is_swappable_v<T1>` is `true`; and
-  * `is_move_constructible_v<E1>` is `true`; and
-  * `is_swappable_v<E1>` is `true`.
+  * Lvalues of type `T` are `Swappable`; and
+  * Lvalues of type `E` are `Swappable`; and
+  * `is_void_v<T>` is `true` or `is_void_v<T>` is `false` and either:
+
+    * `is_nothrow_move_constructible_v<T>` is `true`; or
+    * `is_nothrow_move_constructible_v<E>` is `true`.
 
 *Effects*: Calls `x.swap(y)`.
 
@@ -1365,8 +1372,8 @@ template<class Err>
 *Constraints*:
 
   * `is_constructible_v<E, Err>` is `true`; and
-  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
-  * `is_same_v<remove_cvref_t<U>, unexpected>` is `false`.
+  * `is_same_v<remove_cvref_t<Err>, in_place_t>` is `false`; and
+  * `is_same_v<remove_cvref_t<Err>, unexpect_t>` is `false`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `E` with the expression `std::forward<Err>(e)`.
