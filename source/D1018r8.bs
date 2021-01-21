@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2020/11–2021/01
 Shortname: D1018
 Revision: 8
-!Draft Revision: 0
+!Draft Revision: 2
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D1018r8
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1018r8.bs">github.com/jfbastien/papers/blob/master/source/D1018r8.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-01-18
+Date: 2021-01-21
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -120,7 +120,7 @@ P2013R3 Freestanding Language: Optional `::operator new` {#P2013R3}
     * <a href="https://github.com/cplusplus/papers/issues/749">GitHub issue</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21prague/P2013R0-EWG">Notes 2020-02-14</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P2013R2FreestandingLanguage:Optional::operatorNewP2201R0MixedStringLiteralConcatenation-19-Aug-2020">Notes 2020-08-19</a>
-    * <strong>Highlight:</strong> on freestanding C++ implemntations, make the various default allocating `::operator new` optional. Placement `new` is still required. All `::operator delete` are still required. Hosted implementations are unchanged.
+    * <strong>Highlight:</strong> on freestanding C++ implementations, make the various default allocating `::operator new` optional. Placement `new` is still required. All `::operator delete` are still required. Hosted implementations are unchanged.
     * 🗳 <strong>Poll:</strong> Forward P2013R3 "Freestanding Language: Optional `::operator new`" to Core.
 
 P1949R6 C++ Identifier Syntax using Unicode Standard Annex 31 {#P1949R6}
@@ -245,7 +245,7 @@ CWG1331 `const` mismatch with defaulted copy constructor {#CWG1331}
     * Resolved by [[P0641r2]] (whose title is Resolving Core Issue #1331, also resolves [[CWG1426]]).
     * <a href="https://wiki.edg.com/bin/view/Wg21rapperswil2014/EvolutionWorkingGroup">Notes 2014-06-21</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/IssueProcessing-Thursday9th-April-2020">Notes 2020-04-09</a>
-    * 🗳 <strong>Poll:</strong> Mark [[CWG1331 "`const` mismatch with defaulted copy constructor" as resolved by P0641r2.
+    * 🗳 <strong>Poll:</strong> Mark CWG1331 "`const` mismatch with defaulted copy constructor" as resolved by P0641r2.
 
 CWG1393 Pack expansions in <i>using-declaration</i>s {#CWG1393}
 -----------------------------------------------------
@@ -359,7 +359,7 @@ For each poll, you will be asked to vote one of:
 * Against
 * Strongly against
 
-You will also be asked to comment on each poll. This comment is mandatory, as it helps the chair determine consensus.
+You will also have the option to abstain from voting on a particular poll. You will be asked to comment on each poll. This comment is mandatory, as it helps the chair determine consensus.
 
 
 Teleconferences {#telecons}
