@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2020/11–2021/01
 Shortname: D1018
 Revision: 8
-!Draft Revision: 2
+!Draft Revision: 3
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D1018r8
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D1018r8.bs">github.com/jfbastien/papers/blob/master/source/D1018r8.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-01-21
+Date: 2021-01-22
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -70,6 +70,7 @@ P2223R1 Trimming whitespaces before line splicing {#P2223R1}
     * [[P2223R1]]
     * <a href="https://github.com/cplusplus/papers/issues/925">GitHub issue</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG14-Oct-2020">Notes 2020-10-14</a>
+    * Not yet seen by WG14, nor the SG22 C / C++ liaison group.
     * <strong>Highlight:</strong> make trailing whitespaces after <code>\</code> non-significant.
     * 🗳 <strong>Poll:</strong> Forward P2223R1 "Trimming whitespaces before line splicing" to Core, thereby also fixing [[CWG1698]].
 
@@ -79,6 +80,7 @@ P2201R0 Mixed string literal concatenation {#P2201R0}
     * [[P2201R0]]
     * <a href="https://github.com/cplusplus/papers/issues/905">GitHub issue</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P2013R2FreestandingLanguage:Optional::operatorNewP2201R0MixedStringLiteralConcatenation-19-Aug-2020">Notes 2020-08-19</a>
+    * Seen by WG14 as [[N2594]], straw Poll: Does the committee wish to adopt N2594 into C23 as is? 18-0-2 passes.
     * <strong>Highlight:</strong> string concatenation involving string-literals with <em>encoding-prefixes</em> mixing `L""`, `u8""`, `u""`, and `U""` is currently conditionally-supported with implementation-defined behavior, this paper makes it ill-formed.
     * 🗳 <strong>Poll:</strong> Forward P2201R0 "Mixed string literal concatenation" to Core, after adding an Annex C entry.
 
@@ -110,6 +112,7 @@ P2156R1 Allow Duplicate Attributes {#P2156R1}
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/IssueProcessing-Wednesday15th-April-2020">Notes 2020-04-15</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-IssueProcessing-23-Apr-2020">Notes 2020-04-23</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P2156-P2173-2-July-2020">Notes 2020-07-02</a>
+    * Seen by WG14 as [[N2557]], straw Poll: Is the committee in favor of adopting N2557 into C23? 19-0-0 passes.
     * <strong>Highlight:</strong> current limitations on duplicate attributes are inconsistent, this change removes all limitations on duplicate attributes in an attribute-list for all attributes that specify a limitation. This affects `carries_dependency`, `deprecated`, `fallthrough`, `likely`, `unlikely`, `unused`, `noreturn`, and `no_unique_address`.
     * 🗳 <strong>Poll:</strong> Forward P2156R1 "Allow Duplicate Attributes" to Core, thereby also fixing [[CWG1914]].
 
@@ -120,6 +123,7 @@ P2013R3 Freestanding Language: Optional `::operator new` {#P2013R3}
     * <a href="https://github.com/cplusplus/papers/issues/749">GitHub issue</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21prague/P2013R0-EWG">Notes 2020-02-14</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P2013R2FreestandingLanguage:Optional::operatorNewP2201R0MixedStringLiteralConcatenation-19-Aug-2020">Notes 2020-08-19</a>
+    * Not yet seen by WG14, nor the SG22 C / C++ liaison group.
     * <strong>Highlight:</strong> on freestanding C++ implementations, make the various default allocating `::operator new` optional. Placement `new` is still required. All `::operator delete` are still required. Hosted implementations are unchanged.
     * 🗳 <strong>Poll:</strong> Forward P2013R3 "Freestanding Language: Optional `::operator new`" to Core.
 
@@ -136,7 +140,8 @@ P1949R6 C++ Identifier Syntax using Unicode Standard Annex 31 {#P1949R6}
     * <a href="https://wiki.edg.com/bin/view/Wg21prague/D1949R2-EWG">Notes 2020-02-14</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P1949-18-June-2020">Notes 2020-06-18</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P1949-24-Sep-2020">Notes 2020-09-24</a>
-    * <strong>Highlight:</strong> C++11 uses a hand-currated list of Unicode codepoints to determine which characters are allowed in identifiers. This is flawed in many ways outlined in the paper. Replace this hand-currated list with the Unicode consortium's recommendations for identifiers [[UAX31]].
+    * Not yet seen by WG14, nor the SG22 C / C++ liaison group.
+    * <strong>Highlight:</strong> C++11 uses a hand-curated list of Unicode codepoints to determine which characters are allowed in identifiers. This is flawed in many ways outlined in the paper. Replace this hand-currated list with the Unicode consortium's recommendations for identifiers [[UAX31]].
     * 🗳 <strong>Poll:</strong> Forward P1949R6 "C++ Identifier Syntax using Unicode Standard Annex 31" to Core.
 
 P1938R2 `if consteval` {#P1938R2}
@@ -1346,6 +1351,18 @@ We will continue to work on issue resolution and C++23, prioritizing according t
         "title": "Removing Garbage Collection Support",
         "authors": ["JF Bastien", "Alisdair Meredith"],
         "date": "14 December 2020"
+    },
+    "N2594": {
+        "href": "http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2594.htm",
+        "title": "Mixed Wide String Literal Concatenation",
+        "authors": ["JeanHeyd Meneide"],
+        "date": "26 October 2020"
+    },
+    "N2557": {
+        "href": "http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2557.pdf",
+        "title": "Allow Duplicate Attributes",
+        "authors": ["Melanie Blower"],
+        "date": "01 September 2020"
     }
 }
 </pre>
