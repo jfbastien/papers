@@ -141,7 +141,7 @@ P1949R6 C++ Identifier Syntax using Unicode Standard Annex 31 {#P1949R6}
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P1949-18-June-2020">Notes 2020-06-18</a>
     * <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P1949-24-Sep-2020">Notes 2020-09-24</a>
     * Not yet seen by WG14, nor the SG22 C / C++ liaison group.
-    * <strong>Highlight:</strong> C++11 uses a hand-curated list of Unicode codepoints to determine which characters are allowed in identifiers. This is flawed in many ways outlined in the paper. Replace this hand-currated list with the Unicode consortium's recommendations for identifiers [[UAX31]].
+    * <strong>Highlight:</strong> C++11 uses a hand-curated list of Unicode codepoints to determine which characters are allowed in identifiers. This is flawed in many ways outlined in the paper. Replace this hand-curated list with the Unicode consortium's recommendations for identifiers [[UAX31]].
     * 🗳 <strong>Poll:</strong> Forward P1949R6 "C++ Identifier Syntax using Unicode Standard Annex 31" to Core.
 
 P1938R2 `if consteval` {#P1938R2}
