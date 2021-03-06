@@ -1,14 +1,14 @@
 <pre class='metadata'>
-Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2020/11–2021/01
+Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/01–2021/03
 Shortname: P1018
-Revision: 8
+Revision: 9
 Audience: WG21, EWG
 Status: P
 Group: WG21
-URL: http://wg21.link/P1018r8
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r8.bs">github.com/jfbastien/papers/blob/master/source/P1018r8.bs</a>
+URL: http://wg21.link/P1018r9
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r9.bs">github.com/jfbastien/papers/blob/master/source/P1018r9.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-01-27
+Date: 2021-03-06
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
