@@ -1,63 +1,22 @@
 <pre class='metadata'>
 Title: std::expected
 Shortname: P0323
-Revision: 9
+Revision: 10
 Audience: LWG
 Status: P
 Group: WG21
-URL: https://wg21.link/P0323R9
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0323R9.bs">github.com/jfbastien/papers/blob/master/source/P0323R9.bs</a>
+URL: https://wg21.link/P0323R10
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0323R10.bs">github.com/jfbastien/papers/blob/master/source/P0323R10.bs</a>
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
-Editor: JF Bastien, Apple, jfbastien@apple.com
-Abstract: Utility class to represent expected object: wording and open questions.
-Date: 2019-08-03
+Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
+Abstract: Utility class to represent expected object.
+Date: 2021-04-06
 Markup Shorthands: markdown yes
 </pre>
 
-This paper is an update to [[P0323r8]], with significant wording fixes provided
-by the most wonderful Jonathan Wakely.
-
-Revision 7 was published a year prior to revision 8. No official LWG reviews
-have occurred between revision 7 and 9. As you read this paper, it has been:
-
-  * <span id="N4015"></span> since [[N4015]] was initially published.
-  * <span id="firstLEWGReview"></span> since the first LEWG review.
-  * <span id="forwarded"></span> since LEWG forwarded the paper to LWG for inclusion in the Library Fundamentals TS v3.
-
-Now that C++20 is winding down, the authors hope that LWG will be able to
-finalize its wording review, and move the paper to the Library Fundamentals TS
-v3. This will help the Committee obtain feedback on a feature which should be
-able to make it to C++23.
-
-<script>
-const timeSince = date => {
-  const now =  Date.now();
-  const s = (now - date) / 1000;
-  const y = Math.floor(s / 31536000);
-  const m = Math.floor(s / (31536000. / 12)) % 12;
-  let res = "";
-  if (y != 0) res +=       y + " year"  + (y > 1 ? "s" : "");
-  if (m != 0) res += " " + m + " month" + (m > 1 ? "s" : "");
-  return res;
-};
-const N4015 = new Date("2014-05-26");
-const firstLEWGReview = new Date("2014-07-09T17:29:10");
-const forwarded = new Date("2017-11-11T16:07:24");
-
-document.getElementById('N4015').innerHTML = timeSince(N4015);
-document.getElementById('firstLEWGReview').innerHTML = timeSince(firstLEWGReview);
-document.getElementById('forwarded').innerHTML = timeSince(forwarded);
-</script>
-
-Revision 7 of this paper revised [[P0323r6]] and [[P0323r5]] with feedback
-received from LWG. [[P0323r4]] contains motivation, design rationale,
-implementability information, sample usage, history, alternative designs and
-related types. Revision 5 onwards only contain wording and open questions
-because their purpose is twofold:
-
-  * Present appropriate wording for inclusion in the Library Fundamentals TS v3.
-  * List open questions which the TS should aim to answer.
-
+This paper is an update to [[P0323r9]], which was wording-ready but targetted
+the Library Fundamentals TS v3. In the 2021-04-06 LEWG telecon, LEWG decided to
+target the IS instead of a TS.
 
 Wording {#word}
 =======
@@ -76,13 +35,12 @@ This subclause describes class template `expected` that represents expected
 objects. An `expected<T, E>` object holds an object of type `T` or an object of
 type `unexpected<E>` and manages the lifetime of the contained objects.
 
-�.�.2 Header `<experimental/expected>` synopsis [*expected.synop*] {#expected.synop}
-------------------------------------------------------------------
+�.�.2 Header `<expected>` synopsis [*expected.synop*] {#expected.synop}
+====================================================================================
 
 ```c++
 namespace std {
-namespace experimental {
-inline namespace fundamentals_v3 {
+
     // �.�.4, class template expected
     template<class T, class E>
         class expected;
@@ -107,7 +65,7 @@ inline namespace fundamentals_v3 {
     };
     inline constexpr unexpect_t unexpect{};
 
-}}}
+}
 ```
 
 �.�.3 Definitions [*expected.defs*] {#expected.defs}
@@ -1565,8 +1523,6 @@ private:
 };
 ```
 
-Issue: Wondering if we just need a `const&` overload as we do for `system_error`.
-
 The template class `bad_expected_access` defines the type of objects thrown as
 exceptions to report the situation where an attempt is made to access the value
 of `expected` object that contains an `unexpected<E>`.
@@ -1623,89 +1579,7 @@ inline constexpr unexpect_t unexpect(<i>unspecified</i>);
 Type `unexpect_t` does not have a default constructor or an initializer-list
 constructor, and is not an aggregate.
 
+Feature test macro {#macro}
+------------------
 
-Open Questions {#qq}
-==============
-
-`std::expected` is a vocabulary type with an opinionated design and a proven
-record under varied forms in a multitude of codebases. Its current form has
-undergone multiple revisions and received substantial feedback, falling roughly
-in the following categories:
-
-  1. **Ergonomics**: is this *the right way* to expose such functionality?
-  1. **Disappointment**: should we expose this in the Standard, given C++'s
-     existing error handling mechanisms?
-  1. **STL usage**: should the Standard Template Library adopt this class, at
-     which pace, and where?
-
-LEWG and EWG have nonetheless reached consensus that a class of this general
-approach is probably desirable, and the only way to truly answer these questions
-is to try it out in a TS and ask for explicit feedback from developers. The
-authors hope that developers will provide new information which they'll be able
-to communicate to the Committee.
-
-Here are open questions, and questions which the Committee thinks are settled
-and which new information can justify revisiting.
-
-Ergonomics {#ergo}
-----------
-
-  1. Name:
-
-    * Is `expected` the right name?
-    * Does it express intent both as a consumer and a producer?
-
-  1. Is `E` a salient property of `expected`?
-  1. Is `expected<void, E>` clear on what it expresses as a return type?
-  1. Would it make sense for `expected` to support containing *both* `T` and `E` (in some designs, either one of them being optional), or is this use case better handled by a separate proposal?
-  1. Is the order of parameters `<T, E>` appropriate?
-  1. Is usage of `expected` "viral" in a codebase, or can it be adopted incrementally?
-  1.
-
-      * Missing `expected<T,E>::emplace` for `unexpected<E>`.
-      * The in-place construction from a `unexpected<E>` using the `unexpet` tag doesn't conveys the in-place nature of this constructor.
-      * Do we need in-place using indexes, as variant?
-
-  1. Comparisons:
-
-    * Are `==` and `!=` useful?
-    * Should other comparisons be provided?
-    * What usages of `expected` mandate putting instances in a `map`, or other such container?
-    * Should `hash` be provided?
-    * What usages of `expected` mandate putting instances in an `unordered_map`, or other such container?
-    * Should `expected<T, E>` always be comparable if `T` is comparable, even if `E` is not comparable?
-
-  1. Error type `E`:
-
-    * Have `expected<T, void>` and `unexpected<void>` a sense?
-    * `E` template parameter has no default. Should it?
-    * Should `expected` be specialized for particular `E` types such as `exception_ptr` and how?
-    * Should `expected` handle `E` types with a built-in "success" value any differently and how?
-    * `expected` is not implicitly constructible from an `E`, even when unambiguous from `T`, because as a vocabulary type it wants unexpected error construction to be verbose, and require hopping through an `unexpected`. Is the verbosity extraneous? We could alleviate the verbosity by adding a `.unexpected()` method to `expected`, so that one doesn't have to write `unexpected(e.error())` when constructing a new `expected` from an error.
-
-  1. Does usage of this class cause a meaningful performance impact compared to using error codes?
-  1. The accessor design offers a terse unchecked dereference operator (expected to be used alongside the implicit `bool` conversion), as well as `value()` and `error()` accessors which are checked. Is that a gotcha, or is it similar enough to classes such as `optional` to be unsurprising?
-  1. Is `bad_expected_access` the right thing to throw?
-  1. Should some members be `nodiscard`?
-  1. Should constructors of `expected` disallow `T` which are specializations of `expected`?
-  1. Similarly, can `T` and `E` be abominable functions?
-
-
-Disappointment {#dis}
---------------
-
-C++ already supports exceptions and error codes, `expected` would be a third
-kind of error handling.
-
-  1. where does `expected` work better than either exceptions or error handling?
-  1. `expected` was designed to be particularly well suited to APIs which require their immediate caller to consider an error scenario. Do it succeed in that purpose?
-  1. Do codebases successfully compose these three types of error handling?
-  1. Is debuggability any harder?
-  1. Is it easy to teach C++ as a whole with a third type of error handling?
-
-
-STL Usage {#stl}
----------
-
-  1. Should `expected` be used in the STL at the same time as it gets standardized?
-  1. Where, considering `std2` may be a good place to change APIs?
+The proposed library feature test macro is `__cpp_lib_expected`.
