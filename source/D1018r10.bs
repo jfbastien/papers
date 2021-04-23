@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/04
 Shortname: P1018
 Revision: 10
-!Draft Revision: 0
+!Draft Revision: 1
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P1018r10
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r10.bs">github.com/jfbastien/papers/blob/master/source/P1018r10.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-04-17
+Date: 2021-04-23
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -104,22 +104,6 @@ P2242r2 Non-literal variables (and labels and `goto`s) in `constexpr` functions 
 * **Highlight:** strike the restriction that a `constexpr` function cannot contain a definition of a variable of non-literal type (or of `static` or thread storage duration), or a `goto` statement, or an identifier label. The rationale is briefly that the mere presence of the aforementioned things in a function is not in and of itself problematic; we can allow them to be present, as long as constant evaluation doesn't evaluate them.
 * **🗳  Poll:** Forward P2242r2 "Non-literal variables (and labels and `goto`s) in `constexpr` functions" to Core for C+23.
 
-P2266r1 Simpler implicit move {#P2266r1}
--------
-
-* [[P2266r1]]
-* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
-* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
-* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C+23. Do not treat it as a Defect Report.
-
-P2280r1 Using unknown references in constant expressions {#P2280r1}
--------
-
-* [[P2280r1]]
-* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
-* **Highlight:** `constexpr` usage of unknown references don't work, that's surprising, make it work as expected.
-* **🗳  Poll:** Forward P2280r1 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
-
 CWG728 Restrictions on local classes {#CWG728}
 -------
 
@@ -181,6 +165,25 @@ CWG1451 Objects with no linkage in non-type template arguments {#CWG1451}
 * <a href="">GitHub issue</a>
 * **Highlight:** 
 * **🗳  Poll:** Forward 
+
+For next time:
+
+P2266r1 Simpler implicit move {#P2266r1}
+-------
+
+* [[P2266r1]]
+* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
+* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
+* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C+23. Do not treat it as a Defect Report.
+
+
+P2280r2 Using unknown references in constant expressions {#P2280r2}
+-------
+
+* [[P2280r2]]
+* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
+* **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
+* **🗳  Poll:** Forward P2280r2 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
 
 -->
 
@@ -255,7 +258,7 @@ Here are the minutes for the virtual discussions that were held since the Prague
 Remaining Open Issues {#issues}
 =====================
 
-The following table lists all remaining open issues referred to EWG by Core or Library. Some of them are ready to be polled but are held back from the February 2021 polling period to limit the number of polls in this round.
+The following table lists all remaining open issues referred to EWG by Core or Library. Some of them are ready to be polled but are held back from the polling periods to limit the number of polls in this round.
 
 <table cellspacing="0" cellpadding="0">
   <tbody>
