@@ -86,7 +86,7 @@ P0847r6 Deducing `this` {#P0847r6}
     * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#by-value-member-functions">Makes it possible to have by-value member functions</a>;
     * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#sfinae-friendly-callables">Allows for SFINAE-friendly callables</a>.
 
-* **🗳  Poll:** Forward P0847r6 "Deducing `this`" to Core for C+23.
+* **🗳  Poll:** Forward P0847r6 "Deducing `this`" to Core for C++23.
 
 P0849r7 auto(x): `DECAY_COPY` in the language {#P0849r7}
 -------
@@ -94,7 +94,7 @@ P0849r7 auto(x): `DECAY_COPY` in the language {#P0849r7}
 * [[P0849r7]]
 * <a href="https://github.com/cplusplus/papers/issues/293">GitHub issue</a>
 * **Highlight:** proposes `auto(x)` and `auto{x}` for casting `x` into a *prvalue* as if passing `x` as a function argument by value. The functionality appears as the *decay-copy* function in the standard for exposition only.
-* **🗳  Poll:** Forward P0849r7 "auto(x): `DECAY_COPY` in the language" to Core for C+23, and affirm LEWG's guidance to forward it to Library.
+* **🗳  Poll:** Forward P0849r7 "auto(x): `DECAY_COPY` in the language" to Core for C++23, and affirm LEWG's guidance to forward it to Library.
 
 P2242r2 Non-literal variables (and labels and `goto`s) in `constexpr` functions {#P2242r2}
 -------
@@ -102,7 +102,7 @@ P2242r2 Non-literal variables (and labels and `goto`s) in `constexpr` functions 
 * [[P2242r2]]
 * <a href="https://github.com/cplusplus/papers/issues/941">GitHub issue</a>
 * **Highlight:** strike the restriction that a `constexpr` function cannot contain a definition of a variable of non-literal type (or of `static` or thread storage duration), or a `goto` statement, or an identifier label. The rationale is briefly that the mere presence of the aforementioned things in a function is not in and of itself problematic; we can allow them to be present, as long as constant evaluation doesn't evaluate them.
-* **🗳  Poll:** Forward P2242r2 "Non-literal variables (and labels and `goto`s) in `constexpr` functions" to Core for C+23.
+* **🗳  Poll:** Forward P2242r2 "Non-literal variables (and labels and `goto`s) in `constexpr` functions" to Core for C++23.
 
 CWG728 Restrictions on local classes {#CWG728}
 -------
@@ -174,7 +174,7 @@ P2266r1 Simpler implicit move {#P2266r1}
 * [[P2266r1]]
 * <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
 * **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
-* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C+23. Do not treat it as a Defect Report.
+* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C++23. Do not treat it as a Defect Report.
 
 
 P2280r2 Using unknown references in constant expressions {#P2280r2}
