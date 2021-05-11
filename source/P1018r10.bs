@@ -2,14 +2,13 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/04
 Shortname: P1018
 Revision: 10
-!Draft Revision: 1
 Audience: WG21, EWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P1018r10
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r10.bs">github.com/jfbastien/papers/blob/master/source/P1018r10.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-04-23
+Date: 2021-04-28
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
