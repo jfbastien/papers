@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/06–2021/08
 Shortname: D1018
 Revision: 12
-!Draft Revision: 0
+!Draft Revision: 2
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P1018r12
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r12.bs">github.com/jfbastien/papers/blob/master/source/P1018r12.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-07-27
+Date: 2021-07-29
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -72,6 +72,14 @@ Poll {#polls}
 ====
 
 The polls which EWG will take in the August 2021 polling period are:
+
+P2138r4 Rules of Design `<=>` Wording engagement {#P2138r4}
+-------
+
+* [[P2138r4]]
+* <a href="https://github.com/cplusplus/papers/issues/853">GitHub issue</a>
+* **Highlight:** process description of how proposal reviews should work between Language Evolution and Core, as well as between Library Evolution and Library.
+* **🗳  Poll:** For the next plenary, put up the following joint Language and Library Evolution motion: P2138r4 "Rules of Design `<=>` Wording engagement" as the official process of the C++ Evolution groups.
 
 P2266r1 Simpler implicit move {#P2266r1}
 -------
@@ -182,7 +190,7 @@ For each poll, participants are asked to vote one of:
 * Against
 * Strongly against
 
-Participants also have the option to abstain from voting on a particular poll. They are be asked to comment on each poll. This comment is mandatory, as it helps the chair determine consensus.
+Participants also have the option to abstain from voting on a particular poll. They are asked to comment on each poll. This comment is mandatory, as it helps the chair determine consensus.
 
 
 Teleconferences {#telecons}
