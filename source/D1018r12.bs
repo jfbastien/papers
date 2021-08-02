@@ -98,14 +98,6 @@ P2128r5 Multidimensional subscript operator {#P2128r5}
 * **Highlight:** user-defined types can define a subscript operator with multiple arguments to better support multi-dimensional containers and views, for example `template<class... IndexType> constexpr reference operator[](IndexType...);`.
 * **🗳  Poll:** Forward P2128r5 "Multidimensional subscript operator" to Core for C++23.
 
-P2280r2 Using unknown references in constant expressions {#P2280r2}
--------
-
-* [[P2280r2]]
-* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
-* **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
-* **🗳  Poll:** Forward P2280r2 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
-
 P2036r2 Changing scope for lambda *trailing-return-type* {#P2036r2}
 -------
 
@@ -163,6 +155,19 @@ P2316r1 Consistent character literal encoding {#P2316r1}
 * <a href="https://github.com/cplusplus/papers/issues/1000">GitHub issue</a>
 * **Highlight:** character literals in preprocessor conditional are changed to behave the same way as they do in C++ expressions. For example, `'A' == '\x41'` is not currently guaranteed to behave the same in a preprocessor condition as it is in a C++ expression.
 * **🗳  Poll:** Forward P2316r1 "Consistent character literal encoding" to Core for C++23. Treat it as a Defect Report.
+
+
+<!-- For next polling period:
+
+P2280r2 Using unknown references in constant expressions {#P2280r2}
+-------
+
+* [[P2280r2]]
+* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
+* **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
+* **🗳  Poll:** Forward P2280r2 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
+
+-->
 
 
 <!--
