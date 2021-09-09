@@ -1,15 +1,14 @@
 <pre class='metadata'>
-Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/06–2021/08
-Shortname: D1018
-Revision: 12
-!Draft Revision: 2
+Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/05
+Shortname: P1018
+Revision: 11
 Audience: WG21, EWG
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/P1018r12
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r12.bs">github.com/jfbastien/papers/blob/master/source/P1018r12.bs</a>
+URL: http://wg21.link/P1018r11
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r11.bs">github.com/jfbastien/papers/blob/master/source/P1018r11.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-07-29
+Date: 2021-06-01
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -34,7 +33,8 @@ Our main achievements have been:
 This paper outlines:
 
 * The work achieved in [[#telecons]]; 
-* Lists the [[#polls]] for the August 2021 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period and [[P1018r11]] for the results of the May 2021 polling period);
+* Lists the [[#polls]] that were submitted for the May 2021 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period);
+* Results of those polls;
 * Lists the remaining outstanding issues in [[#issues]], some are still open while others are waiting for polling;
 * [[#future]].
 
@@ -63,7 +63,7 @@ You can follow the lists of papers on GitHub:
 Issue Processing {#issue-pro}
 ================
 
-We've reviewed 50 Language Evolution issues at the Core groups' request, and have tentative resolutions for most. We don't want to poll all of these at the same time, and therefore only poll a subset in each polling period, reserving other issues for later polling periods. We've therefore only poll the "tentatively ready" issues (since they're tied to papers, and polled with said papers, as outlined below), as well as the "resolved" issues since telecon attendees believe that prior work has already addressed the issues.
+We've reviewed 50 Language Evolution issues at the Core groups' request, and have tentative resolutions for most. We don't want to poll all of these at the same time, and therefore only polled a subset in the February 2021 polling period, reserving other issues for later polling periods. We've will therefore only poll the "tentatively ready" issues (since they're tied to papers, and polled with said papers, as outlined below), as well as the "resolved" issues since telecon attendees believe that prior work has already addressed the issues.
 
 [[#issues]] contains a list of issues which aren't being voted on in this polling period.
 
@@ -71,104 +71,182 @@ We've reviewed 50 Language Evolution issues at the Core groups' request, and hav
 Poll {#polls}
 ====
 
-The polls which EWG will take in the August 2021 polling period are:
+The polls which EWG will took in the May 2021 polling period are:
 
-P2138r4 Rules of Design `<=>` Wording engagement {#P2138r4}
+P0847r6 Deducing `this` {#P0847r6}
 -------
 
-* [[P2138r4]]
-* <a href="https://github.com/cplusplus/papers/issues/853">GitHub issue</a>
-* **Highlight:** process description of how proposal reviews should work between Language Evolution and Core, as well as between Library Evolution and Library.
-* **🗳  Poll:** For the next plenary, put up the following joint Language and Library Evolution motion: P2138r4 "Rules of Design `<=>` Wording engagement" as the official process of the C++ Evolution groups.
+* [[P0847r6]]
+* <a href="https://github.com/cplusplus/papers/issues/115">GitHub issue</a>
+* **Highlight:** new mechanism for specifying or deducing the value category of the expression that a member-function is invoked on. In other words, a way to tell from within a member function whether the expression it’s invoked on is an *lvalue* or an *rvalue*; whether it is `const` or `volatile`; and the expression’s type. Non-`static` and non-`virtual` member functions can therefore use the syntax:<br>`struct S { void memfun(this S const volatile && self); };` instead of<br>`struct S { void memfun() const volatile &&; };`.<br>This change has the following upsides:
 
-P2266r1 Simpler implicit move {#P2266r1}
+    * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#deduplicating-code">It can greatly reduce code duplication</a>;
+    * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#crtp">Enhances the CRTP pattern</a>;
+    * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#recursive-lambdas">Enables recursive lambdas</a>;
+    * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#by-value-member-functions">Makes it possible to have by-value member functions</a>;
+    * <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p0847r6.html#sfinae-friendly-callables">Allows for SFINAE-friendly callables</a>.
+
+* **🗳  Poll:** Forward P0847r6 "Deducing `this`" to Core for C++23.
+
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>17</td><td>13</td><td>2</td><td>1</td><td>0</td></tr>
+</table>
+<br><strong>Poll outcome:</strong> ✅ consensus.
+
+<strong>Salient comments:</strong>
+<ul>
+    <li>This is a very attractive feature, but it is also a radical change, essentially doubling the ways member functions work. I would like to give this a little more bake time. — Against
+    <li>I support the general idea of the proposal but am skeptical of some of the sharp edges (particularly the distinction between "real" member functions, member functions which take an "object parameter," and static member functions). — Favor
+    <li>The facility removes the need to write CRTP, removes many cases of boilerplate, and gives us recursive lambdas. There are some remaining concerns about unforeseen consequences and integrations, so further implementation experience would be highly welcome before moving this all the way to a plenary poll. — Favor
+    <li>This is a very well-thought-out proposal that addresses several pain points in the language and I am eager to see it move forward. I do have reservations about the type of a pointer to an explicit object member function, however.  In the paper, the authors argue convincingly that this new kind of member function is best thought of as a variation on non-static member functions, pointing out that this perspective simplifies the wording changes and also gives freedom to class authors to choose either implicit or explicit object member functions without impacting the class's interface.  The decision to use ordinary function pointers instead of member-function pointers to refer to explicit object member functions undermines this goal; the decision to use an explicit object member function is no longer transparent to the user. I can understand why the authors made this decision, as there is no pointer-to-member-function type that allows for the `this` object to be passed by value.  I'm not convinced that pass-by-value is worthwhile.  I think a better trade-off here would be to require the `this` object to have a reference type. — Favor
+    <li>The paper is exhaustively written - and in my opinion the pros clearly outweigh the cons and the trade offs are worth it. — Strongly Favor
+    <li>Possibly the most important feature currently proposed for C++23. The benefits in terms of deduplicating code are motivation enough for the enhancement, but that's just the tip of the iceberg. — Strongly Favor
+</ul>
+
+P0849r7 auto(x): `DECAY_COPY` in the language {#P0849r7}
 -------
 
-* [[P2266r1]]
-* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
-* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
-* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C++23.
+* [[P0849r7]]
+* <a href="https://github.com/cplusplus/papers/issues/293">GitHub issue</a>
+* **Highlight:** proposes `auto(x)` and `auto{x}` for casting `x` into a *prvalue* as if passing `x` as a function argument by value. The functionality appears as the *decay-copy* function in the standard for exposition only.
+* **🗳  Poll:** Forward P0849r7 "auto(x): `DECAY_COPY` in the language" to Core for C++23, and affirm LEWG's guidance to forward it to Library.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>9</td><td>18</td><td>2</td><td>0</td><td>1</td></tr>
+</table>
+<br><strong>Poll outcome:</strong> ✅ consensus.
 
-P2128r5 Multidimensional subscript operator {#P2128r5}
+<strong>Salient comments:</strong>
+<ul>
+    <li> Nothing about this syntax is intuitive.  Surely we can do better than sprinkle "auto" all over the language? — Strongly Against
+    <li> Yes. It does look a bit awkward, but this fills a curiously missing gap and the syntax is consistent after all. — Favor
+    <li> Once again, this is an expert feature that could technically be implemented by an obtuse library function. In this sense it is more syntax sugar than a newly invented language feature. But even then it makes the language more regular - a good thing in itself alone - and it expresses intent much better than possible alternatives. Compilers may take this as a syntactic marker to implement the semantic in a more optimized way. — Favor
+    <li> DECAY_COPY continues to become more important, and getting it into the language is useful. — Favor
+    <li> This seems to give a clear meaning to a "missing" section of the language syntax. — Strongly Favor
+    <li> This extension of the domain of `auto` is not only useful but fundamentally unsurprising: auto means the same thing as it does everywhere else, nor could it mean anything significantly different here. — Strongly Favor
+    <li> The situation where we deal with standard collections/algos and need to pass in an object too are fairly common. Some of those just work because the standard mandates it (and the implementations internally struggle with unaliasing), while in other cases it's burden for the programmer. And it's not a small one, with a huge penalty if missed.  IME it's also easy to overlook on review.  The workarounds are not nice and beyond the noise can leave unwanted stuff around. And source for additional bugs.  The proposed auto(x) form fixes all that in an elegant way. That happens to handle both type correctness and avoid extra copy.  While it leans on the "smart" side I don't share the concerns here, as it reflects the T(x) form and uses auto as many other places where T could be spelled out.  And it's easy to teach.   The considered alternatives are both more noisy and between "less intuitive" and "what does it mean" depending on the expert level. — Strongly Favor
+</ul>
+
+P2242r2 Non-literal variables (and labels and `goto`s) in `constexpr` functions {#P2242r2}
 -------
 
-* [[P2128r5]]
-* <a href="https://github.com/cplusplus/papers/issues/845">GitHub issue</a>
-* **Highlight:** user-defined types can define a subscript operator with multiple arguments to better support multi-dimensional containers and views, for example `template<class... IndexType> constexpr reference operator[](IndexType...);`.
-* **🗳  Poll:** Forward P2128r5 "Multidimensional subscript operator" to Core for C++23.
+* [[P2242r2]]
+* <a href="https://github.com/cplusplus/papers/issues/941">GitHub issue</a>
+* **Highlight:** strike the restriction that a `constexpr` function cannot contain a definition of a variable of non-literal type (or of `static` or thread storage duration), or a `goto` statement, or an identifier label. The rationale is briefly that the mere presence of the aforementioned things in a function is not in and of itself problematic; we can allow them to be present, as long as constant evaluation doesn't evaluate them.
+* **🗳  Poll:** Forward P2242r2 "Non-literal variables (and labels and `goto`s) in `constexpr` functions" to Core for C++23.
 
-P2036r2 Changing scope for lambda *trailing-return-type* {#P2036r2}
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>12</td><td>16</td><td>2</td><td>0</td><td>0</td></tr>
+</table>
+<br><strong>Poll outcome:</strong> ✅ consensus.
+
+<strong>Salient comments:</strong>
+<ul>
+    <li> There's little not to like: it removes an unnecessary restriction on the non-constexpr code block without putting any new burden on the constexpr evaluator. — Strongly Favor
+    <li> This removes barriers to writing constexpr functions and continues the existing pattern of recognizing that potentially problematic constructs are only problematic if they're actually encountered during evaluation. — Strongly Favor
+</ul>
+
+CWG728 Restrictions on local classes {#CWG728}
 -------
 
-* [[P2036r2]]
-* <a href="https://github.com/cplusplus/papers/issues/766">GitHub issue</a>
-* **Highlight:** the way that name lookup works in lambdas is surprising: it behaves differently in the trailing-return-type than it does in the lambda body. The current behavior is surprising and error-prone. The proposed change treats the *trailing-return-type* like the function body rather than treating it like a function parameter.
-* **🗳  Poll:** Forward P2036r2 "Changing scope for lambda trailing-return-type" to Core for C++23. Treat it as a Defect Report.
+* [[CWG728]]
+* **Issue:** <p>Now that the restriction against local classes being used as template arguments has been lifted, they are more useful, yet they are still crippled. For some reason or oversight, the restriction against local classes being templates or having member templates was not lifted. Allowing local classes to have member templates facilitates generic programming (the reason for lifting the other restriction), especially when it comes to the visitor-pattern (see the `boost::variant` documentation and the following example) as implemented in boost and the `boost::MPL` library (since functors have to be template classes in mpl, and higher-order functors have to have member templates to be useful). A local class with a member template would allow this desirable solution:<br>
+    ```
+        #include <boost/variant.hpp>
+        int main() {
+          struct times_two_generic: public boost::static_visitor<> {
+            template <typename T> void operator()(T& operand) const {
+                operand += operand;
+            }
+          };
+          std::vector<boost::variant<int, std::string>> vec;
+          vec.push_back(21);
+          vec.push_back("hello ");
+          times_two_generic visitor;
+          std::for_each(vec.begin(), vec.end(), boost::apply_visitor(visitor));
+        }
+```
+        <br>Is there any compelling reason not to allow this code? Is there any compelling reason not to allow local classes to be templates, have friends, or be able to define their static data members at function scope? Wouldn't this symmetry amongst local and non-local classes make the language more appealing and less embarrassing?</p>
+* Also see [[P2044r2]]<sup><a href="https://github.com/cplusplus/papers/issues/774">GitHub issue</a></sup>, seen by EWGI in Prague and requested to be merged with [[P1988r1]]<sup><a href="https://github.com/cplusplus/papers/issues/736">GitHub issue</a></sup>.
+* **Meeting:** <a href="https://wiki.edg.com/bin/view/Wg21summer2020/IssueProcessing-Thursday9th-April-2020">2020-04-09 notes</a>, some folks unsure that we should do anything here. Revisit the resolution with P2044. Suggest closing as Not A Defect because we have significant implementation concerns, but we’ll explore the design space in P2044. All in favor.
+* **Meeting:** <a href="https://wiki.edg.com/bin/view/Wg21summer2020/EWG-P1949-24-Sep-2020">2020-09-24 notes</a> for the subsequent discussion of P2044, which expressed interest in fixing the issue but not necessarily in the proposed manner.
+* **🗳  Poll:** Mark CWG728 "Restrictions on local classes" as Not A Defect.
 
-P2334r1 Add support for preprocessing directives `elifdef` and `elifndef` {#P2334r1}
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>6</td><td>13</td><td>3</td><td>2</td><td>0</td></tr>
+</table>
+<br><strong>Poll outcome:</strong> ✅ consensus.
+
+<strong>Salient comments:</strong>
+<ul>
+    <li> This is something I wish I could do, quite often. — Against
+    <li> The restriction seems unreasonable when we have more code that utilizes templates. — Against
+    <li> I submitted this issue - and i can understand the need for a paper. — Neutral
+    <li> The room felt like this may be an issue worth addressing, but it needs a paper.  It's "not a defect" means there may still be a problem, but we should fix it with a feature change, not as a defect.  I agree. — Favor
+    <li> I've written a paper about these restrictions because there are actual problems to solve in allowing these capabilities. It's not a defect. — Strongly Favor
+    <li> Certainly needs a proposal, not a good fit for a Core Issue. — Strongly Favor
+</ul>
+
+CWG944 `reinterpret_cast` for all types with the same size and alignment {#CWG944}
 -------
 
-* [[P2334r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1016">GitHub issue</a>
-* **Highlight:** the `#ifdef` and `#ifndef` preprocessing directives exist today as shorthand for `#if defined(identifier)` and `#if !defined(identifier)`, respectively. However, no analogous shorthand preprocessing directives exist for `#elif defined(identifier)` and `#elif !defined(identifier)`. Add two new preprocessing directives `#elifdef` and `#elifndef` that exactly parallel the functionality supplied in the existing `#ifdef` and `#ifndef` directives.
-* **🗳  Poll:** Forward P2334r1 "Add support for preprocessing directives `elifdef` and `elifndef`" to Core for C++23.
+* [[CWG944]]
+* **Issue:** During the discussion of issue [[CWG799]], which specified the result of using `reinterpret_cast` to convert an operand to its own type, it was observed that it is probably reasonable to allow `reinterpret_cast` between any two types that have the same size and alignment. It has been suggested that this question may more properly be the province of EWG, especially in light of discussions during the resolution of issue [[CWG330]]. CWG agreed that this question should be considered from a language design perspective and is thus being referred to EWG. Suggest rejection: we chose to add `std::bit_cast` to provide exactly this functionality instead of extending `reinterpret_cast`.
+* **Meeting:** <a href="https://wiki.edg.com/bin/view/Wg21summer2020/IssueProcessing-Thursday9th-April-2020">2020-04-09 notes</a>, suggest closing as Not A Defect. `bit_cast` addresses some of the usecases this issue might cover. We’d want separate papers to support other usescases, but have nothing outstanding at the moment. All in favor.
+* **🗳  Poll:** Mark CWG944 "`reinterpret_cast` for all types with the same size and alignment" as Not A Defect.
 
-P2066r7 Suggested draft TS for C++ Extensions for Transaction Memory Light {#P2066r7}
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>11</td><td>13</td><td>1</td><td>0</td><td>0</td></tr>
+</table>
+<br><strong>Poll outcome:</strong> ✅ consensus.
+
+<strong>Salient comments:</strong>
+<ul>
+    <li> I'm less concerned with the syntax we use to express this (reinterpret_cast, bit_cast, etc., but I'd like to see more expressiveness here. — Neutral
+    <li> I agree that std::bit_cast exists to cover the key use cases.  It also better conveys the idea of what the compiler is doing. — Strongly Favor
+    <li> reinterpret_cast is about object identity (whether as a glvalue, a pointer, or an integer holding a pointer value), not value, and it would be problematic for it to have two plausible meanings for an integer and a pointer that had the same size but were not interconvertible via memcpy.  In other words, it's not std::bit_cast, and we have that now. — Strongly Favor
+</ul>
+
+CWG1451 Objects with no linkage in non-type template arguments {#CWG1451}
 -------
 
-* [[P2066r7]]
-* See [[P1875r2]] for discussion.
-* Current TS [[N4514]]: ISO/IEC TS 19841:2015 Technical Specification for C++ Extensions for Transactional Memory.
-* <a href="https://github.com/cplusplus/papers/issues/793">GitHub issue</a>
-* **Highlight:** transactions can be expressed with atomic statements of the form `atomic do { /* work goes here */ }`.
-* **🗳  Poll:** Forward P2066r7 "Suggested draft TS for C++ Extensions for Transaction Memory Light" to Core to become the Transactional Memory TS v2.
+* [[CWG1451]]
+* <a href="">GitHub issue</a>
+* **Issue:** <p>According to 13.4.2 **[temp.arg.nontype]** paragraph 1 bullet 3, only objects with linkage can be used to form non-type template arguments. Is this restriction still needed? It would be convenient to use block-scope objects as template arguments. The following is valid:
+    ```
+        template <int *> struct A;
+        auto f() {
+          static int x;
+          A<&x> *ap = nullptr;
+          return ap;
+        }
+    ```
+    <br>There is no longer any linkage restriction. There is a restriction on storage duration, which seems reasonable (you can use the address of a local static variable but not of a local automatic variable as a non-type template argument).</p>
+* **Meeting:** <a href="https://wiki.edg.com/bin/view/Wg21summer2020/IssueProcessing-Wednesday15th-April-2020">2020-04-15 notes</a>, also <a href="https://wiki.edg.com/bin/view/Wg21rapperswil2014/EvolutionWorkingGroup">discussed in Rapperswil 2014</a>, suggest closing as Not A Defect. Addressed by [[N4268]]. No objection to unanimous consent.
+* **Note:** we polled to close as "Not A Defect" but changed to poll these types of issues as "Resolved" in subsequent teleconferences, the poll therefore follows the more recent approach.
+* **🗳  Poll:** Mark CWG1451 "Objects with no linkage in non-type template arguments" as Resolved by N4268.
 
-P2360r0 Extend *init-statement* to allow *alias-declaration* {#P2360r0}
--------
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>10</td><td>14</td><td>0</td><td>0</td><td>0</td></tr>
+</table>
+<br><strong>Poll outcome:</strong> ✅ consensus.
 
-* [[P2360r0]]
-* <a href="https://github.com/cplusplus/papers/issues/1034">GitHub issue</a>
-* **Highlight:** This is currently valid `for (typedef int T; T e : v) /* something */;` but this isn't `for (using T = int; T e : v) /* something */;`. Make the later one valid.
-* **🗳  Poll:** Forward P2360r0 "Extend *init-statement* to allow *alias-declaration*" to Core for C++23.
-
-P2246r1 Character encoding of diagnostic text {#P2246r1}
--------
-
-* [[P2246r1]]
-* <a href="https://github.com/cplusplus/papers/issues/942">GitHub issue</a>
-* **Highlight:** the standard provides a few mechanisms that suggest an implementation issues a diagnostic based on text written in the source code. However, the standard does not uniformly address what should happen if the execution character set of the compiler cannot represent the text in the source character set. Because the display of diagnostic messages should be merely a matter of Quality of Implementation, the proposal is to place no character set related requirements on the diagnostic output with the understanding that implementations will do what makes the most sense for their situation when issuing diagnostics in terms of which characters need to be escaped or otherwise handled in a special way. 
-* **🗳  Poll:** Forward P2246r1 "Character encoding of diagnostic text" to Core for C++23.
-
-P2314r2 Character sets and encodings {#P2314r2}
--------
-
-* [[P2314r2]]
-* <a href="https://github.com/cplusplus/papers/issues/998">GitHub issue</a>
-* **Highlight:** switch C++ to a modified "model C" approach for universal-character-names as described in the <a href="http://www.open-std.org/jtc1/sc22/wg14/www/C99RationaleV5.10.pdf">C99 Rationale v5.10</a>, section 5.2.1. Introduce the term "literal encoding". For purposes of the C++ specification, the actual set of characters is not relevant, but the sequence of code units (i.e. the encoding) specified by a given character or string literal are.
-* **🗳  Poll:** Forward P2314r2 "Character sets and encodings" to Core for C++23.
-
-P2316r1 Consistent character literal encoding {#P2316r1}
--------
-
-* [[P2316r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1000">GitHub issue</a>
-* **Highlight:** character literals in preprocessor conditional are changed to behave the same way as they do in C++ expressions. For example, `'A' == '\x41'` is not currently guaranteed to behave the same in a preprocessor condition as it is in a C++ expression.
-* **🗳  Poll:** Forward P2316r1 "Consistent character literal encoding" to Core for C++23. Treat it as a Defect Report.
-
-
-<!-- For next polling period:
-
-P2280r2 Using unknown references in constant expressions {#P2280r2}
--------
-
-* [[P2280r2]]
-* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
-* **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
-* **🗳  Poll:** Forward P2280r2 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
-
--->
-
+<strong>Salient comments:</strong>
+<ul>
+    <li> Seems clear this issue is resolved. — Strongly Favor
+</ul>
 
 <!--
 
@@ -178,6 +256,25 @@ P2280r2 Using unknown references in constant expressions {#P2280r2}
 * <a href="">GitHub issue</a>
 * **Highlight:** 
 * **🗳  Poll:** Forward 
+
+For next time:
+
+P2266r1 Simpler implicit move {#P2266r1}
+-------
+
+* [[P2266r1]]
+* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
+* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
+* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C++23. Do not treat it as a Defect Report.
+
+
+P2280r2 Using unknown references in constant expressions {#P2280r2}
+-------
+
+* [[P2280r2]]
+* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
+* **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
+* **🗳  Poll:** Forward P2280r2 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
 
 -->
 
@@ -195,7 +292,7 @@ For each poll, participants are asked to vote one of:
 * Against
 * Strongly against
 
-Participants also have the option to abstain from voting on a particular poll. They are asked to comment on each poll. This comment is mandatory, as it helps the chair determine consensus.
+Participants also have the option to abstain from voting on a particular poll. They are be asked to comment on each poll. This comment is mandatory, as it helps the chair determine consensus.
 
 
 Teleconferences {#telecons}
@@ -253,14 +350,6 @@ Here are the minutes for the virtual discussions that were held since the Prague
 <li>2021-05-20 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-05-20">P2025 Guaranteed copy elision for named return objects</a>
 <li>2021-05-26 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-05-26">P2041 Deleting variable templates</a>
 <li>2021-06-03 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-06-03">P1967 <code>#embed</code> — a simple, scannable preprocessor-based resource acquisition method</a>
-<li>2021-06-14 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/P2138">Joint session with LEWG on P2138 Rules of Design <code>&lt;=&gt;</code> Specification engagement</a>
-<li>2021-06-23 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-06-23">P1701 Inline Namespaces: Fragility Bites</a>
-<li>2021-07-01 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-07-01">P2360R0 Extend init-statement to allow alias-declaration, and P2290 Delimited escape sequences, and P2316 Consistent character literal encoding</a>
-<li>2021-07-07 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-07-07">P2392R0 Pattern matching using <code>is</code> and <code>as</code></a>
-<li>2021-07-21 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-07-21">P2350 constexpr class</a>
-<li>2021-07-29 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-07-29">P1169 <code>static operator()</code></a>
-<li>2021-08-04 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-08-04">P2347 Argument type deduction for non-trailing parameter packs</a>
-<li>2021-08-12 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-08-12">P2355 Postfix fold expressions</a>
 </ol>
 
 
