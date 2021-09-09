@@ -1,16 +1,16 @@
 <pre class='metadata'>
 Title: std::expected
 Shortname: P0323
-Revision: 10
+Revision: 11
 Audience: LWG
-Status: P
+Status: D
 Group: WG21
 URL: https://wg21.link/P0323R10
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P0323R10.bs">github.com/jfbastien/papers/blob/master/source/P0323R10.bs</a>
 Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
 No abstract: true
-Date: 2021-04-15
+Date: 2021-09-09
 Markup Shorthands: markdown yes
 </pre>
 
@@ -1646,13 +1646,13 @@ This operator is defined as deleted unless:
 
 ```c++
 template<class U = T>
-    expected<T, E>& operator=(U&& v);
+    expected& operator=(U&& v);
 ```
 
 *Constraints*:
 
   * `is_void_v<T>` is `false`; and
-  * `is_same_v<expected<T,E>, remove_cvref_t<U>>` is `false`; and
+  * `is_same_v<expected, remove_cvref_t<U>>` is `false`; and
   * `conjunction_v<is_scalar<T>, is_same<T, decay_t<U>>>` is `false`; and
   * `is_constructible_v<T, U>` is `true`; and
   * `is_assignable_v<T&, U>` is `true`; and
@@ -1701,7 +1701,7 @@ otherwise
 
 ```c++
 template<class G = E>
-    expected<T, E>& operator=(const unexpected<G>& e);
+    expected& operator=(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_nothrow_copy_constructible_v<E>` is `true` and `is_copy_assignable_v<E>` is `true`.
@@ -1732,7 +1732,7 @@ template<class G = E>
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
 ```c++
-expected<T, E>& operator=(unexpected<G>&& e);
+expected& operator=(unexpected<G>&& e);
 ```
 
 *Effects*: See Table *editor-please-pick-a-number-4*
@@ -1871,7 +1871,7 @@ changes.
 -------------------------------------
 
 ```c++
-void swap(expected<T, E>& rhs) noexcept(see below);
+void swap(expected& rhs) noexcept(see below);
 ```
 
 *Constraints*:
@@ -1886,7 +1886,7 @@ void swap(expected<T, E>& rhs) noexcept(see below);
 *Effects*: See Table *editor-please-pick-a-number-5*
 
 <table>
-<caption>Table *editor-please-pick-a-number-5* — `swap(expected<T, E>&)` effects</caption>
+<caption>Table *editor-please-pick-a-number-5* — `swap(expected&)` effects</caption>
   <tr>
     <td>&nbsp;</td>
     <td>`bool(*this)`</td>
