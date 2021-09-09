@@ -2365,7 +2365,7 @@ template<class E>
 class bad_expected_access : public bad_expected_access<void> {
 public:
     explicit bad_expected_access(E);
-    virtual const char* what() const noexcept override;
+    const char* what() const noexcept override;
     E& error() &;
     const E& error() const&;
     E&& error() &&;
@@ -2404,7 +2404,7 @@ const E&& error() const&&;
 
 
 ```c++
-virtual const char* what() const noexcept override;
+const char* what() const noexcept override;
 ```
 
 *Returns*: An implementation-defined NTBS.
