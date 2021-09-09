@@ -356,11 +356,11 @@ be default-constructible (since `expected<T>` should behave like `T` as much as
 possible).
 
 ```c++
-string s"STR";
+string s{"STR"};
 
 expected<string, errc> es{s}; // requires Copyable<T>
 expected<string, errc> et = s; // requires Copyable<T>
-expected<string, errc> ev = string"STR"; // requires Movable<T>
+expected<string, errc> ev = string{"STR"}; // requires Movable<T>
 
 expected<string, errc> ew; // expected value
 expected<string, errc> ex{}; // expected value
