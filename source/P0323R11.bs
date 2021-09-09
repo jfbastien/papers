@@ -1075,28 +1075,14 @@ public:
     // �.�.4.7, Expected equality operators
     template<class T1, class E1, class T2, class E2>
         friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
-    template<class T1, class E1, class T2, class E2>
-        friend constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
 
     // �.�.4.8, Comparison with T
     template<class T1, class E1, class T2>
         friend constexpr bool operator==(const expected<T1, E1>&, const T2&);
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator==(const T2&, const expected<T1, E1>&);
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator!=(const expected<T1, E1>&, const T2&);
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator!=(const T2&, const expected<T1, E1>&);
 
     // �.�.4.9, Comparison with unexpected<E>
     template<class T1, class E1, class E2>
         friend constexpr bool operator==(const expected<T1, E1>&, const unexpected<E2>&);
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator==(const unexpected<E2>&, const expected<T1, E1>&);
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator!=(const expected<T1, E1>&, const unexpected<E2>&);
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator!=(const unexpected<E2>&, const expected<T1, E1>&);
 
     // �.�.4.10, Specialized algorithms
     template<class T1, class E1>
@@ -2075,28 +2061,12 @@ are convertible to `bool`.
 `*x == *y` and `x.error() == y.error()` is a core constant expression, are
 constexpr functions.
 
-```c++
-template<class T1, class E1, class T2, class E2>
-    constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
-```
-
-*Mandates*: The expressions `*x != *y` and `x.error() != y.error()` are
-well-formed and their results are convertible to `bool`.
-
-*Returns*: If `bool(x) != bool(y)`, `true`; otherwise if `bool(x) == false`,
-`x.error() != y.error()`; otherwise `true` if `T1` and `T2` are
-*cv* `void` or `*x != *y`.
-
-*Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
-`*x != *y` and `x.error() != y.error()` is a core
-constant expression, are constexpr functions.
 
 �.�.4.7 Comparison with `T` [*expected.comparison_T*] {#expected.comparison_T}
 ---------------------------------------------------
 
 ```c++
 template<class T1, class E1, class T2> constexpr bool operator==(const expected<T1, E1>& x, const T2& v);
-template<class T1, class E1, class T2> constexpr bool operator==(const T2& v, const expected<T1, E1>& x);
 ```
 
 *Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
@@ -2106,40 +2076,17 @@ and its result is convertible to
 *Returns*: `bool(x) ? *x == v : false;`.
 
 
-```c++
-template<class T1, class E1, class T2> constexpr bool operator!=(const expected<T1, E1>& x, const T2& v);
-template<class T1, class E1, class T2> constexpr bool operator!=(const T2& v, const expected<T1, E1>& x);
-```
-
-*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
-and its result is convertible to
-`bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
-
-*Returns*: `bool(x) ? *x != v : false;`.
-
-
 �.�.4.8 Comparison with `unexpected<E>` [*expected.comparison_unexpected_E*] {#expected.comparison_unexpected_E}
 ---------------------------------------------------------------------------
 
 ```c++
 template<class T1, class E1, class E2> constexpr bool operator==(const expected<T1, E1>& x, const unexpected<E2>& e);
-template<class T1, class E1, class E2> constexpr bool operator==(const unexpected<E2>& e, const expected<T1, E1>& x);
 ```
 
 *Mandates*: The expression `unexpected(x.error()) == e` is well-formed and
 its result is convertible to `bool`.
 
 *Returns*: `bool(x) ? false : unexpected(x.error()) == e;`.
-
-```c++
-template<class T1, class E1, class E2> constexpr bool operator!=(const expected<T1, E1>& x, const unexpected<E2>& e);
-template<class T1, class E1, class E2> constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x);
-```
-
-*Mandates*: The expression `unexpected(x.error()) != e` is well-formed and
-its result is convertible to `bool`.
-
-*Returns*: `bool(x) ? true : unexpected(x.error()) != e;`.
 
 
 �.�.4.9 Specialized algorithms [*expected.specalg*] {#expected.specalg}
@@ -2208,9 +2155,6 @@ public:
     template<class E1, class E2>
         friend constexpr bool
         operator==(const unexpected<E1>&, const unexpected<E2>&);
-    template<class E1, class E2>
-        constexpr bool
-        operator!=(const unexpected<E1>&, const unexpected<E2>&);
 
     template<class E1>
     friend void swap(unexpected<E1>& x, unexpected<E1>& y) noexcept(noexcept(x.swap(y)));
@@ -2399,15 +2343,8 @@ template<class E1, class E2>
 
 *Returns*: `x.value() == y.value()`.
 
-```c++
-template<class E1, class E2>
-    friend constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y);
-```
-
-*Returns*: `x.value() != y.value()`.
 
 ### �.�.5.2.5 Specialized algorithms [*expected.unexpected.specalg*] ### {#expected.unexpected.specalg}
-
 
 ```c++
 template<class E1>
