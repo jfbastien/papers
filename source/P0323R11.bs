@@ -2050,8 +2050,8 @@ template<class T1, class E1, class T2, class E2>
     friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Preconditions*: The expressions `*x == *y` and
-`x.error())== y.error()` are well-formed and their results
+*Mandates*: The expressions `*x == *y` and
+`x.error()== y.error()` are well-formed and their results
 are convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
