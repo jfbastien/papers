@@ -1442,7 +1442,7 @@ constant subexpression, this constructor is a constexpr constructor.
 
 *Effects*: If `T` is not *cv* `void` and `is_trivially_destructible_v<T>` is `false`
 and `bool(*this)`, calls `val.~T()`. If `is_trivially_destructible_v<E>` is
-`false` and `!bool(*this)`, calls `unexpect.~unexpected<E>()`.
+`false` and `!bool(*this)`, calls `unex.~unexpected<E>()`.
 
 *Remarks*: If either `T` is *cv* `void` or `is_trivially_destructible_v<T>` is
 `true`, and `is_trivially_destructible_v<E>` is `true`, then this destructor
@@ -1470,23 +1470,23 @@ expected& operator=(const expected& rhs) noexcept(see below);
     <td>assigns `*rhs` to `val` if `T` is not *cv* `void`</td>
 <td>
 
-  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
+  * if `T` is *cv* `void` destroys `unex` by calling `unex.~unexpected<E>()` and set `has_val` to `true`,
 
   * otherwise if `is_nothrow_copy_constructible_v<T>` is `true`
 
-    * destroys `unex` by calling `unexpect.~unexpected<E>() `
+    * destroys `unex` by calling `unex.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`;
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
     * constructs a `T tmp` from `*rhs` (this can throw),
-    * destroys `unex` by calling `unexpect.~unexpected<E>() `
+    * destroys `unex` by calling `unex.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)`;
 
   * otherwise
 
     * constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can throw),
-    * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+    * destroys `unex` by calling `unex.~unexpected<E>()`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -1570,17 +1570,17 @@ expected& operator=(expected&& rhs) noexcept(see below);
     <td>move assign `*rhs` to `val` if `T` is not *cv* `void`</td>
 <td>
 
-  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()`
+  * if `T` is *cv* `void` destroys `unex` by calling `unex.~unexpected<E>()`
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
-    * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+    * destroys `unex` by calling `unex.~unexpected<E>()`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`;
 
   * otherwise
 
     * move constructs an `unexpected_type<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
-    * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+    * destroys `unex` by calling `unex.~unexpected<E>() `,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`. Either,
 
       * The constructor didn't throw, set `has_val` to `true`, or
@@ -1668,14 +1668,14 @@ template<class U = T>
 
 if `is_nothrow_constructible_v<T, U>` is `true`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)` and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, that is set `has_val` to `true`, or
@@ -1766,7 +1766,7 @@ void expected<void, E>::emplace();
 
 If `!bool(*this)`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * set `has_val` to `true`
 
 *Postconditions*: `bool(*this)` is `true`.
@@ -1788,21 +1788,21 @@ constructing an object of type `T` with the arguments
 
 otherwise if `is_nothrow_constructible_v<T, Args...>` is `true`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...` and
   * set `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `std::forward<Args>(args)...` (which can throw),
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` ,
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -1834,21 +1834,21 @@ constructing an object of type `T` with the arguments
 
 otherwise if `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `il, std::forward<Args>(args)...` and
   * set `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `il, std::forward<Args>(args)...` (which can throw),
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` ,
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `il, std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -1901,13 +1901,13 @@ void swap(expected& rhs) noexcept(see below);
 
     * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
 
-      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unexpect.~unexpected<E>()` set `rhs.has_val` to `true`.
+      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unex.~unexpected<E>()` set `rhs.has_val` to `true`.
       * the constructor did throw, rethrow the exception.
 
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`,
 
     * the `unex` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`,
-    * followed by destruction of `unex` as if by `rhs.unexpect.~unexpected<E>()`,
+    * followed by destruction of `unex` as if by `rhs.unex.~unexpected<E>()`,
     * `rhs.val` is direct-initialized from `std::move(*this)`. Either
         * the constructor didn't throw
             * destroy `val` as if by `this->val.~T()`,
@@ -1920,7 +1920,7 @@ void swap(expected& rhs) noexcept(see below);
     * followed by destruction of `val` as if by `val.~T()`,
     * the `unex` is direct-initialized from `unexpected(std::move(other.error()))`. Either
         * the constructor didn't throw
-            * destroy `rhs.unexpect` as if by `rhs.unexpect.~unexpected<E>()`,
+            * destroy `rhs.unexpect` as if by `rhs.unex.~unexpected<E>()`,
             * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
         * the constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `T` is nothrow-move-constructible), and re-throw the exception.
 
@@ -2022,7 +2022,7 @@ constexpr E& error() &;
 
 *Preconditions*: `bool(*this)` is `false`.
 
-*Returns*: `unexpect.value()`.
+*Returns*: `unex.value()`.
 
 ```c++
 constexpr E&& error() &&;
@@ -2031,7 +2031,7 @@ constexpr const E&& error() const&&;
 
 *Preconditions*: `bool(*this)` is `false`.
 
-*Returns*: `std::move(unexpect.value())`.
+*Returns*: `std::move(unex.value())`.
 
 ```c++
 template<class U>
