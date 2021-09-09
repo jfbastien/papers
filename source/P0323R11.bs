@@ -987,10 +987,6 @@ namespace std {
 }
 ```
 
-�.�.3 Definitions [*expected.defs*] {#expected.defs}
------------------------------------
-
-
 �.�.4 Class template expected [*expected.expected*] {#expected.expected}
 ---------------------------------------------------
 
