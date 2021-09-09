@@ -1003,8 +1003,8 @@ public:
 
     // �.�.4.1, constructors
     constexpr expected();
-    constexpr expected(const expected&);
-    constexpr expected(expected&&) noexcept(see below);
+    explicit(see below) constexpr expected(const expected&);
+    explicit(see below) constexpr expected(expected&&) noexcept(see below);
     template<class U, class G>
         explicit(see below) constexpr expected(const expected<U, G>&);
     template<class U, class G>
