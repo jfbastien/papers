@@ -2223,7 +2223,7 @@ template<class E> unexpected(E) -> unexpected<E>;
 ```
 
 A program that instantiates the definition of `unexpected` for a non-object
-type, an array type, a specialization of `unexpected` or an cv-qualified type is
+type, an array type, a specialization of `unexpected` or a cv-qualified type is
 ill-formed.
 
 
