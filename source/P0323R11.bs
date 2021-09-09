@@ -2424,7 +2424,7 @@ public:
 ------------------------------------------
 
 <pre><code>
-struct unexpect_t(<i>see below</i>);
+struct unexpect_t{<i>see below</i>};
 inline constexpr unexpect_t unexpect(<i>unspecified</i>);
 </code></pre>
 
