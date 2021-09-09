@@ -1145,7 +1145,7 @@ constexpr expected();
 
 *Effects*: Value-initializes `val` if `T` is not *cv* `void`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1162,7 +1162,7 @@ direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1193,7 +1193,7 @@ direct-non-list-initializing an object of type `T` with the expression
 Otherwise, initializes `val` as if direct-non-list-initializing an object of
 type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
-*Ensures*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1239,7 +1239,7 @@ direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1284,7 +1284,7 @@ Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E> ` with the expression
 `unexpected(std::move(rhs.error()))`.
 
-*Ensures*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
@@ -1309,7 +1309,7 @@ template<class U = T>
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `T` with the expression `std::forward<U>(v)`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1328,7 +1328,7 @@ template<class G = E>
 *Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `e`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1346,7 +1346,7 @@ template<class G = E>
 *Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `std::move(e)`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1370,7 +1370,7 @@ template<class... Args>
 direct-non-list-initializing an object of type `T` with the arguments
 `std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1389,7 +1389,7 @@ initializer_list<U>&, Args...>` is `true`.
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `T` with the arguments `il, std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1407,7 +1407,7 @@ template<class... Args>
 an object of type `unexpected<E>`with the arguments
 `std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1425,7 +1425,7 @@ template<class U, class... Args>
 an object of type `unexpected<E>` with the arguments `il,
 std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1532,7 +1532,7 @@ expected& operator=(const expected& rhs) noexcept(see below);
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
@@ -1620,7 +1620,7 @@ expected& operator=(expected&& rhs) noexcept(see below);
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Remarks*: The expression inside noexcept is equivalent to:
 `is_nothrow_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<T>` is `true`.
@@ -1687,7 +1687,7 @@ otherwise
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains
  unchanged. If an exception is thrown during the call to `T`'s constructor, no
@@ -1723,7 +1723,7 @@ template<class G = E>
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
@@ -1754,7 +1754,7 @@ expected& operator=(unexpected<G>&& e);
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
@@ -1769,7 +1769,7 @@ If `!bool(*this)`
   * destroys `unex` by calling `unexpect.~unexpected<E>() `,
   * set `has_val` to `true`
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Nothing
 
@@ -1808,7 +1808,7 @@ otherwise
       * the constructor didn't throw, set `has_val` to `true`, or
       * the constructor did throw, so move-construct the `unexpected<E>` from `tmp` back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and re-throw the exception.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Returns:* A reference to the new contained value `val`.
 
@@ -1854,7 +1854,7 @@ otherwise
       * the constructor didn't throw, set `has_val` to `true`, or
       * the constructor did throw, so move-construct the `unexpected<E>` from `tmp` back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and re-throw the exception.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Returns:* A reference to the new contained value `val`.
 
@@ -2448,7 +2448,7 @@ bad_expected_access::bad_expected_access(E e);
 
 *Effects*: Initializes `val` with `e`.
 
-*Ensures*: `what()` returns an implementation-defined NTBS.
+*Postconditions*: `what()` returns an implementation-defined NTBS.
 
 ```c++
 const E& error() const&;
