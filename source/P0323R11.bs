@@ -2182,8 +2182,8 @@ template<class Err>
 *Constraints*:
 
   * `is_constructible_v<E, Err>` is `true`; and
-  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
-  * `is_same_v<remove_cvref_t<U>, unexpected>` is `false`.
+  * `is_same_v<remove_cvref_t<Err>, in_place_t>` is `false`; and
+  * `is_same_v<remove_cvref_t<Err>, unexpected>` is `false`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `E` with the expression `std::forward<Err>(e)`.
