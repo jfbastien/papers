@@ -53,7 +53,7 @@ Various iterations of this paper have been reviewed by WG21 over time:
 * <a href="https://wiki.edg.com/bin/view/Wg21rapperswil2018/P0323">LWG Rapperswil 2018</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21albuquerque/P0323R3">EWG Albuquerque 2017</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21albuquerque/P0323">LEWG Albuquerque 2017</a>
-* <a href="https://wiki.edg.com/bin/view/Wg21toronto2017/P0323">LEW Toronto 2017</a>
+* <a href="https://wiki.edg.com/bin/view/Wg21toronto2017/P0323">LEWG Toronto 2017</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21oulu/P0323">LEWG Oulu 2016</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21oulu/SG14AtGDC2016#Paul_Hampson_p_hampson_wargaming">SG14 GDC 2016</a>
 * <a href="http://wiki.edg.com/twiki/bin/view/Wg21rapperswil2014/N4015">LEWG Rapperswil 2014</a>
