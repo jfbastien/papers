@@ -999,10 +999,6 @@ namespace std {
 }
 ```
 
-�.�.3 Definitions [*expected.defs*] {#expected.defs}
------------------------------------
-
-
 �.�.4 Class template expected [*expected.expected*] {#expected.expected}
 ---------------------------------------------------
 
@@ -1019,8 +1015,8 @@ public:
 
     // �.�.4.1, constructors
     constexpr expected();
-    constexpr expected(const expected&);
-    constexpr expected(expected&&) noexcept(see below);
+    explicit(see below) constexpr expected(const expected&);
+    explicit(see below) constexpr expected(expected&&) noexcept(see below);
     template<class U, class G>
         explicit(see below) constexpr expected(const expected<U, G>&);
     template<class U, class G>
@@ -1091,28 +1087,14 @@ public:
     // �.�.4.7, Expected equality operators
     template<class T1, class E1, class T2, class E2>
         friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
-    template<class T1, class E1, class T2, class E2>
-        friend constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
 
     // �.�.4.8, Comparison with T
     template<class T1, class E1, class T2>
         friend constexpr bool operator==(const expected<T1, E1>&, const T2&);
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator==(const T2&, const expected<T1, E1>&);
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator!=(const expected<T1, E1>&, const T2&);
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator!=(const T2&, const expected<T1, E1>&);
 
     // �.�.4.9, Comparison with unexpected<E>
     template<class T1, class E1, class E2>
         friend constexpr bool operator==(const expected<T1, E1>&, const unexpected<E2>&);
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator==(const unexpected<E2>&, const expected<T1, E1>&);
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator!=(const expected<T1, E1>&, const unexpected<E2>&);
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator!=(const unexpected<E2>&, const expected<T1, E1>&);
 
     // �.�.4.10, Specialized algorithms
     template<class T1, class E1>
@@ -1141,7 +1123,7 @@ A program that instantiates the definition of template `expected<T, E>` for a
 reference type, a function type, or for possibly cv-qualified types
 `in_place_t`, `unexpect_t` or `unexpected<E>` for the `T` parameter is
 ill-formed. A program that instantiates the definition of template
-`expected<E>` with the `E` parameter that is not a valid template parameter
+`expected<T, E>` with the `E` parameter that is not a valid template parameter
 for `unexpected` is ill-formed.
 
 When `T` is not *cv* `void`, it shall meet the requirements of `Cpp17Destructible`
@@ -1161,7 +1143,7 @@ constexpr expected();
 
 *Effects*: Value-initializes `val` if `T` is not *cv* `void`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1178,7 +1160,7 @@ direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1209,7 +1191,7 @@ direct-non-list-initializing an object of type `T` with the expression
 Otherwise, initializes `val` as if direct-non-list-initializing an object of
 type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
-*Ensures*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1255,7 +1237,7 @@ direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1300,7 +1282,7 @@ Otherwise, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E> ` with the expression
 `unexpected(std::move(rhs.error()))`.
 
-*Ensures*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
@@ -1325,7 +1307,7 @@ template<class U = T>
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `T` with the expression `std::forward<U>(v)`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1344,7 +1326,7 @@ template<class G = E>
 *Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `e`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1362,7 +1344,7 @@ template<class G = E>
 *Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `std::move(e)`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1386,7 +1368,7 @@ template<class... Args>
 direct-non-list-initializing an object of type `T` with the arguments
 `std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1405,7 +1387,7 @@ initializer_list<U>&, Args...>` is `true`.
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `T` with the arguments `il, std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
@@ -1423,7 +1405,7 @@ template<class... Args>
 an object of type `unexpected<E>`with the arguments
 `std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1441,7 +1423,7 @@ template<class U, class... Args>
 an object of type `unexpected<E>` with the arguments `il,
 std::forward<Args>(args)...`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1458,7 +1440,7 @@ constant subexpression, this constructor is a constexpr constructor.
 
 *Effects*: If `T` is not *cv* `void` and `is_trivially_destructible_v<T>` is `false`
 and `bool(*this)`, calls `val.~T()`. If `is_trivially_destructible_v<E>` is
-`false` and `!bool(*this)`, calls `unexpect.~unexpected<E>()`.
+`false` and `!bool(*this)`, calls `unex.~unexpected<E>()`.
 
 *Remarks*: If either `T` is *cv* `void` or `is_trivially_destructible_v<T>` is
 `true`, and `is_trivially_destructible_v<E>` is `true`, then this destructor
@@ -1486,23 +1468,23 @@ expected& operator=(const expected& rhs) noexcept(see below);
     <td>assigns `*rhs` to `val` if `T` is not *cv* `void`</td>
 <td>
 
-  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()` and set `has_val` to `true`,
+  * if `T` is *cv* `void` destroys `unex` by calling `unex.~unexpected<E>()` and set `has_val` to `true`,
 
   * otherwise if `is_nothrow_copy_constructible_v<T>` is `true`
 
-    * destroys `unex` by calling `unexpect.~unexpected<E>() `
+    * destroys `unex` by calling `unex.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`;
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
     * constructs a `T tmp` from `*rhs` (this can throw),
-    * destroys `unex` by calling `unexpect.~unexpected<E>() `
+    * destroys `unex` by calling `unex.~unexpected<E>() `
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)`;
 
   * otherwise
 
     * constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can throw),
-    * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+    * destroys `unex` by calling `unex.~unexpected<E>()`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*rhs`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
@@ -1548,7 +1530,7 @@ expected& operator=(const expected& rhs) noexcept(see below);
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
@@ -1586,17 +1568,17 @@ expected& operator=(expected&& rhs) noexcept(see below);
     <td>move assign `*rhs` to `val` if `T` is not *cv* `void`</td>
 <td>
 
-  * if `T` is *cv* `void` destroys `unex` by calling `unexpect.~unexpected<E>()`
+  * if `T` is *cv* `void` destroys `unex` by calling `unex.~unexpected<E>()`
 
   * otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
-    * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+    * destroys `unex` by calling `unex.~unexpected<E>()`,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`;
 
   * otherwise
 
     * move constructs an `unexpected_type<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
-    * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+    * destroys `unex` by calling `unex.~unexpected<E>() `,
     * initializes `val` as if direct-non-list-initializing an object of type `T` with `*std::move(rhs)`. Either,
 
       * The constructor didn't throw, set `has_val` to `true`, or
@@ -1636,7 +1618,7 @@ expected& operator=(expected&& rhs) noexcept(see below);
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(rhs) == bool(*this)`.
+*Postconditions*: `bool(rhs) == bool(*this)`.
 
 *Remarks*: The expression inside noexcept is equivalent to:
 `is_nothrow_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<T>` is `true`.
@@ -1658,13 +1640,13 @@ This operator is defined as deleted unless:
 
 ```c++
 template<class U = T>
-    expected<T, E>& operator=(U&& v);
+    expected& operator=(U&& v);
 ```
 
 *Constraints*:
 
   * `is_void_v<T>` is `false`; and
-  * `is_same_v<expected<T,E>, remove_cvref_t<U>>` is `false`; and
+  * `is_same_v<expected, remove_cvref_t<U>>` is `false`; and
   * `conjunction_v<is_scalar<T>, is_same<T, decay_t<U>>>` is `false`; and
   * `is_constructible_v<T, U>` is `true`; and
   * `is_assignable_v<T&, U>` is `true`; and
@@ -1684,14 +1666,14 @@ template<class U = T>
 
 if `is_nothrow_constructible_v<T, U>` is `true`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)` and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` (which can't throw as `E` is nothrow-move-constructible),
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<U>(v)`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, that is set `has_val` to `true`, or
@@ -1703,7 +1685,7 @@ otherwise
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains
  unchanged. If an exception is thrown during the call to `T`'s constructor, no
@@ -1713,7 +1695,7 @@ otherwise
 
 ```c++
 template<class G = E>
-    expected<T, E>& operator=(const unexpected<G>& e);
+    expected& operator=(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_nothrow_copy_constructible_v<E>` is `true` and `is_copy_assignable_v<E>` is `true`.
@@ -1739,12 +1721,12 @@ template<class G = E>
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
 ```c++
-expected<T, E>& operator=(unexpected<G>&& e);
+expected& operator=(unexpected<G>&& e);
 ```
 
 *Effects*: See Table *editor-please-pick-a-number-4*
@@ -1770,7 +1752,7 @@ expected<T, E>& operator=(unexpected<G>&& e);
 
 *Returns*: `*this`.
 
-*Ensures*: `bool(*this)` is `false`.
+*Postconditions*: `bool(*this)` is `false`.
 
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
@@ -1782,10 +1764,10 @@ void expected<void, E>::emplace();
 
 If `!bool(*this)`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * set `has_val` to `true`
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Throws*: Nothing
 
@@ -1804,27 +1786,27 @@ constructing an object of type `T` with the arguments
 
 otherwise if `is_nothrow_constructible_v<T, Args...>` is `true`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...` and
   * set `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `std::forward<Args>(args)...` (which can throw),
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` ,
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
       * the constructor did throw, so move-construct the `unexpected<E>` from `tmp` back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and re-throw the exception.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Returns:* A reference to the new contained value `val`.
 
@@ -1850,27 +1832,27 @@ constructing an object of type `T` with the arguments
 
 otherwise if `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`
 
-  * destroys `unex` by calling `unexpect.~unexpected<E>() `,
+  * destroys `unex` by calling `unex.~unexpected<E>() `,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `il, std::forward<Args>(args)...` and
   * set `has_val` to `true`;
 
 otherwise if `is_nothrow_move_constructible_v<T>` is `true`
 
   * constructs a `T tmp` from `il, std::forward<Args>(args)...` (which can throw),
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `std::move(tmp)` (which cannot throw) and
   * set `has_val` to `true`;
 
 otherwise
 
   * move constructs an `unexpected<E> tmp` from `unexpected(this->error())` ,
-  * destroys `unex` by calling `unexpect.~unexpected<E>()`,
+  * destroys `unex` by calling `unex.~unexpected<E>()`,
   * initializes `val` as if direct-non-list-initializing an object of type `T` with `il, std::forward<Args>(args)...`. Either,
 
       * the constructor didn't throw, set `has_val` to `true`, or
       * the constructor did throw, so move-construct the `unexpected<E>` from `tmp` back into the expected storage (which can't throw as `E` is nothrow-move-constructible), and re-throw the exception.
 
-*Ensures*: `bool(*this)` is `true`.
+*Postconditions*: `bool(*this)` is `true`.
 
 *Returns:* A reference to the new contained value `val`.
 
@@ -1883,7 +1865,7 @@ changes.
 -------------------------------------
 
 ```c++
-void swap(expected<T, E>& rhs) noexcept(see below);
+void swap(expected& rhs) noexcept(see below);
 ```
 
 *Constraints*:
@@ -1898,7 +1880,7 @@ void swap(expected<T, E>& rhs) noexcept(see below);
 *Effects*: See Table *editor-please-pick-a-number-5*
 
 <table>
-<caption>Table *editor-please-pick-a-number-5* — `swap(expected<T, E>&)` effects</caption>
+<caption>Table *editor-please-pick-a-number-5* — `swap(expected&)` effects</caption>
   <tr>
     <td>&nbsp;</td>
     <td>`bool(*this)`</td>
@@ -1917,13 +1899,13 @@ void swap(expected<T, E>& rhs) noexcept(see below);
 
     * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
 
-      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unexpect.~unexpected<E>()` set `rhs.has_val` to `true`.
+      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unex.~unexpected<E>()` set `rhs.has_val` to `true`.
       * the constructor did throw, rethrow the exception.
 
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`,
 
     * the `unex` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`,
-    * followed by destruction of `unex` as if by `rhs.unexpect.~unexpected<E>()`,
+    * followed by destruction of `unex` as if by `rhs.unex.~unexpected<E>()`,
     * `rhs.val` is direct-initialized from `std::move(*this)`. Either
         * the constructor didn't throw
             * destroy `val` as if by `this->val.~T()`,
@@ -1936,7 +1918,7 @@ void swap(expected<T, E>& rhs) noexcept(see below);
     * followed by destruction of `val` as if by `val.~T()`,
     * the `unex` is direct-initialized from `unexpected(std::move(other.error()))`. Either
         * the constructor didn't throw
-            * destroy `rhs.unexpect` as if by `rhs.unexpect.~unexpected<E>()`,
+            * destroy `rhs.unexpect` as if by `rhs.unex.~unexpected<E>()`,
             * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
         * the constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `T` is nothrow-move-constructible), and re-throw the exception.
 
@@ -1963,7 +1945,7 @@ T* operator->();
 
 *Constraints*: `T` is not *cv* `void`.
 
-*Expects*: `bool(*this)` is `true`.
+*Preconditions*: `bool(*this)` is `true`.
 
 *Returns*: `addressof(val)`.
 
@@ -1974,7 +1956,7 @@ T& operator*() &;
 
 *Constraints*: `T` is not *cv* `void`.
 
-*Expects*: `bool(*this)` is `true`.
+*Preconditions*: `bool(*this)` is `true`.
 
 *Returns*: `val`.
 
@@ -1985,7 +1967,7 @@ constexpr const T&& operator*() const&&;
 
 *Constraints*: `T` is not *cv* `void`.
 
-*Expects*: `bool(*this)` is `true`.
+*Preconditions*: `bool(*this)` is `true`.
 
 *Returns*: `std::move(val)`.
 
@@ -2036,18 +2018,18 @@ constexpr const E& error() const&;
 constexpr E& error() &;
 ```
 
-*Expects*: `bool(*this)` is `false`.
+*Preconditions*: `bool(*this)` is `false`.
 
-*Returns*: `unexpect.value()`.
+*Returns*: `unex.value()`.
 
 ```c++
 constexpr E&& error() &&;
 constexpr const E&& error() const&&;
 ```
 
-*Expects*: `bool(*this)` is `false`.
+*Preconditions*: `bool(*this)` is `false`.
 
-*Returns*: `std::move(unexpect.value())`.
+*Returns*: `std::move(unex.value())`.
 
 ```c++
 template<class U>
@@ -2057,7 +2039,7 @@ template<class U>
 *Returns*: `bool(*this) ? **this :
  static_cast<T>(std::forward<U>(v));`.
 
-*Remarks*: If `is_copy_constructible_v<T>` is `true`and `is_convertible_v<U, T>` is
+*Remarks*: If `is_copy_constructible_v<T>` is `true` and `is_convertible_v<U, T>` is
  `false` the program is ill-formed.
 
 ```c++
@@ -2080,8 +2062,8 @@ template<class T1, class E1, class T2, class E2>
     friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Expects*: The expressions `*x == *y` and
-`x.error())== y.error()` are well-formed and their results
+*Mandates*: The expressions `*x == *y` and
+`x.error()== y.error()` are well-formed and their results
 are convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
@@ -2091,28 +2073,12 @@ are convertible to `bool`.
 `*x == *y` and `x.error() == y.error()` is a core constant expression, are
 constexpr functions.
 
-```c++
-template<class T1, class E1, class T2, class E2>
-    constexpr bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y);
-```
-
-*Mandates*: The expressions `*x != *y` and `x.error() != y.error()` are
-well-formed and their results are convertible to `bool`.
-
-*Returns*: If `bool(x) != bool(y)`, `true`; otherwise if `bool(x) == false`,
-`x.error() != y.error()`; otherwise `true` if `T1` and `T2` are
-*cv* `void` or `*x != *y`.
-
-*Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
-`*x != *y` and `x.error() != y.error()` is a core
-constant expression, are constexpr functions.
 
 �.�.4.7 Comparison with `T` [*expected.comparison_T*] {#expected.comparison_T}
 ---------------------------------------------------
 
 ```c++
 template<class T1, class E1, class T2> constexpr bool operator==(const expected<T1, E1>& x, const T2& v);
-template<class T1, class E1, class T2> constexpr bool operator==(const T2& v, const expected<T1, E1>& x);
 ```
 
 *Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
@@ -2122,40 +2088,17 @@ and its result is convertible to
 *Returns*: `bool(x) ? *x == v : false;`.
 
 
-```c++
-template<class T1, class E1, class T2> constexpr bool operator!=(const expected<T1, E1>& x, const T2& v);
-template<class T1, class E1, class T2> constexpr bool operator!=(const T2& v, const expected<T1, E1>& x);
-```
-
-*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
-and its result is convertible to
-`bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
-
-*Returns*: `bool(x) ? *x != v : false;`.
-
-
 �.�.4.8 Comparison with `unexpected<E>` [*expected.comparison_unexpected_E*] {#expected.comparison_unexpected_E}
 ---------------------------------------------------------------------------
 
 ```c++
 template<class T1, class E1, class E2> constexpr bool operator==(const expected<T1, E1>& x, const unexpected<E2>& e);
-template<class T1, class E1, class E2> constexpr bool operator==(const unexpected<E2>& e, const expected<T1, E1>& x);
 ```
 
 *Mandates*: The expression `unexpected(x.error()) == e` is well-formed and
 its result is convertible to `bool`.
 
 *Returns*: `bool(x) ? false : unexpected(x.error()) == e;`.
-
-```c++
-template<class T1, class E1, class E2> constexpr bool operator!=(const expected<T1, E1>& x, const unexpected<E2>& e);
-template<class T1, class E1, class E2> constexpr bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x);
-```
-
-*Mandates*: The expression `unexpected(x.error()) != e` is well-formed and
-its result is convertible to `bool`.
-
-*Returns*: `bool(x) ? true : unexpected(x.error()) != e;`.
 
 
 �.�.4.9 Specialized algorithms [*expected.specalg*] {#expected.specalg}
@@ -2224,9 +2167,6 @@ public:
     template<class E1, class E2>
         friend constexpr bool
         operator==(const unexpected<E1>&, const unexpected<E2>&);
-    template<class E1, class E2>
-        constexpr bool
-        operator!=(const unexpected<E1>&, const unexpected<E2>&);
 
     template<class E1>
     friend void swap(unexpected<E1>& x, unexpected<E1>& y) noexcept(noexcept(x.swap(y)));
@@ -2239,7 +2179,7 @@ template<class E> unexpected(E) -> unexpected<E>;
 ```
 
 A program that instantiates the definition of `unexpected` for a non-object
-type, an array type, a specialization of `unexpected` or an cv-qualified type is
+type, an array type, a specialization of `unexpected` or a cv-qualified type is
 ill-formed.
 
 
@@ -2254,8 +2194,8 @@ template<class Err>
 *Constraints*:
 
   * `is_constructible_v<E, Err>` is `true`; and
-  * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
-  * `is_same_v<remove_cvref_t<U>, unexpected>` is `false`.
+  * `is_same_v<remove_cvref_t<Err>, in_place_t>` is `false`; and
+  * `is_same_v<remove_cvref_t<Err>, unexpected>` is `false`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `E` with the expression `std::forward<Err>(e)`.
@@ -2415,15 +2355,8 @@ template<class E1, class E2>
 
 *Returns*: `x.value() == y.value()`.
 
-```c++
-template<class E1, class E2>
-    friend constexpr bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y);
-```
-
-*Returns*: `x.value() != y.value()`.
 
 ### �.�.5.2.5 Specialized algorithms [*expected.unexpected.specalg*] ### {#expected.unexpected.specalg}
-
 
 ```c++
 template<class E1>
@@ -2444,7 +2377,7 @@ template<class E>
 class bad_expected_access : public bad_expected_access<void> {
 public:
     explicit bad_expected_access(E);
-    virtual const char* what() const noexcept override;
+    const char* what() const noexcept override;
     E& error() &;
     const E& error() const&;
     E&& error() &&;
@@ -2464,7 +2397,7 @@ bad_expected_access::bad_expected_access(E e);
 
 *Effects*: Initializes `val` with `e`.
 
-*Ensures*: `what()` returns an implementation-defined NTBS.
+*Postconditions*: `what()` returns an implementation-defined NTBS.
 
 ```c++
 const E& error() const&;
@@ -2483,7 +2416,7 @@ const E&& error() const&&;
 
 
 ```c++
-virtual const char* what() const noexcept override;
+const char* what() const noexcept override;
 ```
 
 *Returns*: An implementation-defined NTBS.
@@ -2503,7 +2436,7 @@ public:
 ------------------------------------------
 
 <pre><code>
-struct unexpect_t(<i>see below</i>);
+struct unexpect_t{<i>see below</i>};
 inline constexpr unexpect_t unexpect(<i>unspecified</i>);
 </code></pre>
 
