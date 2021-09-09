@@ -1947,7 +1947,7 @@ T* operator->();
 
 *Constraints*: `T` is not *cv* `void`.
 
-*Expects*: `bool(*this)` is `true`.
+*Preconditions*: `bool(*this)` is `true`.
 
 *Returns*: `addressof(val)`.
 
@@ -1958,7 +1958,7 @@ T& operator*() &;
 
 *Constraints*: `T` is not *cv* `void`.
 
-*Expects*: `bool(*this)` is `true`.
+*Preconditions*: `bool(*this)` is `true`.
 
 *Returns*: `val`.
 
@@ -1969,7 +1969,7 @@ constexpr const T&& operator*() const&&;
 
 *Constraints*: `T` is not *cv* `void`.
 
-*Expects*: `bool(*this)` is `true`.
+*Preconditions*: `bool(*this)` is `true`.
 
 *Returns*: `std::move(val)`.
 
@@ -2020,7 +2020,7 @@ constexpr const E& error() const&;
 constexpr E& error() &;
 ```
 
-*Expects*: `bool(*this)` is `false`.
+*Preconditions*: `bool(*this)` is `false`.
 
 *Returns*: `unexpect.value()`.
 
@@ -2029,7 +2029,7 @@ constexpr E&& error() &&;
 constexpr const E&& error() const&&;
 ```
 
-*Expects*: `bool(*this)` is `false`.
+*Preconditions*: `bool(*this)` is `false`.
 
 *Returns*: `std::move(unexpect.value())`.
 
@@ -2041,7 +2041,7 @@ template<class U>
 *Returns*: `bool(*this) ? **this :
  static_cast<T>(std::forward<U>(v));`.
 
-*Remarks*: If `is_copy_constructible_v<T>` is `true`and `is_convertible_v<U, T>` is
+*Remarks*: If `is_copy_constructible_v<T>` is `true` and `is_convertible_v<U, T>` is
  `false` the program is ill-formed.
 
 ```c++
@@ -2064,7 +2064,7 @@ template<class T1, class E1, class T2, class E2>
     friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
 ```
 
-*Expects*: The expressions `*x == *y` and
+*Preconditions*: The expressions `*x == *y` and
 `x.error())== y.error()` are well-formed and their results
 are convertible to `bool`.
 
