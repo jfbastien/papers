@@ -1913,7 +1913,7 @@ void swap(expected& rhs) noexcept(see below);
 
     * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
 
-      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unex.~unexpected<E>()` set `rhs.has_val` to `true`.
+      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unex` by calling `rhs.unex.~unexpected<E>()` set `rhs.has_val` to `true`.
       * the constructor did throw, rethrow the exception.
 
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`,
@@ -1932,14 +1932,14 @@ void swap(expected& rhs) noexcept(see below);
     * followed by destruction of `val` as if by `val.~T()`,
     * the `unex` is direct-initialized from `unexpected(std::move(other.error()))`. Either
         * the constructor didn't throw
-            * destroy `rhs.unexpect` as if by `rhs.unex.~unexpected<E>()`,
+            * destroy `rhs.unex` as if by `rhs.unex.~unexpected<E>()`,
             * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
         * the constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `T` is nothrow-move-constructible), and re-throw the exception.
 
   * otherwise, the function is not defined.
 
 </td>
-    <td>calls `using std::swap; swap(unexpect, rhs.unexpect)`</td>
+    <td>calls `using std::swap; swap(unex, rhs.unex)`</td>
   </tr>
 </table>
 
