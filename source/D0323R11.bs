@@ -1154,10 +1154,10 @@ constexpr expected();
 constexpr expected(const expected& rhs);
 ```
 
-*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` is `true` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 
-Otherwise, initializes `unex` as if direct-non-list-initializing an object
+Otherwise, if `bool(rhs)` is `false`, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Postconditions*: `bool(rhs) == bool(*this)`.
@@ -1184,11 +1184,11 @@ constexpr expected(expected&& rhs) noexcept(see below);
   * `is_move_constructible_v<T>` is `true`; and
   * `is_move_constructible_v<E>` is `true`.
 
-*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` is `true` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression
 `std::move(*rhs)`.
 
-Otherwise, initializes `unex` as if direct-non-list-initializing an object of
+Otherwise, if `bool(rhs)` is `false`, initializes `unex` as if direct-non-list-initializing an object of
 type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
