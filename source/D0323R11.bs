@@ -1188,7 +1188,7 @@ constexpr expected(expected&& rhs) noexcept(see below);
 direct-non-list-initializing an object of type `T` with the expression
 `std::move(*rhs)`.
 
-Otherwise, initializes `val` as if direct-non-list-initializing an object of
+Otherwise, initializes `unex` as if direct-non-list-initializing an object of
 type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
