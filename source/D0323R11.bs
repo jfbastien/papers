@@ -952,6 +952,20 @@ Not in this proposal.
 Wording {#word}
 =======
 
+
+Feature test macro {#macro}
+------------------
+
+Add the following line to 17.3.2 [version.syn]:
+
+<blockquote><pre>
+#define __cpp_lib_execution      201903L <em>// also in</em> &lt;execution&gt;
+<ins>#define __cpp_lib_expected       20yymmL <em>// also in</em> &lt;expected&gt;</ins>
+#define __cpp_lib_filesystem     201703L <em>// also in</em> &lt;filesystem&gt;
+</pre>
+</blockquote>
+
+
 Below, substitute the `�` character with a number or name the editor finds
 appropriate for the sub-section.
 
@@ -1154,10 +1168,10 @@ constexpr expected();
 constexpr expected(const expected& rhs);
 ```
 
-*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` is `true` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
 
-Otherwise, initializes `unex` as if direct-non-list-initializing an object
+Otherwise, if `bool(rhs)` is `false`, initializes `unex` as if direct-non-list-initializing an object
 of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Postconditions*: `bool(rhs) == bool(*this)`.
@@ -1184,11 +1198,11 @@ constexpr expected(expected&& rhs) noexcept(see below);
   * `is_move_constructible_v<T>` is `true`; and
   * `is_move_constructible_v<E>` is `true`.
 
-*Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
+*Effects*: If `bool(rhs)` is `true` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression
 `std::move(*rhs)`.
 
-Otherwise, initializes `val` as if direct-non-list-initializing an object of
+Otherwise, if `bool(rhs)` is `false`, initializes `unex` as if direct-non-list-initializing an object of
 type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Postconditions*: `bool(rhs)` is unchanged, `bool(rhs) == bool(*this)`.
@@ -1899,7 +1913,7 @@ void swap(expected& rhs) noexcept(see below);
 
     * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(rhs))`. Either
 
-      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unexpect` by calling `rhs.unex.~unexpected<E>()` set `rhs.has_val` to `true`.
+      * the constructor didn't throw, set `has_val` to `false`, destroys `rhs.unex` by calling `rhs.unex.~unexpected<E>()` set `rhs.has_val` to `true`.
       * the constructor did throw, rethrow the exception.
 
   * otherwise if `is_nothrow_move_constructible_v<E>` is `true`,
@@ -1918,14 +1932,14 @@ void swap(expected& rhs) noexcept(see below);
     * followed by destruction of `val` as if by `val.~T()`,
     * the `unex` is direct-initialized from `unexpected(std::move(other.error()))`. Either
         * the constructor didn't throw
-            * destroy `rhs.unexpect` as if by `rhs.unex.~unexpected<E>()`,
+            * destroy `rhs.unex` as if by `rhs.unex.~unexpected<E>()`,
             * `rhs.val` is direct-initialized from `std::move(tmp)`, after this, `this` does not contain a value; and `bool(rhs)`.
         * the constructor did throw, so move-construct the `T` from `tmp` back into the expected storage (which can't throw as `T` is nothrow-move-constructible), and re-throw the exception.
 
   * otherwise, the function is not defined.
 
 </td>
-    <td>calls `using std::swap; swap(unexpect, rhs.unexpect)`</td>
+    <td>calls `using std::swap; swap(unex, rhs.unex)`</td>
   </tr>
 </table>
 
@@ -2442,11 +2456,6 @@ inline constexpr unexpect_t unexpect(<i>unspecified</i>);
 
 Type `unexpect_t` does not have a default constructor or an initializer-list
 constructor, and is not an aggregate.
-
-Feature test macro {#macro}
-------------------
-
-The proposed library feature test macro is `__cpp_lib_expected`.
 
 Implementation & Usage Experience {#use}
 =================================
