@@ -1557,10 +1557,6 @@ template<class U, class G>
   * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
-  * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`; and
-  * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`; and
-  * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
-  * `is_convertible_v<const expected<U, G>&&, unexpected<E>>` is `false`.
 
 *Effects*: If `bool(rhs)` and `T` is not *cv* `void`, initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression `*rhs`.
@@ -1600,10 +1596,6 @@ template<class U, class G>
   * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
-  * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`; and
-  * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`; and
-  * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
-  * `is_convertible_v<const expected<U, G>&&, unexpected<E>>` is `false`.
 
 *Effects*: If `bool(rhs)` initializes `val` as if
 direct-non-list-initializing an object of type `T` with the expression
