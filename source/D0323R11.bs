@@ -2195,10 +2195,8 @@ constexpr void swap(expected& rhs) noexcept(see below);
 
   * `is_swappable_v<T>`; and
   * `is_swappable_v<E>`; and
-  * `is_void_v<T>` is `true` or `is_void_v<T>` is `false` and either:
-
-    * `is_move_constructible_v<T>` is `true`; or
-    * `is_move_constructible_v<E>` is `true`.
+  * `is_void_v<T>` is `true` or `is_move_constructible_v<T>` is `true` or
+    `is_move_constructible_v<E>` is `true`.
 
 *Effects*: See Table *editor-please-pick-a-number-5*
 
