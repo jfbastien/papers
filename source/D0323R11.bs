@@ -1344,15 +1344,15 @@ public:
 
     // �.�.7.1, constructors
     constexpr expected();
-    explicit(see below) constexpr expected(const expected&);
-    explicit(see below) constexpr expected(expected&&) noexcept(see below);
+    constexpr explicit(see below) expected(const expected&);
+    constexpr explicit(see below) expected(expected&&) noexcept(see below);
     template<class U, class G>
-        explicit(see below) constexpr expected(const expected<U, G>&);
+        constexpr explicit(see below) expected(const expected<U, G>&);
     template<class U, class G>
-        explicit(see below) constexpr expected(expected<U, G>&&);
+        constexpr explicit(see below) expected(expected<U, G>&&);
 
     template<class U = T>
-        explicit(see below) constexpr expected(U&& v);
+        constexpr explicit(see below) expected(U&& v);
 
     template<class G = E>
         constexpr expected(const unexpected<G>&);
@@ -1538,7 +1538,7 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 ```c++
 template<class U, class G>
-    explicit(see below) constexpr expected(const expected<U, G>& rhs);
+    constexpr explicit(see below) expected(const expected<U, G>& rhs);
 ```
 
 *Constraints*: `T` and `U` are *cv* `void` or:
@@ -1581,7 +1581,7 @@ The expression inside `explicit` is `true` if and only if:
 
 ```c++
 template<class U, class G>
-    explicit(see below) constexpr expected(expected<U, G>&& rhs);
+    constexpr explicit(see below) expected(expected<U, G>&& rhs);
 ```
 
 *Constraints*: `T` and `U` are *cv* `void` or:
@@ -1624,7 +1624,7 @@ of type `unexpected<E> ` with the expression
 
 ```c++
 template<class U = T>
-    explicit(see below) constexpr expected(U&& v);
+    constexpr explicit(see below) expected(U&& v);
 ```
 
 *Constraints*:
@@ -1649,7 +1649,7 @@ constructor is a constexpr constructor.
 
 ```c++
 template<class G = E>
-    explicit(see below) constexpr expected(const unexpected<G>& e);
+    constexpr explicit(see below) expected(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_constructible_v<E, const G&>` is `true`.
@@ -1667,7 +1667,7 @@ The expression inside `explicit` is equivalent to `!is_convertible_v<const G&, E
 
 ```c++
 template<class G = E>
-    explicit(see below) constexpr expected(unexpected<G>&& e);
+    constexpr explicit(see below) expected(unexpected<G>&& e);
 ```
 
 *Constraints*: `is_constructible_v<E, G&&>` is `true`.
