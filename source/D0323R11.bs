@@ -2054,6 +2054,8 @@ template<class G>
 constexpr expected& operator=(unexpected<G>&& e);
 ```
 
+*Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
+
 *Effects*: See Table *editor-please-pick-a-number-4*
 
 <table>
@@ -2072,8 +2074,6 @@ constexpr expected& operator=(unexpected<G>&& e);
     <td>move assign `std::move(e)` to `unex`</td>
   </tr>
 </table>
-
-*Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
 
 *Returns*: `*this`.
 
