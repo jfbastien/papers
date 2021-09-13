@@ -1774,7 +1774,7 @@ is a trivial destructor.
 
 
 ```c++
-constexpr expected& operator=(const expected& rhs) noexcept(see below);
+constexpr expected& operator=(const expected& rhs);
 ```
 
 *Effects*: See Table *editor-please-pick-a-number-0*
