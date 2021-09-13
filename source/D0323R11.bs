@@ -1312,7 +1312,7 @@ const char* what() const noexcept override;
 template<>
 class bad_expected_access<void> : public exception {
 public:
-    explicit bad_expected_access();
+    explicit bad_expected_access() noexcept;
 };
 ```
 
