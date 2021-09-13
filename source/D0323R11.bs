@@ -2439,14 +2439,7 @@ its result is convertible to `bool`.
 void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
 ```
 
-*Constraints*:
-
-  * `T` is *cv* `void` or `is_move_constructible_v<T>` is `true`; and
-  * `is_swappable_v<T>` is `true`; and
-  * `is_move_constructible_v<E>` is `true`; and
-  * `is_swappable_v<E>` is `true`.
-
-*Effects*: Calls `x.swap(y)`.
+*Effects*: Equivalent to `x.swap(y)`.
 
 
 Implementation & Usage Experience {#use}
