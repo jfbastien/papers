@@ -1038,9 +1038,9 @@ public:
 
     constexpr unexpected& operator=(const unexpected&) = default;
     constexpr unexpected& operator=(unexpected&&) = default;
-    template<class Err = E>
+    template<class Err>
     constexpr unexpected& operator=(const unexpected<Err>&);
-    template<class Err = E>
+    template<class Err>
     constexpr unexpected& operator=(unexpected<Err>&&);
 
     constexpr const E& value() const& noexcept;
@@ -1072,7 +1072,7 @@ ill-formed.
 
 
 ```c++
-template<class Err>
+template<class Err = E>
     constexpr explicit unexpected(Err&& e);
 ```
 
@@ -1172,7 +1172,7 @@ object of type `E` with the expression `std::move(e.val)`.
 ### �.�.3.2.2 Assignment [*expected.unexpected.assign*] ### {#expected.unexpected.assign}
 
 ```c++
-template<class Err = E>
+template<class Err>
     constexpr unexpected& operator=(const unexpected<Err>& e);
 ```
 
@@ -1186,7 +1186,7 @@ template<class Err = E>
 this function is a constexpr function.
 
 ```c++
-template<class Err = E>
+template<class Err>
     constexpr unexpected& operator=(unexpected<Err>&& e);
 ```
 
@@ -1354,9 +1354,9 @@ public:
     template<class U = T>
         constexpr explicit(see below) expected(U&& v);
 
-    template<class G = E>
+    template<class G>
         constexpr expected(const unexpected<G>&);
-    template<class G = E>
+    template<class G>
         constexpr expected(unexpected<G>&&);
 
     template<class... Args>
@@ -1376,9 +1376,9 @@ public:
     constexpr expected& operator=(const expected&);
     constexpr expected& operator=(expected&&) noexcept(see below);
     template<class U = T> constexpr expected& operator=(U&&);
-    template<class G = E>
+    template<class G>
         constexpr expected& operator=(const unexpected<G>&);
-    template<class G = E>
+    template<class G>
         constexpr expected& operator=(unexpected<G>&&);
 
     // �.�.7.4, modifiers
@@ -1640,7 +1640,7 @@ constructor is a constexpr constructor.
 *Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<U&&, T>`.
 
 ```c++
-template<class G = E>
+template<class G>
     constexpr explicit(see below) expected(const unexpected<G>& e);
 ```
 
@@ -1658,7 +1658,7 @@ subexpression, this constructor shall be a constexpr constructor.
 The expression inside `explicit` is equivalent to `!is_convertible_v<const G&, E>`.
 
 ```c++
-template<class G = E>
+template<class G>
     constexpr explicit(see below) expected(unexpected<G>&& e);
 ```
 
@@ -2017,7 +2017,7 @@ otherwise
  `T`'s copy assignment.
 
 ```c++
-template<class G = E>
+template<class G>
     constexpr expected& operator=(const unexpected<G>& e);
 ```
 
