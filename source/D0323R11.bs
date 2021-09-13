@@ -1500,7 +1500,7 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
   * `is_copy_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_copy_constructible_v<E>` is `true`.
 
-This constructor is a constexpr constructor if:
+This constructor is trivial if:
 
   * `is_trivially_copy_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_trivially_copy_constructible_v<E>` is `true`.
@@ -1531,7 +1531,7 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
   * `is_nothrow_move_constructible_v<T>` is `true` or `T `is *cv* `void`; and
   * `is_nothrow_move_constructible_v<E>` is `true`.
 
-*Remarks*: This constructor is a constexpr constructor if:
+*Remarks*: This constructor is trivial if:
 
   * `is_trivially_move_constructible_v<T>` is `true` or `T` is *cv* `void`; and
   * `is_trivially_move_constructible_v<E>` is `true`.
@@ -1634,8 +1634,8 @@ object of type `T` with the expression `std::forward<U>(v)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
-*Remarks*: If `T`'s selected constructor is a constant subexpression, this
-constructor is a constexpr constructor.
+*Remarks*: `is_trivially_constructible_v<T, U>` is `true`,
+this constructor is trivial.
 
 *Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<U&&, T>`.
 
@@ -1671,8 +1671,9 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s selected constructor is a constant
-subexpression, this constructor is a constexpr constructor. The expression
+*Remarks*: If `is_trivially_constructible_v<E, G>` is `true`,
+this constructor is trivial.
+The expression
 inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G>` is
 `true`.
 The expression inside `explicit` is equivalent to `!is_convertible_v<G&&, E>`.
@@ -1695,8 +1696,9 @@ direct-non-list-initializing an object of type `T` with the arguments
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
-*Remarks*: If `T`'s constructor selected for the initialization is a constant subexpression,
-this constructor is a constexpr constructor.
+*Remarks*: If `T` is *cv* `void` or
+`is_trivially_constructible_v<T, Args...>` is `true`,
+this constructor is trivial.
 
 
 ```c++
@@ -1714,8 +1716,9 @@ object of type `T` with the arguments `il, std::forward<Args>(args)...`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
-*Remarks*: If `T`'s constructor selected for the initialization is a constant subexpression,
-this constructor is a constexpr constructor.
+*Remarks*: If `T` is *cv* `void` or
+`is_trivially_constructible_v<T, initializer_list<U>&, Args...>` is `true`,
+this constructor is trivial.
 
 ```c++
 template<class... Args>
@@ -1732,8 +1735,8 @@ an object of type `unexpected<E>`with the arguments
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s constructor selected for the initialization is a
-constant subexpression, this constructor is a constexpr constructor.
+*Remarks*: If `is_trivially_constructible_v<E, Args...>` is `true`,
+this constructor is trivial.
 
 ```c++
 template<class U, class... Args>
@@ -1750,8 +1753,8 @@ std::forward<Args>(args)...`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s constructor selected for the initialization is a
-constant subexpression, this constructor is a constexpr constructor.
+*Remarks*: If `is_trivially_constructible_v<E, initializer_list<U>&, Args...>` is `true`,
+this constructor is trivial.
 
 
 �.�.7.2 Destructor [*expected.object.dtor*] {#expected.object.dtor}
