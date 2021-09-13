@@ -48,7 +48,7 @@ forward it to electronic polling to forward to LWG
 
 Various iterations of this paper have been reviewed by WG21 over time:
 
-* LWG Telecon 2021 <em>add link!</em>
+* <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/P0323-20210910">LWG Telecon 2021</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/P0323">LEWG Telecon 2021</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21jacksonville2018/LWGThuPM2">LWG Jacksonville 2018</a>
 * <a href="https://wiki.edg.com/bin/view/Wg21rapperswil2018/P0323">LWG Rapperswil 2018</a>
