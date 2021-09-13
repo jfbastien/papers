@@ -1048,13 +1048,13 @@ public:
     constexpr const E&& value() const&& noexcept;
     constexpr E&& value() && noexcept;
 
-    void swap(unexpected& other) noexcept(see below);
+    constexpr void swap(unexpected& other) noexcept(see below);
 
     template<class E2>
         friend constexpr bool
         operator==(const unexpected&, const unexpected<E2>&);
 
-    friend void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
+    friend constexpr void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
 
 private:
     E val; // exposition only
@@ -1219,7 +1219,7 @@ constexpr const E&& value() const&&;
 ### �.�.3.2.4 Swap [*expected.unexpected.ctor*] ### {#expected.unexpected.swap}
 
 ```c++
-void swap(unexpected& other) noexcept(see below);
+constexpr void swap(unexpected& other) noexcept(see below);
 ```
 
 *Mandates*: `is_swappable_v<E>` is `true`.
@@ -1244,7 +1244,7 @@ template<class E2>
 ### �.�.3.2.5 Specialized algorithms [*expected.unexpected.specalg*] ### {#expected.unexpected.specalg}
 
 ```c++
-friend void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
+friend constexpr void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
 ```
 
 *Constraints*: `is_swappable_v<E>` is `true`.
@@ -1370,26 +1370,26 @@ public:
 
 
     // �.�.7.2, destructor
-    ~expected();
+    constexpr ~expected();
 
     // �.�.7.3, assignment
-    expected& operator=(const expected&);
-    expected& operator=(expected&&) noexcept(see below);
-    template<class U = T> expected& operator=(U&&);
+    constexpr expected& operator=(const expected&);
+    constexpr expected& operator=(expected&&) noexcept(see below);
+    template<class U = T> constexpr expected& operator=(U&&);
     template<class G = E>
-        expected& operator=(const unexpected<G>&);
+        constexpr expected& operator=(const unexpected<G>&);
     template<class G = E>
-        expected& operator=(unexpected<G>&&);
+        constexpr expected& operator=(unexpected<G>&&);
 
     // �.�.7.4, modifiers
 
     template<class... Args>
-        T& emplace(Args&&...);
+        constexpr T& emplace(Args&&...);
     template<class U, class... Args>
-        T& emplace(initializer_list<U>, Args&&...);
+        constexpr T& emplace(initializer_list<U>, Args&&...);
 
     // �.�.7.5, swap
-    void swap(expected&) noexcept(see below);
+    constexpr void swap(expected&) noexcept(see below);
 
     // �.�.7.6, observers
     constexpr const T* operator->() const;
@@ -1426,7 +1426,7 @@ public:
         friend constexpr bool operator==(const expected&, const unexpected<E2>&);
 
     // �.�.7.10, Specialized algorithms
-    friend void swap(expected&, expected&) noexcept(see below);
+    friend constexpr void swap(expected&, expected&) noexcept(see below);
 
 private:
     bool has_val; // exposition only
@@ -1766,7 +1766,7 @@ constant subexpression, this constructor is a constexpr constructor.
 -------------------------------------------
 
 ```c++
-~expected();
+constexpr ~expected();
 ```
 
 *Effects*: If `T` is not *cv* `void` and `is_trivially_destructible_v<T>` is `false`
@@ -1782,7 +1782,7 @@ is a trivial destructor.
 
 
 ```c++
-expected& operator=(const expected& rhs) noexcept(see below);
+constexpr expected& operator=(const expected& rhs) noexcept(see below);
 ```
 
 *Effects*: See Table *editor-please-pick-a-number-0*
@@ -1882,7 +1882,7 @@ This operator is defined as deleted unless:
     `is_nothrow_move_constructible_v<T>` is `true`).
 
 ```c++
-expected& operator=(expected&& rhs) noexcept(see below);
+constexpr expected& operator=(expected&& rhs) noexcept(see below);
 ```
 
 *Effects*: See Table *editor-please-pick-a-number-1*
@@ -1971,7 +1971,7 @@ This operator is defined as deleted unless:
 
 ```c++
 template<class U = T>
-    expected& operator=(U&& v);
+    constexpr expected& operator=(U&& v);
 ```
 
 *Constraints*:
@@ -2026,7 +2026,7 @@ otherwise
 
 ```c++
 template<class G = E>
-    expected& operator=(const unexpected<G>& e);
+    constexpr expected& operator=(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_nothrow_copy_constructible_v<E>` is `true` and `is_copy_assignable_v<E>` is `true`.
@@ -2057,7 +2057,7 @@ template<class G = E>
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
 ```c++
-expected& operator=(unexpected<G>&& e);
+constexpr expected& operator=(unexpected<G>&& e);
 ```
 
 *Effects*: See Table *editor-please-pick-a-number-4*
@@ -2088,7 +2088,7 @@ expected& operator=(unexpected<G>&& e);
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
 ```c++
-void expected<void, E>::emplace();
+constexpr void expected<void, E>::emplace();
 ```
 
 *Effects*:
@@ -2104,7 +2104,7 @@ If `!bool(*this)`
 
 ```c++
 template<class... Args>
-    T& emplace(Args&&... args);
+    constexpr T& emplace(Args&&... args);
 ```
 
 *Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
@@ -2149,7 +2149,7 @@ changes.
 
 ```c++
 template<class U, class... Args>
-    T& emplace(initializer_list<U> il, Args&&... args);
+    constexpr T& emplace(initializer_list<U> il, Args&&... args);
 ```
 
 *Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
@@ -2196,7 +2196,7 @@ changes.
 -------------------------------------
 
 ```c++
-void swap(expected& rhs) noexcept(see below);
+constexpr void swap(expected& rhs) noexcept(see below);
 ```
 
 *Constraints*:
@@ -2436,7 +2436,7 @@ its result is convertible to `bool`.
 --------------------------------------------------
 
 ```c++
-void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
+constexpr void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
 ```
 
 *Effects*: Equivalent to `x.swap(y)`.
