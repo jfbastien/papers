@@ -1545,18 +1545,18 @@ template<class U, class G>
 
   * `is_constructible_v<T, const U&>` is `true` ; and
   * `is_constructible_v<T, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<T, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<T, expected<U, G>>` is `false`; and
   * `is_constructible_v<T, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<T, const expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<T, const expected<U, G>>` is `false`; and
   * `is_convertible_v<expected<U, G>&, T>` is `false`; and
   * `is_convertible_v<expected<U, G>&&, T>` is `false`; and
   * `is_convertible_v<const expected<U, G>&, T>` is `false`; and
   * `is_convertible_v<const expected<U, G>&&, T>` is `false`; and
   * `is_constructible_v<E, const G&>` is `true`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
   * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`; and
   * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`; and
   * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
@@ -1586,20 +1586,20 @@ template<class U, class G>
 
 *Constraints*: `T` and `U` are *cv* `void` or:
 
-  * `is_constructible_v<T, U&&>` is `true`; and
+  * `is_constructible_v<T, U>` is `true`; and
   * `is_constructible_v<T, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<T, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<T, expected<U, G>>` is `false`; and
   * `is_constructible_v<T, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<T, const expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<T, const expected<U, G>>` is `false`; and
   * `is_convertible_v<expected<U, G>&, T>` is `false`; and
   * `is_convertible_v<expected<U, G>&&, T>` is `false`; and
   * `is_convertible_v<const expected<U, G>&, T>` is `false`; and
   * `is_convertible_v<const expected<U, G>&&, T>` is `false`; and
-  * `is_constructible_v<E, G&&>` is `true`; and
+  * `is_constructible_v<E, G>` is `true`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&&>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
   * `is_convertible_v<expected<U, G>&, unexpected<E>>` is `false`; and
   * `is_convertible_v<expected<U, G>&&, unexpected<E>>` is `false`; and
   * `is_convertible_v<const expected<U, G>&, unexpected<E>>` is `false`; and
@@ -1630,7 +1630,7 @@ template<class U = T>
 *Constraints*:
 
   * `T` is not *cv* `void`; and
-  * `is_constructible_v<T, U&&>` is `true`; and
+  * `is_constructible_v<T, U>` is `true`; and
   * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
   * `is_same_v<expected<T, E>, remove_cvref_t<U>>` is `false`; and
   * `is_same_v<unexpected<E>, remove_cvref_t<U>>` is `false`.
@@ -1670,7 +1670,7 @@ template<class G = E>
     constexpr explicit(see below) expected(unexpected<G>&& e);
 ```
 
-*Constraints*: `is_constructible_v<E, G&&>` is `true`.
+*Constraints*: `is_constructible_v<E, G>` is `true`.
 
 *Effects*: Initializes `unex` as if direct-non-list-initializing
 an object of type `unexpected<E>` with the expression `std::move(e)`.
@@ -1681,7 +1681,7 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 
 *Remarks*: If `unexpected<E>`'s selected constructor is a constant
 subexpression, this constructor is a constexpr constructor. The expression
-inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G&&>` is
+inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G>` is
 `true`.
 The expression inside `explicit` is equivalent to `!is_convertible_v<G&&, E>`.
 
