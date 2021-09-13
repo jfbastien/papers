@@ -2305,10 +2305,17 @@ constexpr bool has_value() const noexcept;
 *Returns*: `has_val`.
 
 ```c++
-constexpr void expected<void, E>::value() const;
+constexpr void expected<cv void, E>::value() const&;
 ```
 
 *Throws*: `bad_expected_access(error())` if `!bool(*this)`.
+
+
+```c++
+constexpr void expected<cv void, E>::value() &&;
+```
+
+*Throws*: `bad_expected_access(std::move(error()))` if `!bool(*this)`.
 
 
 ```c++
