@@ -1203,15 +1203,15 @@ this function is a constexpr function.
 
 
 ```c++
-constexpr const E& value() const&;
-constexpr E& value() &;
+constexpr const E& value() const& noexcept;
+constexpr E& value() & noexcept;
 ```
 
 *Returns*: `val`.
 
 ```c++
-constexpr E&& value() &&;
-constexpr const E&& value() const&&;
+constexpr E&& value() && noexcept;
+constexpr const E&& value() const&& noexcept;
 ```
 
 *Returns*: `std::move(val)`.
@@ -1262,10 +1262,10 @@ class bad_expected_access : public bad_expected_access<void> {
 public:
     explicit bad_expected_access(E);
     const char* what() const noexcept override;
-    E& error() &;
-    const E& error() const&;
-    E&& error() &&;
-    const E&&  error() const&&;
+    E& error() & noexcept;
+    const E& error() const& noexcept;
+    E&& error() && noexcept;
+    const E&&  error() const&& noexcept;
 private:
     E val; // exposition only
 };
@@ -1284,16 +1284,16 @@ bad_expected_access::bad_expected_access(E e);
 *Postconditions*: `what()` returns an implementation-defined NTBS.
 
 ```c++
-const E& error() const&;
-E& error() &;
+const E& error() const& noexcept;
+E& error() & noexcept;
  ```
 
 *Returns*: `val;`
 
 
 ```c++
-E&& error() &&;
-const E&& error() const&&;
+E&& error() && noexcept;
+const E&& error() const&& noexcept;
  ```
 
 *Returns*: `std::move(val);`
