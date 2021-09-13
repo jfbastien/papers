@@ -2023,7 +2023,7 @@ template<class G>
     constexpr expected& operator=(const unexpected<G>& e);
 ```
 
-*Constraints*: `is_nothrow_copy_constructible_v<E>` is `true` and `is_copy_assignable_v<E>` is `true`.
+*Constraints*: `is_nothrow_constructible_v<E, const G&>` is `true` and `is_assignable_v<E, const G&>` is `true`.
 
 *Effects*: See Table *editor-please-pick-a-number-3*
 
@@ -2073,7 +2073,7 @@ constexpr expected& operator=(unexpected<G>&& e);
   </tr>
 </table>
 
-*Constraints*: `is_nothrow_move_constructible_v<E>` is `true` and `is_move_assignable_v<E>` is `true`.
+*Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
 
 *Returns*: `*this`.
 
