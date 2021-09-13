@@ -1454,7 +1454,7 @@ A program that instantiates the definition of template `expected<T, E>` for a
 reference type, a function type, or for possibly cv-qualified types
 `in_place_t`, `unexpect_t` or `unexpected<E>` for the `T` parameter is
 ill-formed. A program that instantiates the definition of template
-`expected<T, E>` with the `E` parameter that is not a valid template parameter
+`expected<T, E>` with the `E` parameter that is not a valid template argument
 for `unexpected` is ill-formed.
 
 When `T` is not *cv* `void`, it shall meet the requirements of `Cpp17Destructible`
