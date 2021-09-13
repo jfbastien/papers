@@ -994,8 +994,6 @@ namespace std {
     // �.�.5, class template unexpected
     template<class E>
         class unexpected;
-    template<class E>
-      unexpected(E) -> unexpected<E>;
 
     // �.�.6, class bad_expected_access
     template<class E>
@@ -1123,6 +1121,9 @@ private:
         unexpected_type unex; // exposition only
     };
 };
+
+template<class E>
+    unexpected(E) -> unexpected<E>;
 ```
 
 Any object of `expected<T, E>` either contains a value of type `T` or a value of
