@@ -1050,12 +1050,11 @@ public:
 
     void swap(unexpected& other) noexcept(see below);
 
-    template<class E1, class E2>
+    template<class E2>
         friend constexpr bool
-        operator==(const unexpected<E1>&, const unexpected<E2>&);
+        operator==(const unexpected&, const unexpected<E2>&);
 
-    template<class E1>
-    friend void swap(unexpected<E1>& x, unexpected<E1>& y) noexcept(noexcept(x.swap(y)));
+    friend void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
 
 private:
     E val; // exposition only
@@ -1235,8 +1234,8 @@ void swap(unexpected& other) noexcept(see below);
 ------------------------------------------------------------------
 
 ```c++
-template<class E1, class E2>
-    friend constexpr bool operator==(const unexpected<E1>& x, const unexpected<E2>& y);
+template<class E2>
+    friend constexpr bool operator==(const unexpected& x, const unexpected<E2>& y);
 ```
 
 *Returns*: `x.value() == y.value()`.
@@ -1245,11 +1244,10 @@ template<class E1, class E2>
 ### �.�.3.2.5 Specialized algorithms [*expected.unexpected.specalg*] ### {#expected.unexpected.specalg}
 
 ```c++
-template<class E1>
-    friend void swap(unexpected<E1>& x, unexpected<E1>& y) noexcept(noexcept(x.swap(y)));
+friend void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
 ```
 
-*Constraints*: `is_swappable_v<E1>` is `true`.
+*Constraints*: `is_swappable_v<E>` is `true`.
 
 *Effects*: Equivalent to `x.swap(y)`.
 
@@ -1416,20 +1414,19 @@ public:
         constexpr T value_or(U&&) &&;
 
     // �.�.7.7, Expected equality operators
-    template<class T1, class E1, class T2, class E2>
-        friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
+    template<class T2, class E2>
+        friend constexpr bool operator==(const expected& x, const expected<T2, E2>& y);
 
     // �.�.7.8, Comparison with T
-    template<class T1, class E1, class T2>
-        friend constexpr bool operator==(const expected<T1, E1>&, const T2&);
+    template<class T2>
+        friend constexpr bool operator==(const expected&, const T2&);
 
     // �.�.7.9, Comparison with unexpected<E>
-    template<class T1, class E1, class E2>
-        friend constexpr bool operator==(const expected<T1, E1>&, const unexpected<E2>&);
+    template<class E2>
+        friend constexpr bool operator==(const expected&, const unexpected<E2>&);
 
     // �.�.7.10, Specialized algorithms
-    template<class T1, class E1>
-        friend void swap(expected<T1, E1>&, expected<T1, E1>&) noexcept(see below);
+    friend void swap(expected&, expected&) noexcept(see below);
 
 private:
     bool has_val; // exposition only
@@ -2392,8 +2389,8 @@ static_cast<T>(std::forward<U>(v));`.
 --------------------------------------------------------------
 
 ```c++
-template<class T1, class E1, class T2, class E2>
-    friend constexpr bool operator==(const expected<T1, E1>& x, const expected<T2, E2>& y);
+template<class T2, class E2>
+    friend constexpr bool operator==(const expected& x, const expected<T2, E2>& y);
 ```
 
 *Mandates*: The expressions `*x == *y` and
@@ -2401,9 +2398,9 @@ template<class T1, class E1, class T2, class E2>
 are convertible to `bool`.
 
 *Returns*: If `bool(x) != bool(y)`, `false`; otherwise if `bool(x) == false`,
-`x.error() == y.error()`; otherwise `true` if `T1` and `T2` are *cv* `void` or `*x == *y` otherwise.
+`x.error() == y.error()`; otherwise `true` if `T` and `T2` are *cv* `void` or `*x == *y` otherwise.
 
-*Remarks*: Specializations of this function template, for which `T1` and `T2` are *cv* `void` or
+*Remarks*: Specializations of this function template, for which `T` and `T2` are *cv* `void` or
 `*x == *y` and `x.error() == y.error()` is a core constant expression, are
 constexpr functions.
 
@@ -2412,10 +2409,10 @@ constexpr functions.
 ---------------------------------------------------
 
 ```c++
-template<class T1, class E1, class T2> constexpr bool operator==(const expected<T1, E1>& x, const T2& v);
+template<class T2> constexpr bool operator==(const expected& x, const T2& v);
 ```
 
-*Mandates*: `T1` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
+*Mandates*: `T` and `T2` are not *cv* `void` and the expression `*x == v` is well-formed
 and its result is convertible to
 `bool`. [ *Note:* `T1` need not be *EqualityComparable*. - *end note*]
 
@@ -2426,7 +2423,7 @@ and its result is convertible to
 ---------------------------------------------------------------------------
 
 ```c++
-template<class T1, class E1, class E2> constexpr bool operator==(const expected<T1, E1>& x, const unexpected<E2>& e);
+template<class E2> constexpr bool operator==(const expected& x, const unexpected<E2>& e);
 ```
 
 *Mandates*: The expression `unexpected(x.error()) == e` is well-formed and
@@ -2439,16 +2436,15 @@ its result is convertible to `bool`.
 --------------------------------------------------
 
 ```c++
-template<class T1, class E1>
-void swap(expected<T1, E1>& x, expected<T1, E1>& y) noexcept(noexcept(x.swap(y)));
+void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
 ```
 
 *Constraints*:
 
-  * `T1` is *cv* `void` or `is_move_constructible_v<T1>` is `true`; and
-  * `is_swappable_v<T1>` is `true`; and
-  * `is_move_constructible_v<E1>` is `true`; and
-  * `is_swappable_v<E1>` is `true`.
+  * `T` is *cv* `void` or `is_move_constructible_v<T>` is `true`; and
+  * `is_swappable_v<T>` is `true`; and
+  * `is_move_constructible_v<E>` is `true`; and
+  * `is_swappable_v<E>` is `true`.
 
 *Effects*: Calls `x.swap(y)`.
 
