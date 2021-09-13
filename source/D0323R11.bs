@@ -2082,7 +2082,7 @@ constexpr expected& operator=(unexpected<G>&& e);
 *Remarks*: If any exception is thrown, `bool(*this)` remains unchanged.
 
 ```c++
-constexpr void expected<void, E>::emplace();
+constexpr void expected<cv void, E>::emplace() noexcept;
 ```
 
 *Effects*:
@@ -2093,8 +2093,6 @@ If `!bool(*this)`
   * set `has_val` to `true`
 
 *Postconditions*: `bool(*this)` is `true`.
-
-*Throws*: Nothing
 
 ```c++
 template<class... Args>
