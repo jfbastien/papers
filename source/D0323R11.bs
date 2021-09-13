@@ -1228,7 +1228,7 @@ constexpr void swap(unexpected& other) noexcept(see below);
 
 *Throws*: Any exceptions thrown by the operations in the relevant part of [**expected.swap**].
 
-*Remarks*: The expression inside `noexcept` is equivalent to: `is_nothrow_swappable_v<E>` is `true`.
+*Remarks*: The expression inside `noexcept` is equivalent to: `is_nothrow_swappable_v<E>`.
 
 �.�.3.2.5 Equality operators [*expected.unexpected.equality_op*] {#expected.unexpected.equality_op}
 ------------------------------------------------------------------
@@ -1674,8 +1674,7 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 *Remarks*: If `is_trivially_constructible_v<E, G>` is `true`,
 this constructor is trivial.
 The expression
-inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G>` is
-`true`.
+inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G>`.
 The expression inside `explicit` is equivalent to `!is_convertible_v<G&&, E>`.
 
 ```c++
