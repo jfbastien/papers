@@ -1139,7 +1139,7 @@ constexpr explicit(see below) unexpected(const unexpected<Err>& e);
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
-object of type `E` with the expression `e.val`.
+object of type `E` with the expression `e.value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1163,7 +1163,7 @@ constexpr explicit(see below) unexpected(unexpected<Err>&& e);
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
-object of type `E` with the expression `std::move(e.val)`.
+object of type `E` with the expression `std::move(e.value())`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -1178,7 +1178,7 @@ template<class Err>
 
 *Constraints*: `is_assignable_v<E, const Err&>` is `true`.
 
-*Effects*: Equivalent to `val = e.val`.
+*Effects*: Equivalent to `val = e.value()`.
 
 *Returns*: `*this`.
 
@@ -1192,7 +1192,7 @@ template<class Err>
 
 *Constraints*: `is_assignable_v<E, Err>` is `true`.
 
-*Effects*: Equivalent to `val = std::move(e.val)`.
+*Effects*: Equivalent to `val = std::move(e.value())`.
 
 *Returns*: `*this`.
 
