@@ -1078,9 +1078,9 @@ template<class Err = E>
 
 *Constraints*:
 
-  * `is_constructible_v<E, Err>` is `true`; and
+  * `is_same_v<remove_cvref_t<Err>, unexpected>` is `false`; and
   * `is_same_v<remove_cvref_t<Err>, in_place_t>` is `false`; and
-  * `is_same_v<remove_cvref_t<Err>, unexpected>` is `false`.
+  * `is_constructible_v<E, Err>` is `true`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `E` with the expression `std::forward<Err>(e)`.
@@ -1622,10 +1622,10 @@ template<class U = T>
 *Constraints*:
 
   * `T` is not *cv* `void`; and
-  * `is_constructible_v<T, U>` is `true`; and
   * `is_same_v<remove_cvref_t<U>, in_place_t>` is `false`; and
   * `is_same_v<expected<T, E>, remove_cvref_t<U>>` is `false`; and
-  * `is_same_v<unexpected<E>, remove_cvref_t<U>>` is `false`.
+  * `is_same_v<unexpected<E>, remove_cvref_t<U>>` is `false`; and
+  * `is_constructible_v<T, U>` is `true`.
 
 *Effects*: Initializes `val` as if direct-non-list-initializing an
 object of type `T` with the expression `std::forward<U>(v)`.
