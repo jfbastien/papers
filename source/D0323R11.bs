@@ -2334,7 +2334,7 @@ constexpr const T&& expected::value() const&&;
 
 *Returns*: `std::move(val)`, if `bool(*this)` .
 
-*Throws*: `bad_expected_access(error())` if `!bool(*this)`.
+*Throws*: `bad_expected_access(std::move(error()))` if `!bool(*this)`.
 
 ```c++
 constexpr const E& error() const&;
