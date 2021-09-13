@@ -2034,11 +2034,11 @@ template<class G>
     <td>`!bool(*this)`</td>
   </tr>
   <tr>
-    <td>assigns `unexpected(e.error())` to `unex`</td>
+    <td>assigns `e` to `unex`</td>
 <td>
 
   * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
-  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(e.error())` and set `has_val` to `false`.
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `e` and set `has_val` to `false`.
 
 </td>
   </tr>
@@ -2066,10 +2066,10 @@ constexpr expected& operator=(unexpected<G>&& e);
 <td>
 
   * destroys `val` by calling `val.~T()` if `T` is not *cv* `void`,
-  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `unexpected(std::move(e.error()))` and set `has_val` to `false`.
+  * initializes `unex` as if direct-non-list-initializing an object of type `unexpected<E>` with `std::move(e)` and set `has_val` to `false`.
 
 </td>
-    <td>move assign `unexpected(e.error())` to `unex`</td>
+    <td>move assign `std::move(e)` to `unex`</td>
   </tr>
 </table>
 
