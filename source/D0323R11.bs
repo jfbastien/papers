@@ -1872,8 +1872,7 @@ This operator is defined as deleted unless:
   * `T` is not *cv* `void` and `is_copy_assignable_v<T>` is `true` and
     `is_copy_constructible_v<T>` is `true` and `is_copy_assignable_v<E>` is
     `true` and `is_copy_constructible_v<E>` is `true` and
-    (`is_nothrow_move_constructible_v<E>` is `true` or
-    `is_nothrow_move_constructible_v<T>` is `true`).
+    `is_nothrow_move_constructible_v<E> || is_nothrow_move_constructible_v<T>` is `true`.
 
 ```c++
 constexpr expected& operator=(expected&& rhs) noexcept(see below);
@@ -1958,10 +1957,11 @@ the exception safety guarantee of `E`'s copy assignment.
 
 This operator is defined as deleted unless:
 
-  * `T` is *cv* `void` and `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_move_assignable_v<E>` is `true`; or
+  * `T` is *cv* `void` and `is_move_constructible_v<E>` is `true` and `is_move_assignable_v<E>` is `true`; or
   * `T` is not *cv* `void` and `is_move_constructible_v<T>` is `true` and
-    `is_move_assignable_v<T>` is `true` and `is_nothrow_move_constructible_v<E>`
-    is `true` and `is_nothrow_move_assignable_v<E>` is `true`.
+    `is_move_assignable_v<T>` is `true` and `is_move_constructible_v<E>`
+    is `true` and `is_move_assignable_v<E>` is `true` and
+    `is_nothrow_move_constructible_v<T> || is_nothrow_move_constructible_v<E>` is `true`.
 
 ```c++
 template<class U = T>
