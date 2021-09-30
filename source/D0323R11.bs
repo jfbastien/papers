@@ -2099,13 +2099,15 @@ template<class... Args>
     constexpr T& emplace(Args&&... args);
 ```
 
-*Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, Args...>` is `true`.
+*Constraints*: `T` is not *cv* `void` and:
+
+  * `is_constructible_v<T, Args...>` is `true`; and
+  * `is_move_assignable_v<T>` is `true`; and
+  * `(is_nothrow_constructible_v<T, Args...> || is_nothrow_move_constructible_v<T>  || is_nothrow_move_constructible_v<E>)` is `true`.
 
 *Effects*:
 
-If `has_value()` is `true`, assigns `val` as if
-constructing an object of type `T` with the arguments
-`std::forward<Args>(args)...`
+If `has_value()` is `true`, evaluates `val = T(std::forward<Args>(args)...)`.
 
 otherwise if `is_nothrow_constructible_v<T, Args...>` is `true`
 
@@ -2144,7 +2146,11 @@ template<class U, class... Args>
     constexpr T& emplace(initializer_list<U> il, Args&&... args);
 ```
 
-*Constraints*: `T` is not *cv* `void` and `is_nothrow_constructible_v<T, initializer_list<U>&, Args...>` is `true`.
+*Constraints*: `T` is not *cv* `void` and:
+
+  * `is_constructible_v<T, initializer_list<U>&, Args...>` is `true`; and
+  * `is_move_assignable_v<T>` is `true`; and
+  * `(is_nothrow_constructible_v<T, initializer_list<U>&, Args...> || is_nothrow_move_constructible_v<T>  || is_nothrow_move_constructible_v<E>)` is `true`.
 
 *Effects*:
 
