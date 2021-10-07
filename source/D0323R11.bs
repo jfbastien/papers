@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 2
+!Draft Revision: 3
 Audience: LWG
 Status: D
 Group: WG21
@@ -12,7 +12,7 @@ Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
 Editor: Jonathan Wakely, Red Hat, cxx@kayari.org
 No abstract: true
-Date: 2021-09-30
+Date: 2021-10-07
 Markup Shorthands: markdown yes
 </pre>
 
