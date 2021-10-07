@@ -1100,7 +1100,7 @@ template<class... Args>
 
 *Constraints*: `is_constructible_v<E, Args...>` is `true`.
 
-*Effects*: direct-non-list-initializes `val` with `std::forward<Args>(args)...`.
+*Effects*: Direct-non-list-initializes `val` with `std::forward<Args>(args)...`.
 
 *Throws*: Any exception thrown by the initialization of `val`.
 
