@@ -1139,7 +1139,7 @@ constexpr explicit(!is_convertible_v<const Err&, E>)
  * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
  * `is_convertible_v<const unexpected<Err>, E>` is `false`.
 
-*Effects*: direct-non-list-initializes `val` with `e.value()`.
+*Effects*: Direct-non-list-initializes `val` with `e.value()`.
 
 *Throws*: Any exception thrown by the initialization of `val`.
 
