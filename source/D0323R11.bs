@@ -1086,7 +1086,7 @@ template<class Err = E>
   * `is_same_v<remove_cvref_t<Err>, in_place_t>` is `false`; and
   * `is_constructible_v<E, Err>` is `true`.
 
-*Effects*: direct-non-list-initializes `val` with `std::forward<Err>(e)`.
+*Effects*: Direct-non-list-initializes `val` with `std::forward<Err>(e)`.
 
 *Throws*: Any exception thrown by the initialization of `val`.
 
