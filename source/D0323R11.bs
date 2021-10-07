@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 3
+!Draft Revision: 4
 Audience: LWG
 Status: D
 Group: WG21
@@ -950,6 +950,21 @@ to a future *ValueOrError* proposal.
 
 Not in this proposal.
 
+Zombie name {#🧟‍♂️}
+-----------
+
+`unexpected` is a zombie name in C++20. It was deprecated in C++11, removed in
+C++17. It used to be called by the C++ runtime when a dynamic exception
+specification was violated.
+
+Re-using the `unexpected` zombie name is why we have zombie names in the first
+place. This was discussed in the 2021-04-06 LEWG telecon, and it was pointed out
+that <a href="https://codesearch.isocpp.org/cgi-bin/cgi_ppsearch?q=std%3A%3Aunexpected&search=Search">`unexpected`
+isn't used much in open source code besides standard library tests</a>. The
+valid uses are in older code which is unlikely to update to C++23, and if it did
+the breakage would not be silent because the `std::unexpected()` function call
+wouldn't be compatible with the `std::unexpected<T>` type proposed in this
+paper.
 
 Wording {#word}
 =======
@@ -2940,6 +2955,61 @@ is convertible to `bool`.
 *Remarks*: Specializations of this function template for which `x.error() == y.error()` is a core constant expression, are
 constexpr functions.
 
+16.4.5.3.2 Zombie names [*zombie.names*] {#zombie.names}
+----------------------------------------
+
+Remove `unexpected` from zombie names as follows:
+
+<blockquote>
+  In namespace `std`, the following names are reserved for previous standardization:
+  <ol>
+    <li>`auto_ptr`,
+    <li>`auto_ptr_ref`,
+    <li>`binary_function`,
+    <li>`binary_negate`,
+    <li>`bind1st`,
+    <li>`bind2nd`,
+    <li>`binder1st`,
+    <li>`binder2nd`,
+    <li>`const_mem_fun1_ref_t`,
+    <li>`const_mem_fun1_t`,
+    <li>`const_mem_fun_ref_t`,
+    <li>`const_mem_fun_t`,
+    <li>`declare_no_pointers`,
+    <li>`declare_reachable`,
+    <li>`get_pointer_safety`,
+    <li>`get_temporary_buffer`,
+    <li>`get_unexpected`,
+    <li>`gets`,
+    <li>`is_literal_type`,
+    <li>`is_literal_type_v`,
+    <li>`mem_fun1_ref_t`,
+    <li>`mem_fun1_t`,
+    <li>`mem_fun_ref_t`,
+    <li>`mem_fun_ref`,
+    <li>`mem_fun_t`,
+    <li>`mem_fun`,
+    <li>`not1`,
+    <li>`not2`,
+    <li>`pointer_safety`,
+    <li>`pointer_to_binary_function`,
+    <li>`pointer_to_unary_function`,
+    <li>`ptr_fun`,
+    <li>`random_shuffle`,
+    <li>`raw_storage_iterator`,
+    <li>`result_of`,
+    <li>`result_of_t`,
+    <li>`return_temporary_buffer`,
+    <li>`set_unexpected`,
+    <li>`unary_function`,
+    <li>`unary_negate`,
+    <li>`uncaught_exception`,
+    <li>`undeclare_no_pointers`,
+    <li>`undeclare_reachable`,<ins> and</ins>
+    <li><del>`unexpected`, and</del>
+    <li>`unexpected_handler`.
+  </ol>
+</blockquote>
 
 
 Implementation & Usage Experience {#use}
