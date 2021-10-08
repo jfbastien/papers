@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 4
+!Draft Revision: 5
 Audience: LWG
 Status: D
 Group: WG21
@@ -12,7 +12,7 @@ Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
 Editor: Jonathan Wakely, Red Hat, cxx@kayari.org
 No abstract: true
-Date: 2021-10-07
+Date: 2021-10-08
 Markup Shorthands: markdown yes
 </pre>
 
@@ -2195,6 +2195,15 @@ constexpr void swap(expected& rhs) noexcept(see below);
     <td>`!rhs.has_value()`</td>
 <td>
 
+See below <sup>†</sup>.
+
+</td>
+    <td>calls `using std::swap; swap(unex, rhs.unex)`</td>
+  </tr>
+</table>
+
+<sup>†</sup> For the case where `rhs.value()` is false and `this->has_value()` is `true`:
+
   * if `is_nothrow_move_constructible_v<E>` is `true`,
 
     * the `unex` of `rhs` is moved to a temporary variable `tmp` of type `unexpected_type`,
@@ -2217,23 +2226,24 @@ constexpr void swap(expected& rhs) noexcept(see below);
 
   * otherwise, the function is not defined.
 
-</td>
-    <td>calls `using std::swap; swap(unex, rhs.unex)`</td>
-  </tr>
-</table>
 
 *Throws*: Any exceptions that the expressions in the Effects clause throw.
 
 *Remarks*: The expression inside noexcept is equivalent to:
-`is_nothrow_move_constructible_v<T>` is `true` and `is_nothrow_swappable_v<T>` is `true` and
- `is_nothrow_move_constructible_v<E>` is `true` and `is_nothrow_swappable_v<E>` is `true`.
+
+```c++
+is_nothrow_move_constructible_v<T> &&
+  is_nothrow_swappable_v<T> &&
+  is_nothrow_move_constructible_v<E> &&
+  is_nothrow_swappable_v<E>
+```
 
 �.�.7.5 Observers [*expected.object.observe*] {#expected.object.observe}
 ---------------------------------------------
 
 ```c++
-constexpr const T* operator->() const;
-T* operator->();
+constexpr const T* operator->() const noexcept;
+constexpr T* operator->() noexcept;
 ```
 
 *Preconditions*: `has_value()` is `true`.
@@ -2241,8 +2251,8 @@ T* operator->();
 *Returns*: `addressof(val)`.
 
 ```c++
-constexpr const T& operator*() const&;
-T& operator*() &;
+constexpr const T& operator*() const& noexcept;
+constexpr T& operator*() & noexcept;
 ```
 
 *Preconditions*: `has_value()` is `true`.
@@ -2250,8 +2260,8 @@ T& operator*() &;
 *Returns*: `val`.
 
 ```c++
-constexpr T&& operator*() &&;
-constexpr const T&& operator*() const&&;
+constexpr T&& operator*() && noexcept;
+constexpr const T&& operator*() const&& noexcept;
 ```
 
 *Preconditions*: `has_value()` is `true`.
@@ -2259,12 +2269,7 @@ constexpr const T&& operator*() const&&;
 *Returns*: `std::move(val)`.
 
 ```c++
-constexpr explicit operator bool() noexcept;
-```
-
-*Returns*: `has_val`.
-
-```c++
+constexpr explicit operator bool() const noexcept;
 constexpr bool has_value() const noexcept;
 ```
 
@@ -2272,8 +2277,8 @@ constexpr bool has_value() const noexcept;
 
 
 ```c++
-constexpr const T& expected::value() const&;
-constexpr T& expected::value() &;
+constexpr const T& value() const&;
+constexpr T& value() &;
 ```
 
 *Returns*: `val`, if `has_value()` is `true` .
@@ -2282,8 +2287,8 @@ constexpr T& expected::value() &;
 
 
 ```c++
-constexpr T&& expected::value() &&;
-constexpr const T&& expected::value() const&&;
+constexpr T&& value() &&;
+constexpr const T&& value() const&&;
 ```
 
 *Returns*: `std::move(val)`, if `has_value()` is `true` .
@@ -2291,8 +2296,8 @@ constexpr const T&& expected::value() const&&;
 *Throws*: `bad_expected_access(std::move(error()))` if `!has_value()`.
 
 ```c++
-constexpr const E& error() const&;
-constexpr E& error() &;
+constexpr const E& error() const& noexcept;
+constexpr E& error() & noexcept;
 ```
 
 *Preconditions*: `has_value()` is `false`.
@@ -2300,8 +2305,8 @@ constexpr E& error() &;
 *Returns*: `unex.value()`.
 
 ```c++
-constexpr E&& error() &&;
-constexpr const E&& error() const&&;
+constexpr E&& error() && noexcept;
+constexpr const E&& error() const&& noexcept;
 ```
 
 *Preconditions*: `has_value()` is `false`.
