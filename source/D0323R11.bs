@@ -1730,7 +1730,8 @@ template<class G>
   * Otherwise, equivalent to: `unex = e.value(); return *this;`
 
 ```c++
-constexpr expected& operator=(unexpected<G>&& e);
+template<class G>
+    constexpr expected& operator=(unexpected<G>&& e);
 ```
 
 *Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
@@ -2308,7 +2309,8 @@ template<class G>
 *Returns*: `*this`.
 
 ```c++
-constexpr expected& operator=(unexpected<G>&& e);
+template<class G>
+    constexpr expected& operator=(unexpected<G>&& e);
 ```
 
 *Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
