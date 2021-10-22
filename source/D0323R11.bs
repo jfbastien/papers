@@ -1461,11 +1461,11 @@ constexpr expected();
 
 *Constraints*: `is_default_constructible_v<T>` is `true`.
 
-*Effects*: Value-initializes `val` if `T`.
+*Effects*: Value-initializes `val`.
 
 *Postconditions*: `has_value()` is `true`.
 
-*Throws*: Any exception thrown by the selected constructor of `T`.
+*Throws*: Any exception thrown by the initialization of `val`.
 
 ```c++
 constexpr expected(const expected& rhs);
@@ -1477,7 +1477,7 @@ Otherwise, if `rhs.has_value()` is `false`, direct-non-list-initializes `unex` w
 
 *Postconditions*: `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by the selected constructor of `T` or `E`.
+*Throws*: Any exception thrown by the initialization of `val` or `unex`.
 
 *Remarks*: This constructor is defined as deleted unless:
 
@@ -1506,7 +1506,7 @@ Otherwise, if `rhs.has_value()` is `false`, direct-non-list-initializes `unex` w
 
 *Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by the selected constructor of `T` or `E`.
+*Throws*: Any exception thrown by the initialization of `val` or `unex`.
 
 *Remarks*:
 The expression inside `noexcept` is equivalent to
@@ -1540,12 +1540,11 @@ template<class U, class G>
   * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
 
 *Effects*: If `rhs.has_value()`, direct-non-list-initializes `val` with `*rhs`.
-
 Otherwise, direct-non-list-initializes `unex` with `rhs.error()`.
 
 *Postconditions*: `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by the selected constructor of `T` or `E`.
+*Throws*: Any exception thrown by the initialization of `val` or `unex`.
 
 *Remarks*:
 The expression inside `explicit` is equivalent to
@@ -1582,7 +1581,7 @@ Otherwise, direct-non-list-initializes `unex` with
 
 *Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by operations specified in the effect clause.
+*Throws*: Any exception thrown by the initialization of `val` or `unex`.
 
 *Remarks*: The expression inside `explicit` is equivalent to
 `!is_convertible_v<U, T> || !is_convertible_v<G, E>`.
@@ -1603,7 +1602,7 @@ template<class U = T>
 
 *Postconditions*: `has_value()` is `true`.
 
-*Throws*: Any exception thrown by the selected constructor of `T`.
+*Throws*: Any exception thrown by the initialization of `val`.
 
 ```c++
 template<class G>
@@ -1616,7 +1615,7 @@ template<class G>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 ```c++
 template<class G>
@@ -1629,7 +1628,7 @@ template<class G>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 
 ```c++
@@ -1645,7 +1644,7 @@ template<class... Args>
 
 *Postconditions*: `has_value()` is `true`.
 
-*Throws*: Any exception thrown by the selected constructor of `T`.
+*Throws*: Any exception thrown by the initialization of `val`.
 
 
 ```c++
@@ -1659,7 +1658,7 @@ template<class U, class... Args>
 
 *Postconditions*: `has_value()` is `true`.
 
-*Throws*: Any exception thrown by the selected constructor of `T`.
+*Throws*: Any exception thrown by the initialization of `val`.
 
 ```c++
 template<class... Args>
@@ -1672,7 +1671,7 @@ template<class... Args>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 ```c++
 template<class U, class... Args>
@@ -1685,7 +1684,7 @@ template<class U, class... Args>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 
 �.�.7.2 Destructor [*expected.object.dtor*] {#expected.object.dtor}
@@ -2416,8 +2415,6 @@ constexpr expected() noexcept;
 
 *Postconditions*: `has_value()` is `true`.
 
-*Throws*: Any exception thrown by the selected constructor of `T`.
-
 *Remarks*: This constructor is constexpr.
 
 ```c++
@@ -2428,7 +2425,7 @@ constexpr expected(const expected& rhs);
 
 *Postconditions*: `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 *Remarks*: This constructor is defined as deleted unless `is_copy_constructible_v<E>` is `true`.
 
@@ -2445,7 +2442,7 @@ constexpr expected(expected&& rhs) noexcept(is_nothrow_move_constructible_v<E>);
 
 *Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 *Remarks*: This constructor is trivial if `is_trivially_move_constructible_v<E>` is `true`.
 
@@ -2467,7 +2464,7 @@ template<class U, class G>
 
 *Postconditions*: `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 
 ```c++
@@ -2490,7 +2487,7 @@ direct-non-list-initializes `unex` with
 
 *Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
-*Throws*: Any exception thrown by operations specified in the effect clause.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 ```c++
 template<class G>
@@ -2503,7 +2500,7 @@ template<class G>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 ```c++
 template<class G>
@@ -2516,7 +2513,7 @@ template<class G>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 ```c++
 constexpr explicit expected(in_place_t) noexcept;
@@ -2536,7 +2533,7 @@ template<class... Args>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 ```c++
 template<class U, class... Args>
@@ -2549,7 +2546,7 @@ template<class U, class... Args>
 
 *Postconditions*: `has_value()` is `false`.
 
-*Throws*: Any exception thrown by the selected constructor of `E`.
+*Throws*: Any exception thrown by the initialization of `unex`.
 
 
 �.�.8.2 Destructor [*expected.void.dtor*] {#expected.void.dtor}
