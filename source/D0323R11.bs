@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 5
+!Draft Revision: 6
 Audience: LWG
 Status: D
 Group: WG21
