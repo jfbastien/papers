@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 6
+!Draft Revision: 7
 Audience: LWG
 Status: D
 Group: WG21
@@ -1052,17 +1052,9 @@ public:
         constexpr explicit unexpected(in_place_t, initializer_list<U>, Args&&...);
     template<class Err = E>
         constexpr explicit unexpected(Err&&);
-    template<class Err>
-        constexpr explicit(see below) unexpected(const unexpected<Err>&);
-    template<class Err>
-        constexpr explicit(see below) unexpected(unexpected<Err>&&);
 
     constexpr unexpected& operator=(const unexpected&) = default;
     constexpr unexpected& operator=(unexpected&&) = default;
-    template<class Err>
-    constexpr unexpected& operator=(const unexpected<Err>&);
-    template<class Err>
-    constexpr unexpected& operator=(unexpected<Err>&&);
 
     constexpr const E& value() const& noexcept;
     constexpr E& value() & noexcept;
@@ -1129,73 +1121,6 @@ template<class U, class... Args>
 
 *Throws*: Any exception thrown by the initialization of `val`.
 
-```c++
-template<class Err>
-constexpr explicit(!is_convertible_v<const Err&, E>)
-    unexpected(const unexpected<Err>& e);
-```
-
-*Constraints*:
-
- * `is_constructible_v<E, const Err&>` is `true`; and
- * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
- * `is_constructible_v<E, unexpected<Err>>` is `false`; and
- * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
- * `is_constructible_v<E, const unexpected<Err>>` is `false`; and
- * `is_convertible_v<unexpected<Err>&, E>` is `false`; and
- * `is_convertible_v<unexpected<Err>, E>` is `false`; and
- * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
- * `is_convertible_v<const unexpected<Err>, E>` is `false`.
-
-*Effects*: Direct-non-list-initializes `val` with `e.value()`.
-
-*Throws*: Any exception thrown by the initialization of `val`.
-
-```c++
-template<class Err>
-constexpr explicit(!is_convertible_v<Err, E>)
-    unexpected(unexpected<Err>&& e);
-```
-
-*Constraints*:
-
- * `is_constructible_v<E, Err>` is `true`; and
- * `is_constructible_v<E, unexpected<Err>&>` is `false`; and
- * `is_constructible_v<E, unexpected<Err>>` is `false`; and
- * `is_constructible_v<E, const unexpected<Err>&>` is `false`; and
- * `is_constructible_v<E, const unexpected<Err>>` is `false`; and
- * `is_convertible_v<unexpected<Err>&, E>` is `false`; and
- * `is_convertible_v<unexpected<Err>, E>` is `false`; and
- * `is_convertible_v<const unexpected<Err>&, E>` is `false`; and
- * `is_convertible_v<const unexpected<Err>, E>` is `false`.
-
-*Effects*: Direct-non-list-initializes `val` with `std::move(e.value())`.
-
-*Throws*: Any exception thrown by the initialization of `val`.
-
-### �.�.3.2.2 Assignment [*expected.un.assign*] ### {#expected.un.assign}
-
-```c++
-template<class Err>
-    constexpr unexpected& operator=(const unexpected<Err>& e);
-```
-
-*Constraints*: `is_assignable_v<E&, const Err&>` is `true`.
-
-*Effects*: Equivalent to `val = e.value()`.
-
-*Returns*: `*this`.
-
-```c++
-template<class Err>
-    constexpr unexpected& operator=(unexpected<Err>&& e);
-```
-
-*Constraints*: `is_assignable_v<E, Err>` is `true`.
-
-*Effects*: Equivalent to `val = std::move(e.value())`.
-
-*Returns*: `*this`.
 
 ### �.�.3.2.3 Observers [*expected.un.observe*] ### {#expected.un.observe}
 
