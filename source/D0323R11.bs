@@ -1011,9 +1011,11 @@ namespace std {
     // �.�.5, Specialization for void
     template<> class bad_expected_access<void>;
 
-    // �.�.6, unexpect tag
-    struct unexpect_t;
-    inline constexpr unexpect_t unexpect = unspecified;
+    // in-place construction of unexpected values
+    struct unexpect_t{
+      explicit unexpect_t() = default;
+    };
+    inline constexpr unexpect_t unexpect{};
 
     // �.�.7, class template expected
     template<class T, class E> class expected;
@@ -1316,16 +1318,6 @@ const char* what() const noexcept override;
 ```
 
 *Returns*: An implementation-defined NTBS.
-
-�.�.6 `unexpect` tag [*expected.unexpect*] {#expected.unexpect}
-------------------------------------------
-
-<pre><code>
-struct unexpect_t{<i>see below</i>};
-</code></pre>
-
-Type `unexpect_t` does not have a default constructor or an initializer-list
-constructor, and is not an aggregate.
 
 
 �.�.7 Class template expected [*expected.expected*] {#expected.expected}
