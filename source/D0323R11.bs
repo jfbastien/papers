@@ -2278,10 +2278,6 @@ are convertible to `bool`.
 *Returns*: If `x.has_value() != y.has_value()`, `false`; otherwise if `x.has_value() == false`,
 `x.error() == y.error()`; otherwise `*x == *y`.
 
-*Remarks*: Specializations of this function template for which
-`*x == *y` and `x.error() == y.error()` are core constant expressions, are
-constexpr functions.
-
 
 �.�.7.7 Comparison with `T` [*expected.comparison_T*] {#expected.comparison_T}
 ---------------------------------------------------
@@ -2840,8 +2836,6 @@ is convertible to `bool`.
 *Returns*: If `x.has_value() != y.has_value()`, `false`; otherwise if `x.has_value() == false`,
 `x.error() == y.error()`; otherwise `true`.
 
-*Remarks*: Specializations of this function template for which `x.error() == y.error()` is a core constant expression, are
-constexpr functions.
 
 16.4.5.3.2 Zombie names [*zombie.names*] {#zombie.names}
 ----------------------------------------
