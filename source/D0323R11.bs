@@ -1259,7 +1259,7 @@ friend constexpr void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swa
 
 
 
-�.�.4 Template Class `bad_expected_access` [*expected.bad*] {#expected.bad}
+�.�.4 Class template `bad_expected_access` [*expected.bad*] {#expected.bad}
 ---------------------------------------------------------------------------
 
 ```c++
@@ -1308,7 +1308,7 @@ const char* what() const noexcept override;
 
 *Returns*: An implementation-defined NTBS.
 
-�.�.5 Class `bad_expected_access<void>` [*expected.bad.void*] {#expected.bad.void}
+�.�.5 Class template specialization `bad_expected_access<void>` [*expected.bad.void*] {#expected.bad.void}
 --------------------------------------------------------------------------------------
 
 ```c++
