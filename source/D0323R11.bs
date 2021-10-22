@@ -2104,7 +2104,7 @@ template<class U, class G>
 
 Let `GF` be `const G&` for the first overload and `G` for the second overload.
 
-*Constraints*: `is_void_v<U>` is `true`.
+*Constraints*:
 
   * `is_void_v<U>` is `true`; and
   * `is_constructible_v<E, GF>` is `true`; and
