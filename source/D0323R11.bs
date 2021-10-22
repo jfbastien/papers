@@ -1428,9 +1428,6 @@ private:
         unexpected_type unex; // exposition only
     };
 };
-
-template<class E>
-    unexpected(E) -> unexpected<E>;
 ```
 
 Any object of `expected<T, E>` either contains a value of type `T` or a value of
