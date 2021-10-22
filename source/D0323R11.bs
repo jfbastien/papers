@@ -1679,6 +1679,13 @@ This operator is defined as deleted unless:
 constexpr expected& operator=(expected&& rhs) noexcept(see below);
 ```
 
+*Constraints*:
+`is_move_constructible_v<T>` is `true` and
+`is_move_assignable_v<T>` is `true` and
+`is_move_constructible_v<E>` is `true` and
+`is_move_assignable_v<E>` is `true` and
+`is_nothrow_move_constructible_v<T> || is_nothrow_move_constructible_v<E>` is `true`.
+
 *Effects*:
 
   * If `this->has_value() && rhs.has_value()` is `true`, equivalent to `val = std::move(*rhs)`.
@@ -1691,13 +1698,6 @@ Then, if no exception was thrown, equivalent to: `has_val = rhs.has_value(); ret
 *Remarks*:
 The exception specification is
 `is_nothrow_move_assignable_v<T> && is_nothrow_move_constructible_v<T> && is_nothrow_move_assignable_v<E> && is_nothrow_move_constructible_v<E>`.
-
-This operator is defined as deleted unless:
-
-  * `is_move_constructible_v<T>` is `true` and
-    `is_move_assignable_v<T>` is `true` and `is_move_constructible_v<E>`
-    is `true` and `is_move_assignable_v<E>` is `true` and
-    `is_nothrow_move_constructible_v<T> || is_nothrow_move_constructible_v<E>` is `true`.
 
 ```c++
 template<class U = T>
