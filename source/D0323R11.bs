@@ -2730,7 +2730,7 @@ constexpr expected& operator=(unexpected<G>&& e);
 *Remarks*: If any exception is thrown, `has_value()` remains unchanged.
 
 ```c++
-constexpr void expected::emplace() noexcept;
+constexpr void emplace() noexcept;
 ```
 
 *Effects*:
@@ -2804,14 +2804,14 @@ constexpr bool has_value() const noexcept;
 *Returns*: `has_val`.
 
 ```c++
-constexpr void expected::value() const&;
+constexpr void value() const&;
 ```
 
 *Throws*: `bad_expected_access(error())` if `has_value()` is `false`.
 
 
 ```c++
-constexpr void expected::value() &&;
+constexpr void value() &&;
 ```
 
 *Throws*: `bad_expected_access(std::move(error()))` if `has_value()` is `false`.
