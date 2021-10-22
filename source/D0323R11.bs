@@ -2792,12 +2792,7 @@ direct-non-list-initializes `unex` with `unexpected(std::move(rhs))`. Either
 ---------------------------------------------
 
 ```c++
-constexpr explicit operator bool() noexcept;
-```
-
-*Returns*: `has_val`.
-
-```c++
+constexpr explicit operator bool() const noexcept;
 constexpr bool has_value() const noexcept;
 ```
 
