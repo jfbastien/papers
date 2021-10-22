@@ -1460,7 +1460,7 @@ template<class U, class G>
   * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`.
 
 *Effects*: If `rhs.has_value()`, direct-non-list-initializes `val` with `*rhs`.
 Otherwise, direct-non-list-initializes `unex` with `rhs.error()`.
@@ -1494,7 +1494,7 @@ template<class U, class G>
   * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
+  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`.
 
 *Effects*: If `rhs.has_value()` direct-non-list-initializes `val` with `std::move(*rhs)`.
 Otherwise, direct-non-list-initializes `unex` with `std::move(rhs.error())`.
