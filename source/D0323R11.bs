@@ -2278,7 +2278,7 @@ This operator is defined as deleted unless:
 constexpr expected& operator=(expected&& rhs) noexcept(see below);
 ```
 
-*Effects*: See Table *editor-please-pick-a-number-1*
+*Effects*:
 
   * If `this->has_value() && rhs.has_value()` is `true`, no effects.
   * Otherwise, if `this->has_value()` is `true`, equivalent to: `construct_at(addressof(unex), std::move(rhs.unex)); has_val = false;`
