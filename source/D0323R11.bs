@@ -1478,7 +1478,7 @@ constexpr expected(const expected& rhs);
 
 Otherwise, if `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `rhs.error()`.
 
-*Postconditions*: `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1507,7 +1507,7 @@ constexpr expected(expected&& rhs) noexcept(see below);
 
 Otherwise, if `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `std::move(rhs.error())`.
 
-*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1546,7 +1546,7 @@ template<class U, class G>
 
 Otherwise, direct-non-list-initializes `unex` with `rhs.error()`.
 
-*Postconditions*: `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
@@ -1583,7 +1583,7 @@ template<class U, class G>
 Otherwise, direct-non-list-initializes `unex` with
 `std::move(rhs.error())`.
 
-*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
@@ -1785,7 +1785,7 @@ constexpr expected& operator=(const expected& rhs);
 
 *Throws*: Any exception thrown by the operations specified in the effects.
 
-*Remarks*: If any exception is thrown, `has_value()` and `rhs.has_value()` remain unchanged.
+*Remarks*: If any exception is thrown, `this->has_value()` and `rhs.has_value()` remain unchanged.
 
 If an exception is thrown during the call to `T`'s or `unexpected<E>`'s copy
 constructor, no effect. If an exception is thrown during the call to `T`'s or
@@ -1864,7 +1864,7 @@ constexpr expected& operator=(expected&& rhs) noexcept(see below);
 `is_nothrow_move_assignable_v<T> && is_nothrow_move_constructible_v<T>`
 `&& is_nothrow_move_assignable_v<E> && is_nothrow_move_constructible_v<E>`
 
-If any exception is thrown, `has_value()` and `rhs.has_value()` remain
+If any exception is thrown, `this->has_value()` and `rhs.has_value()` remain
 unchanged. If an exception is thrown during the call to `T`'s copy constructor,
 no effect. If an exception is thrown during the call to `T`'s copy assignment,
 the state of its contained value is as defined by the exception safety guarantee
@@ -2429,7 +2429,7 @@ constexpr expected(const expected& rhs);
 
 *Effects*: If `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `unexpected(rhs.error())`.
 
-*Postconditions*: `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -2446,7 +2446,7 @@ constexpr expected(expected&& rhs) noexcept(is_nothrow_move_constructible_v<E>);
 
 *Effects*: If `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `unexpected(std::move(rhs.error()))`.
 
-*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -2468,7 +2468,7 @@ template<class U, class G>
 
 *Effects*: If `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `unexpected(rhs.error())`.
 
-*Postconditions*: `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
@@ -2491,7 +2491,7 @@ template<class U, class G>
 direct-non-list-initializes `unex` with
 `unexpected(std::move(rhs.error()))`.
 
-*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
@@ -2608,11 +2608,11 @@ constexpr expected& operator=(const expected& rhs);
 
 *Returns*: `*this`.
 
-*Postconditions*: `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the operations specified in the effect clause.
 
-*Remarks*: If any exception is thrown, `has_value()` and `rhs.has_value()` remain unchanged.
+*Remarks*: If any exception is thrown, `this->has_value()` and `rhs.has_value()` remain unchanged.
 
 If an exception is thrown during the call to `unexpected<E>`'s copy
 constructor, no effect. If an exception is thrown during the call to
@@ -2658,12 +2658,12 @@ direct-non-list-initializes `unex` with `std::move(rhs).error()`. Either
 
 *Returns*: `*this`.
 
-*Postconditions*: `rhs.has_value() == has_value()`.
+*Postconditions*: `rhs.has_value() == this->has_value()`.
 
 *Remarks*: The expression inside noexcept is equivalent to
 `is_nothrow_move_constructible_v<E> && is_nothrow_move_assignable_v<E>`.
 
-If any exception is thrown, `has_value()` and `rhs.has_value()` remain
+If any exception is thrown, `this->has_value()` and `rhs.has_value()` remain
 unchanged. If an exception is thrown during the call to `E`'s
 copy assignment, the state of its contained `unex` is as defined by
 the exception safety guarantee of `E`'s copy assignment.
