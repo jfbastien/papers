@@ -1105,9 +1105,6 @@ template<class Err = E>
 
 *Throws*: Any exception thrown by the initialization of `val`.
 
-*Remarks*:
-If the initialization of `val` is a constant subexpression, this constructor is a constexpr constructor.
-
 ```c++
 template<class... Args>
     constexpr explicit unexpected(in_place_t, Args&&...);
@@ -1119,9 +1116,6 @@ template<class... Args>
 
 *Throws*: Any exception thrown by the initialization of `val`.
 
-*Remarks*:
-If the initialization of `val` is a constant subexpression, this constructor is a constexpr constructor.
-
 ```c++
 template<class U, class... Args>
     constexpr explicit unexpected(in_place_t, initializer_list<U>, Args&&...);
@@ -1132,9 +1126,6 @@ template<class U, class... Args>
 *Effects*: Direct-non-list-initializes `val` with `std::forward<Args>(args)...`.
 
 *Throws*: Any exception thrown by the initialization of `val`.
-
-*Remarks*:
-If the initialization of `val` is a constant subexpression, this constructor is a constexpr constructor.
 
 ```c++
 template<class Err>
@@ -1487,8 +1478,6 @@ constexpr expected();
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
-*Remarks*: If value-initialization of `T` is a constant subexpression, this constructor is constexpr.
-
 ```c++
 constexpr expected(const expected& rhs);
 ```
@@ -1534,10 +1523,9 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
-*Remarks*: The expression inside `noexcept` is equivalent to:
-
-  * `is_nothrow_move_constructible_v<T>` is `true`; and
-  * `is_nothrow_move_constructible_v<E>` is `true`.
+*Remarks*:
+The expression inside `noexcept` is equivalent to
+`is_nothrow_move_constructible_v<T> && is_nothrow_move_constructible_v<E>`.
 
 *Remarks*: This constructor is trivial if:
 
@@ -1577,10 +1565,8 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 *Throws*: Any exception thrown by the selected constructor of `T` or `E`.
 
 *Remarks*:
-The expression inside `explicit` is `true` if and only if:
-
-  * `is_convertible_v<const U&, T>` is `false` or
-  * `is_convertible_v<const G&, E>` is `false`.
+The expression inside `explicit` is equivalent to
+`!is_convertible_v<const U&, T> || !is_convertible_v<const G&, E>`.
 
 
 ```c++
@@ -1617,14 +1603,12 @@ of type `unexpected<E> ` with the expression
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
-*Remarks*: The expression inside `explicit` is `true` if and only if
-
-  * `is_convertible_v<U&&, T>` is `false` or
-  * `is_convertible_v<G&&, E>` is `false`.
+*Remarks*: The expression inside `explicit` is equivalent to
+`!is_convertible_v<U, T> || !is_convertible_v<G, E>`.
 
 ```c++
 template<class U = T>
-    constexpr explicit(see below) expected(U&& v);
+    constexpr explicit(!is_convertible_v<U, T>) expected(U&& v);
 ```
 
 *Constraints*:
@@ -1641,14 +1625,9 @@ object of type `T` with the expression `std::forward<U>(v)`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
-*Remarks*: `is_trivially_constructible_v<T, U>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
-
-*Remarks*: The expression inside `explicit` is equivalent to `!is_convertible_v<U&&, T>`.
-
 ```c++
 template<class G>
-    constexpr explicit(see below) expected(const unexpected<G>& e);
+    constexpr explicit(!is_convertible_v<const G&, E>) expected(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_constructible_v<E, const G&>` is `true`.
@@ -1660,13 +1639,9 @@ an object of type `unexpected<E>` with the expression `e`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s selected constructor is a constant
-subexpression, this constructor shall be a constexpr constructor.
-The expression inside `explicit` is equivalent to `!is_convertible_v<const G&, E>`.
-
 ```c++
 template<class G>
-    constexpr explicit(see below) expected(unexpected<G>&& e);
+    constexpr explicit(!is_convertible_v<G, E>) expected(unexpected<G>&& e);
 ```
 
 *Constraints*: `is_constructible_v<E, G>` is `true`.
@@ -1678,11 +1653,6 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `is_trivially_constructible_v<E, G>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
-The expression
-inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G>`.
-The expression inside `explicit` is equivalent to `!is_convertible_v<G&&, E>`.
 
 ```c++
 template<class... Args>
@@ -1701,10 +1671,6 @@ direct-non-list-initializing an object of type `T` with the arguments
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
 
-*Remarks*: If 
-`is_trivially_constructible_v<T, Args...>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
-
 
 ```c++
 template<class U, class... Args>
@@ -1719,10 +1685,6 @@ object of type `T` with the arguments `il, std::forward<Args>(args)...`.
 *Postconditions*: `has_value()` is `true`.
 
 *Throws*: Any exception thrown by the selected constructor of `T`.
-
-*Remarks*: If
-`is_trivially_constructible_v<T, initializer_list<U>&, Args...>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
 
 ```c++
 template<class... Args>
@@ -1739,9 +1701,6 @@ an object of type `unexpected<E>`with the arguments
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `is_trivially_constructible_v<E, Args...>` is `true`,
-this constructor is trivial.  **[XXX specify constexpr, not trivial]**
-
 ```c++
 template<class U, class... Args>
     constexpr explicit expected(unexpect_t, initializer_list<U> il, Args&&... args);
@@ -1756,9 +1715,6 @@ std::forward<Args>(args)...`.
 *Postconditions*: `has_value()` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
-
-*Remarks*: If `is_trivially_constructible_v<E, initializer_list<U>&, Args...>` is `true`,
-this constructor is trivial.  **[XXX specify constexpr, not trivial]**
 
 
 �.�.7.2 Destructor [*expected.object.dtor*] {#expected.object.dtor}
@@ -2510,7 +2466,7 @@ This constructor is trivial if `is_trivially_copy_constructible_v<E>` is `true`.
 
 
 ```c++
-constexpr expected(expected&& rhs) noexcept(see below);
+constexpr expected(expected&& rhs) noexcept(is_nothrow_move_constructible_v<E>);
 ```
 
 *Constraints*: `is_move_constructible_v<E>` is `true`.
@@ -2522,13 +2478,11 @@ type `unexpected<E> ` with the expression `unexpected(std::move(rhs.error()))`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: The expression inside `noexcept` is equivalent to `is_nothrow_move_constructible_v<E>`.
-
 *Remarks*: This constructor is trivial if `is_trivially_move_constructible_v<E>` is `true`.
 
 ```c++
 template<class U, class G>
-    constexpr explicit(see below) expected(const expected<U, G>& rhs);
+    constexpr explicit(!is_convertible_v<const G&, E>) expected(const expected<U, G>& rhs);
 ```
 
 *Constraints*: `is_void_v<U>` is `true`.
@@ -2547,13 +2501,10 @@ of type `unexpected<E>` with the expression `unexpected(rhs.error())`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*:
-The expression inside `explicit` is `true` if and only if `is_convertible_v<const G&, E>` is `false`.
-
 
 ```c++
 template<class U, class G>
-    constexpr explicit(see below) expected(expected<U, G>&& rhs);
+    constexpr explicit(!is_convertible_v<G, E>) expected(expected<U, G>&& rhs);
 ```
 
 *Constraints*:
@@ -2574,12 +2525,9 @@ of type `unexpected<E> ` with the expression
 
 *Throws*: Any exception thrown by operations specified in the effect clause.
 
-*Remarks*: The expression inside `explicit` is `true` if and only if
-  `is_convertible_v<G&&, E>` is `false`.
-
 ```c++
 template<class G>
-    constexpr explicit(see below) expected(const unexpected<G>& e);
+    constexpr explicit(!is_convertible_v<const G&, E>) expected(const unexpected<G>& e);
 ```
 
 *Constraints*: `is_constructible_v<E, const G&>` is `true`.
@@ -2591,13 +2539,9 @@ an object of type `unexpected<E>` with the expression `e`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `unexpected<E>`'s selected constructor is a constant
-subexpression, this constructor shall be a constexpr constructor.
-The expression inside `explicit` is equivalent to `!is_convertible_v<const G&, E>`.
-
 ```c++
 template<class G>
-    constexpr explicit(see below) expected(unexpected<G>&& e);
+    constexpr explicit(!is_convertible_v<G, E>) expected(unexpected<G>&& e);
 ```
 
 *Constraints*: `is_constructible_v<E, G>` is `true`.
@@ -2609,19 +2553,11 @@ an object of type `unexpected<E>` with the expression `std::move(e)`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `is_trivially_constructible_v<E, G>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
-The expression
-inside `noexcept` is equivalent to: `is_nothrow_constructible_v<E, G>`.
-The expression inside `explicit` is equivalent to `!is_convertible_v<G&&, E>`.
-
 ```c++
 constexpr explicit expected(in_place_t) noexcept;
 ```
 
 *Postconditions*: `has_value()` is `true`.
-
-*Remarks*: This constructor is a constexpr constructor.
 
 
 ```c++
@@ -2639,9 +2575,6 @@ an object of type `unexpected<E>`with the arguments
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
 
-*Remarks*: If `is_trivially_constructible_v<E, Args...>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
-
 ```c++
 template<class U, class... Args>
     constexpr explicit expected(unexpect_t, initializer_list<U> il, Args&&... args);
@@ -2656,9 +2589,6 @@ std::forward<Args>(args)...`.
 *Postconditions*: `has_value()` is `false`.
 
 *Throws*: Any exception thrown by the selected constructor of `E`.
-
-*Remarks*: If `is_trivially_constructible_v<E, initializer_list<U>&, Args...>` is `true`,
-this constructor is trivial. **[XXX specify constexpr, not trivial]**
 
 
 �.�.8.2 Destructor [*expected.void.dtor*] {#expected.void.dtor}
