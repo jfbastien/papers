@@ -1443,45 +1443,19 @@ The exception specification is
 ```c++
 template<class U, class G>
     constexpr explicit(see below) expected(const expected<U, G>& rhs);
-```
-
-*Constraints*:
-
-  * `is_constructible_v<T, const U&>` is `true`; and
-  * `is_constructible_v<T, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<T, expected<U, G>>` is `false`; and
-  * `is_constructible_v<T, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<T, const expected<U, G>>` is `false`; and
-  * `is_convertible_v<expected<U, G>&, T>` is `false`; and
-  * `is_convertible_v<expected<U, G>&&, T>` is `false`; and
-  * `is_convertible_v<const expected<U, G>&, T>` is `false`; and
-  * `is_convertible_v<const expected<U, G>&&, T>` is `false`; and
-  * `is_constructible_v<E, const G&>` is `true`; and
-  * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`.
-
-*Effects*: If `rhs.has_value()`, direct-non-list-initializes `val` with `*rhs`.
-Otherwise, direct-non-list-initializes `unex` with `rhs.error()`.
-
-*Postconditions*: `rhs.has_value() == this->has_value()`.
-
-*Throws*: Any exception thrown by the initialization of `val` or `unex`.
-
-*Remarks*:
-The expression inside `explicit` is equivalent to
-`!is_convertible_v<const U&, T> || !is_convertible_v<const G&, E>`.
-
-
-```c++
 template<class U, class G>
     constexpr explicit(see below) expected(expected<U, G>&& rhs);
 ```
 
-*Constraints*: 
+Let:
 
-  * `is_constructible_v<T, U>` is `true`; and
+  * `UF` be `const U&` for the first overload and `U` for the second overload.
+  * `GF` be `const G&` for the first overload and `G` for the second overload.
+
+*Constraints*:
+
+  * `is_constructible_v<T, UF>` is `true`; and
+  * `is_constructible_v<E, GF>` is `true`; and
   * `is_constructible_v<T, expected<U, G>&>` is `false`; and
   * `is_constructible_v<T, expected<U, G>>` is `false`; and
   * `is_constructible_v<T, const expected<U, G>&>` is `false`; and
@@ -1490,21 +1464,22 @@ template<class U, class G>
   * `is_convertible_v<expected<U, G>&&, T>` is `false`; and
   * `is_convertible_v<const expected<U, G>&, T>` is `false`; and
   * `is_convertible_v<const expected<U, G>&&, T>` is `false`; and
-  * `is_constructible_v<E, G>` is `true`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`.
 
-*Effects*: If `rhs.has_value()` direct-non-list-initializes `val` with `std::move(*rhs)`.
-Otherwise, direct-non-list-initializes `unex` with `std::move(rhs.error())`.
+*Effects*: If `rhs.has_value()`, direct-non-list-initializes `val` with `std::forward<UF>(*rhs)`.
+Otherwise, direct-non-list-initializes `unex` with `std::forward<GF>(rhs.error())`.
 
 *Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the initialization of `val` or `unex`.
 
-*Remarks*: The expression inside `explicit` is equivalent to
-`!is_convertible_v<U, T> || !is_convertible_v<G, E>`.
+*Remarks*:
+The expression inside `explicit` is equivalent to
+`!is_convertible_v<UF, T> || !is_convertible_v<GF, E>`.
+
 
 ```c++
 template<class U = T>
@@ -1527,24 +1502,15 @@ template<class U = T>
 ```c++
 template<class G>
     constexpr explicit(!is_convertible_v<const G&, E>) expected(const unexpected<G>& e);
-```
-
-*Constraints*: `is_constructible_v<E, const G&>` is `true`.
-
-*Effects*: Direct-non-list-initializes `unex` with `e.error()`.
-
-*Postconditions*: `has_value()` is `false`.
-
-*Throws*: Any exception thrown by the initialization of `unex`.
-
-```c++
 template<class G>
     constexpr explicit(!is_convertible_v<G, E>) expected(unexpected<G>&& e);
 ```
 
-*Constraints*: `is_constructible_v<E, G>` is `true`.
+Let `GF` be `const G&` for the first overload and `G` for the second overload.
 
-*Effects*: Direct-non-list-initializes `unex` with `std::move(e.error())`.
+*Constraints*: `is_constructible_v<E, GF>` is `true`.
+
+*Effects*: Direct-non-list-initializes `unex` with `std::forward<GF>(e.error())`.
 
 *Postconditions*: `has_value()` is `false`.
 
@@ -1720,26 +1686,18 @@ template<class U = T>
 ```c++
 template<class G>
     constexpr expected& operator=(const unexpected<G>& e);
-```
-
-*Constraints*: `is_nothrow_constructible_v<E, const G&>` is `true` and `is_assignable_v<E, const G&>` is `true`.
-
-*Effects*:
-
-  * If `has_value()` is `true`, equivalent to: `val.~T(); construct_at(addressof(unex), e.value()); has_val = false; return *this;`
-  * Otherwise, equivalent to: `unex = e.value(); return *this;`
-
-```c++
 template<class G>
     constexpr expected& operator=(unexpected<G>&& e);
 ```
 
-*Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
+Let `GF` be `const G&` for the first overload and `G` for the second overload.
+
+*Constraints*: `is_nothrow_constructible_v<E, GF>` is `true` and `is_assignable_v<E&, GF>` is `true`.
 
 *Effects*:
 
-  * If `has_value()` is `true`, equivalent to: `val.~T(); construct_at(addressof(unex), std::move(e.value())); has_val = false; return *this;`
-  * Otherwise, equivalent to: `unex = std::move(e.value()); return *this;`
+  * If `has_value()` is `true`, equivalent to: `val.~T(); construct_at(addressof(unex), std::forward<GF>(e.value())); has_val = false; return *this;`
+  * Otherwise, equivalent to: `unex = std::forward<GF>(e.value()); return *this;`
 
 
 ```c++
@@ -2140,71 +2098,45 @@ constexpr expected(expected&& rhs) noexcept(is_nothrow_move_constructible_v<E>);
 ```c++
 template<class U, class G>
     constexpr explicit(!is_convertible_v<const G&, E>) expected(const expected<U, G>& rhs);
-```
-
-*Constraints*: `is_void_v<U>` is `true`.
-
-  * `is_void_v<U>` is `true`; and
-  * `is_constructible_v<E, const G&>` is `true`; and
-  * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
-  * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
-
-*Effects*: If `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `rhs.error()`.
-
-*Postconditions*: `rhs.has_value() == this->has_value()`.
-
-*Throws*: Any exception thrown by the initialization of `unex`.
-
-
-```c++
 template<class U, class G>
     constexpr explicit(!is_convertible_v<G, E>) expected(expected<U, G>&& rhs);
 ```
 
-*Constraints*:
+Let `GF` be `const G&` for the first overload and `G` for the second overload.
+
+*Constraints*: `is_void_v<U>` is `true`.
 
   * `is_void_v<U>` is `true`; and
-  * `is_constructible_v<E, G>` is `true`; and
+  * `is_constructible_v<E, GF>` is `true`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, expected<U, G>>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>&>` is `false`; and
   * `is_constructible_v<unexpected<E>, const expected<U, G>>` is `false`; and
 
-*Effects*: If `rhs.has_value()` is `false`,
-direct-non-list-initializes `unex` with
-`std::move(rhs.error())`.
+*Effects*: If `rhs.has_value()` is `false`, direct-non-list-initializes `unex` with `std::forward<GF>(rhs.error())`.
 
 *Postconditions*: `rhs.has_value()` is unchanged, `rhs.has_value() == this->has_value()`.
 
 *Throws*: Any exception thrown by the initialization of `unex`.
 
+
 ```c++
 template<class G>
     constexpr explicit(!is_convertible_v<const G&, E>) expected(const unexpected<G>& e);
-```
-
-*Constraints*: `is_constructible_v<E, const G&>` is `true`.
-
-*Effects*: Direct-non-list-initializes `unex` with `e.value()`.
-
-*Postconditions*: `has_value()` is `false`.
-
-*Throws*: Any exception thrown by the initialization of `unex`.
-
-```c++
 template<class G>
     constexpr explicit(!is_convertible_v<G, E>) expected(unexpected<G>&& e);
 ```
 
-*Constraints*: `is_constructible_v<E, G>` is `true`.
+Let `GF` be `const G&` for the first overload and `G` for the second overload.
 
-*Effects*: Direct-non-list-initializes `unex` with `std::move(e.value())`.
+*Constraints*: `is_constructible_v<E, GF>` is `true`.
+
+*Effects*: Direct-non-list-initializes `unex` with `std::forward<GF>(e.value())`.
 
 *Postconditions*: `has_value()` is `false`.
 
 *Throws*: Any exception thrown by the initialization of `unex`.
+
 
 ```c++
 constexpr explicit expected(in_place_t) noexcept;
@@ -2297,34 +2229,18 @@ This operator is defined as deleted unless:
 ```c++
 template<class G>
     constexpr expected& operator=(const unexpected<G>& e);
-```
-
-*Constraints*: `is_nothrow_constructible_v<E, const G&>` is `true` and `is_assignable_v<E, const G&>` is `true`.
-
-*Effects*:
-
-  * If `has_value()` is `true`, equivalent to: `construct_at(addressof(unex), e.value()); has_val = false;`
-  * Otherwise, equivalent to `unex = e.value()`.
-
-*Returns*: `*this`.
-
-```c++
 template<class G>
     constexpr expected& operator=(unexpected<G>&& e);
 ```
 
-*Constraints*: `is_nothrow_constructible_v<E, G>` is `true` and `is_assignable_v<E, G>` is `true`.
+Let `GF` be `const G&` for the first overload and `G` for the second overload.
+
+*Constraints*: `is_nothrow_constructible_v<E, GF>` is `true` and `is_assignable_v<E&, GF>` is `true`.
 
 *Effects*:
 
-  * If `has_value()` is `true`, equivalent to: `construct_at(addressof(unex), std::move(e.value())); has_val = false;`
-  * Otherwise, equivalent to `unex = std::move(e.value())`.
-
-*Returns*: `*this`.
-
-*Postconditions*: `has_value()` is `false`.
-
-*Remarks*: If any exception is thrown, `has_value()` remains unchanged.
+  * If `has_value()` is `true`, equivalent to: `construct_at(addressof(unex), std::forward<GF>(e.value())); has_val = false; return *this;`
+  * Otherwise, equivalent to: `unex = std::forward<GF>(e.value()); return *this;`
 
 ```c++
 constexpr void emplace() noexcept;
