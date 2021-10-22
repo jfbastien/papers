@@ -1509,7 +1509,7 @@ Otherwise, if `rhs.has_value()` is `false`, direct-non-list-initializes `unex` w
 *Throws*: Any exception thrown by the initialization of `val` or `unex`.
 
 *Remarks*:
-The expression inside `noexcept` is equivalent to
+The exception specification is
 `is_nothrow_move_constructible_v<T> && is_nothrow_move_constructible_v<E>`.
 
 *Remarks*: This constructor is trivial if:
@@ -2155,7 +2155,7 @@ See below <sup>†</sup>.
 
 *Throws*: Any exceptions that the expressions in the Effects clause throw.
 
-*Remarks*: The expression inside noexcept is equivalent to:
+*Remarks*: The exception specification is:
 
 ```c++
 is_nothrow_move_constructible_v<T> &&
@@ -2654,7 +2654,7 @@ direct-non-list-initializes `unex` with `std::move(rhs).error()`. Either
 
 *Postconditions*: `rhs.has_value() == this->has_value()`.
 
-*Remarks*: The expression inside noexcept is equivalent to
+*Remarks*: The exception specification is
 `is_nothrow_move_constructible_v<E> && is_nothrow_move_assignable_v<E>`.
 
 If any exception is thrown, `this->has_value()` and `rhs.has_value()` remain
@@ -2779,7 +2779,7 @@ direct-non-list-initializes `unex` with `unexpected(std::move(rhs))`. Either
 
 *Throws*: Any exceptions that the expressions in the Effects clause throw.
 
-*Remarks*: The expression inside noexcept is equivalent to:
+*Remarks*: The exception specification is
  `is_nothrow_move_constructible_v<E> && is_nothrow_swappable_v<E>`.
 
 �.�.8.5 Observers [*expected.void.observe*] {#expected.void.observe}
