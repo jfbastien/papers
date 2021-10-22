@@ -1384,12 +1384,12 @@ public:
     constexpr void swap(expected&) noexcept(see below);
 
     // �.�.7.6, observers
-    constexpr const T* operator->() const;
-    constexpr T* operator->();
-    constexpr const T& operator*() const&;
-    constexpr T& operator*() &;
-    constexpr const T&& operator*() const&&;
-    constexpr T&& operator*() &&;
+    constexpr const T* operator->() const noexcept;
+    constexpr T* operator->() noexcept;
+    constexpr const T& operator*() const& noexcept;
+    constexpr T& operator*() & noexcept;
+    constexpr const T&& operator*() const&& noexcept;
+    constexpr T&& operator*() && noexcept;
     constexpr explicit operator bool() const noexcept;
     constexpr bool has_value() const noexcept;
     constexpr const T& value() const&;
