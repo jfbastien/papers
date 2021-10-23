@@ -1333,12 +1333,8 @@ public:
     // �.�.7.7, Expected equality operators
     template<class T2, class E2>
         friend constexpr bool operator==(const expected& x, const expected<T2, E2>& y);
-
-    // �.�.7.8, Comparison with T
     template<class T2>
         friend constexpr bool operator==(const expected&, const T2&);
-
-    // �.�.7.9, Comparison with unexpected<E>
     template<class E2>
         friend constexpr bool operator==(const expected&, const unexpected<E2>&);
 
@@ -1916,7 +1912,7 @@ template<class U>
 *Returns*: `has_value() ? std::move(**this) : static_cast<T>(std::forward<U>(v))`.
 
 
-�.�.7.6 Expected Equality operators [*expected.equality_op*] {#expected.equality_op}
+�.�.7.6 Expected Equality operators [*expected.object.eq*] {#expected.object.eq}
 --------------------------------------------------------------
 
 ```c++
@@ -1933,9 +1929,6 @@ are convertible to `bool`.
 `x.error() == y.error()`; otherwise `*x == *y`.
 
 
-�.�.7.7 Comparison with `T` [*expected.comparison_T*] {#expected.comparison_T}
----------------------------------------------------
-
 ```c++
 template<class T2> constexpr bool operator==(const expected& x, const T2& v);
 ```
@@ -1946,9 +1939,6 @@ and its result is convertible to
 
 *Returns*: `x.has_value() ? *x == v : false`.
 
-
-�.�.7.8 Comparison with `unexpected<E>` [*expected.comparison_unexpected_E*] {#expected.comparison_unexpected_E}
----------------------------------------------------------------------------
 
 ```c++
 template<class E2> constexpr bool operator==(const expected& x, const unexpected<E2>& e);
