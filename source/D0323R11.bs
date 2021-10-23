@@ -2035,8 +2035,6 @@ public:
     // �.�.7.7, Expected equality operators
     template<class T2, class E2> requires is_void_v<T2>
         friend constexpr bool operator==(const expected& x, const expected<T2, E2>& y);
-
-    // �.�.7.9, Comparison with unexpected<E>
     template<class E2>
         friend constexpr bool operator==(const expected&, const unexpected<E2>&);
 
@@ -2363,6 +2361,16 @@ is convertible to `bool`.
 
 *Returns*: If `x.has_value() != y.has_value()`, `false`; otherwise if `x.has_value() == false`,
 `x.error() == y.error()`; otherwise `true`.
+
+```c++
+template<class E2>
+    constexpr bool operator==(const expected& x, const unexpected<E2>& e);
+```
+
+*Mandates*: The expression `x.error() == e.value()` is well-formed and
+its result is convertible to `bool`.
+
+*Returns*: `x.has_value() ? false : x.error() == e.value()`.
 
 
 16.4.5.3.2 Zombie names [*zombie.names*] {#zombie.names}
