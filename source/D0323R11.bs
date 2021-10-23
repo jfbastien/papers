@@ -1898,22 +1898,22 @@ template<class U>
     constexpr T value_or(U&& v) const&;
 ```
 
+*Mandates*:
+`is_copy_constructible_v<T>` is `true` and `is_convertible<U, T>` is `true`.
+
 *Returns*: `has_value() ? **this :
  static_cast<T>(std::forward<U>(v))`.
 
-*Remarks*: If `is_copy_constructible_v<T>` is `true` and `is_convertible_v<U, T>` is
- `false` the program is ill-formed.
 
 ```c++
 template<class U>
     constexpr T value_or(U&& v) &&;
 ```
 
-*Returns*: `has_value() ? std::move(**this) :
-static_cast<T>(std::forward<U>(v))`.
+*Mandates*:
+`is_move_constructible_v<T>` is `true` and `is_convertible<U, T>` is `true`.
 
-*Remarks*: If `is_move_constructible_v<T>` is `true` and `is_convertible_v<U, T>` is
- `false` the program is ill-formed.
+*Returns*: `has_value() ? std::move(**this) : static_cast<T>(std::forward<U>(v))`.
 
 
 �.�.7.6 Expected Equality operators [*expected.equality_op*] {#expected.equality_op}
