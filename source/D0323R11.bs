@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 7
+!Draft Revision: 8
 Audience: LWG
 Status: D
 Group: WG21
@@ -12,7 +12,7 @@ Editor: Vicente Botet, Nokia, vicente.botet@nokia.com
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
 Editor: Jonathan Wakely, Red Hat, cxx@kayari.org
 No abstract: true
-Date: 2021-10-22
+Date: 2021-11-12
 Markup Shorthands: markdown yes
 </pre>
 
@@ -1026,7 +1026,7 @@ namespace std {
 ```
 
 
-�.�.3 Unexpected objects [*expected.unexpected*] {#expected.unexpected}
+�.�.3 Unexpected objects [*expected.unexpected*] {#expected.un}
 -------------------------------------
 
 �.�.3.1 General [*expected.un.general*] {#expected.un.general}
@@ -1149,6 +1149,17 @@ constexpr void swap(unexpected& other) noexcept(is_nothrow_swappable_v<E>);
 
 *Effects*: Equivalent to `using std::swap; swap(val, other.val);`.
 
+
+```c++
+friend constexpr void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
+```
+
+*Constraints*: `is_swappable_v<E>` is `true`.
+
+*Effects*: Equivalent to `x.swap(y)`.
+
+
+
 �.�.3.2.5 Equality operators [*expected.un.eq*] {#expected.un.eq}
 ------------------------------------------------------------------
 
@@ -1162,18 +1173,6 @@ template<class E2>
 is convertible to `bool`.
 
 *Returns*: `x.value() == y.value()`.
-
-
-�.�.3.2.6 Specialized algorithms [*expected.un.spec*] {#expected.un.spec}
--------------------------------------------------------------------------
-
-```c++
-friend constexpr void swap(unexpected& x, unexpected& y) noexcept(noexcept(x.swap(y)));
-```
-
-*Constraints*: `is_swappable_v<E>` is `true`.
-
-*Effects*: Equivalent to `x.swap(y)`.
 
 
 
@@ -1197,7 +1196,7 @@ private:
 
 The template class `bad_expected_access` defines the type of objects thrown as
 exceptions to report the situation where an attempt is made to access the value
-of `expected` object that contains an `unexpected<E>`.
+of `expected<T, E>` object for which `has_value()` is `false`.
 
 ```c++
 explicit bad_expected_access(E e);
@@ -1232,8 +1231,15 @@ const char* what() const noexcept override;
 ```c++
 template<>
 class bad_expected_access<void> : public exception {
+protected:
+    bad_expected_access() noexcept;
+    bad_expected_access(const bad_expected_access&);
+    bad_expected_access(bad_expected_access&&);
+    bad_expected_access& operator=(const bad_expected_access&);
+    bad_expected_access& operator=(bad_expected_access&&);
+    ~bad_expected_access();
+
 public:
-    explicit bad_expected_access() noexcept;
     const char* what() const noexcept override;
 };
 ```
@@ -1576,7 +1582,7 @@ template<class U, class... Args>
 constexpr ~expected();
 ```
 
-*Effects*: If `has_value()` is `true`, calls `val.~T()`, otherwise calls `unex.~E()`.
+*Effects*: If `has_value()` is `true`, destroys `val`, otherwise destroys `unex`.
 
 *Remarks*: If `is_trivially_destructible_v<T>` is
 `true`, and `is_trivially_destructible_v<E>` is `true`, then this destructor
@@ -1597,15 +1603,15 @@ template<class T, class U, class... Args>
 constexpr void reinit-expected(T& newval, U& oldval, Args&&... args)
 {
   if constexpr (is_nothrow_constructible_v<T, Args...>) {
-    oldval.~U();
+    destroy_at(addressof(oldval));
     construct_at(addressof(newval), std::forward<Args>(args)...);
   } else if constexpr (is_nothrow_move_constructible_v<T>) {
     T tmp(std::forward<Args>(args)...);
-    oldval.~U();
+    destroy_at(addressof(oldval));
     construct_at(addressof(newval), std::move(tmp));
   } else {
     U tmp(std::move(oldval));
-    oldval.~U();
+    destroy_at(addressof(oldval));
     try {
       construct_at(addressof(newval), std::forward<Args>(args)...);
     } catch (...) {
@@ -1661,6 +1667,8 @@ Then, if no exception was thrown, equivalent to: `has_val = rhs.has_value(); ret
 The exception specification is
 `is_nothrow_move_assignable_v<T> && is_nothrow_move_constructible_v<T> && is_nothrow_move_assignable_v<E> && is_nothrow_move_constructible_v<E>`.
 
+
+
 ```c++
 template<class U = T>
     constexpr expected& operator=(U&& v);
@@ -1672,7 +1680,7 @@ template<class U = T>
   * `remove_cvref_t<U>` is not a specialization of `unexpected`; and
   * `is_constructible_v<T, U>` is `true`; and
   * `is_assignable_v<T&, U>` is `true`; and
-  * `is_nothrow_move_constructible_v<E>` is `true`.
+  * `is_nothrow_constructible_v<T, U> || is_nothrow_move_constructible_v<E>` is `true`.
 
 *Effects*:
 
@@ -1688,12 +1696,18 @@ template<class G>
 
 Let `GF` be `const G&` for the first overload and `G` for the second overload.
 
-*Constraints*: `is_nothrow_constructible_v<E, GF>` is `true` and `is_assignable_v<E&, GF>` is `true`.
+*Constraints*:
+
+  * `is_constructible_v<E, GF>` is `true`.
+  * `is_assignable_v<E&, GF>` is `true`; and
+  * `is_nothrow_constructible_v<E, GF> || is_nothrow_move_constructible_v<T>` is `true`.
+
 
 *Effects*:
 
-  * If `has_value()` is `true`, equivalent to: `val.~T(); construct_at(addressof(unex), std::forward<GF>(e.value())); has_val = false; return *this;`
+  * If `has_value()` is `true`, equivalent to <i>`reinit-expected`</i>`(unex, val, std::forward<GF>(e.value())); has_val = false; return *this;`
   * Otherwise, equivalent to: `unex = std::forward<GF>(e.value()); return *this;`
+
 
 
 ```c++
@@ -1707,9 +1721,9 @@ template<class... Args>
 
 ```c++
 if (has_value())
-  val.~T();
+  destroy_at(addressof(val));
 else {
-  unex.~E();
+  destroy_at(addressof(unex));
   has_val = true;
 }
 return *construct_at(addressof(val), std::forward<Args>(args)...);
@@ -1726,9 +1740,9 @@ template<class U, class... Args>
 
 ```c++
 if (has_value())
-  val.~T();
+  destroy_at(addressof(val));
 else {
-  unex.~E();
+  destroy_at(addressof(unex));
   has_val = true;
 }
 return *construct_at(addressof(val), il, std::forward<Args>(args)...);
@@ -1746,8 +1760,8 @@ constexpr void swap(expected& rhs) noexcept(see below);
 
   * `is_swappable_v<T>`; and
   * `is_swappable_v<E>`; and
-  * `is_move_constructible_v<T>` is `true` or
-    `is_move_constructible_v<E>` is `true`.
+  * `is_move_constructible_v<T> && is_move_constructible_v<E>` is `true`, and
+  * `is_nothrow_move_constructible_v<T> || is_nothrow_move_constructible_v<E>` is `true`.
 
 *Effects*: See Table *editor-please-pick-a-number-5*
 
@@ -1760,7 +1774,7 @@ constexpr void swap(expected& rhs) noexcept(see below);
   </tr>
   <tr>
     <td>`rhs.has_value()`</td>
-    <td>calls `using std::swap; swap(val, rhs.val)`</td>
+    <td>equivalent to: `using std::swap; swap(val, rhs.val);`</td>
     <td>calls `rhs.swap(*this)`</td>
   </tr>
   <tr>
@@ -1770,7 +1784,7 @@ constexpr void swap(expected& rhs) noexcept(see below);
 See below <sup>†</sup>.
 
 </td>
-    <td>calls `using std::swap; swap(unex, rhs.unex)`</td>
+    <td>equivalent to: `using std::swap; swap(unex, rhs.unex);`</td>
   </tr>
 </table>
 
@@ -1779,10 +1793,10 @@ See below <sup>†</sup>.
 ```
 if constexpr (is_nothrow_move_constructible_v<E>) {
   E tmp(std::move(rhs.unex));
-  rhs.unex.~E();
+  destroy_at(addressof(rhs.unex));
   try {
     construct_at(addressof(rhs.val), std::move(val));
-    val.~T();
+    destroy_at(addressof(val));
     construct_at(addressof(unex), std::move(tmp));
   } catch(...) {
     construct_at(addressof(rhs.unex), std::move(tmp));
@@ -1790,17 +1804,18 @@ if constexpr (is_nothrow_move_constructible_v<E>) {
   }
 else {
   T tmp(std::move(val));
-  val.~T();
+  destroy_at(addressof(val));
   try {
     construct_at(addressof(unex), std::move(rhs.unex));
-    rhs.unex.~E();
+    destroy_at(addressof(rhs.unex));
     construct_at(addressof(rhs.val), std::move(tmp));
   } catch (...) {
     construct_at(addressof(val), std::move(tmp));
     throw;
   }
 }
-swap(has_val, rhs.has_val);
+has_val = false;
+rhs.has_val = true;
 ```
 
 *Throws*: Any exception thrown by the expressions in the *Effects*.
@@ -1813,6 +1828,13 @@ is_nothrow_swappable_v<T> &&
 is_nothrow_move_constructible_v<E> &&
 is_nothrow_swappable_v<E>
 ```
+
+```c++
+friend constexpr void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
+```
+
+*Effects*: Equivalent to `x.swap(y)`.
+
 
 �.�.7.5 Observers [*expected.object.observe*] {#expected.object.observe}
 ---------------------------------------------
@@ -1925,8 +1947,10 @@ template<class T2, class E2>
 `x.error()== y.error()` are well-formed and their results
 are convertible to `bool`.
 
-*Returns*: If `x.has_value() != y.has_value()`, `false`; otherwise if `x.has_value() == false`,
-`x.error() == y.error()`; otherwise `*x == *y`.
+*Returns*:
+If `x.has_value()` does not equal `y.has_value()`, `false`;
+otherwise if `x.has_value()` is `true`, `*x == *y`;
+otherwise `x.error() == y.error()`.
 
 
 ```c++
@@ -1937,7 +1961,7 @@ template<class T2> constexpr bool operator==(const expected& x, const T2& v);
 and its result is convertible to
 `bool`. [ *Note:* `T1` need not be *Cpp17EqualityComparable*. - *end note*]
 
-*Returns*: `x.has_value() ? *x == v : false`.
+*Returns*: `x.has_value() && static_cast<bool>(*x == v)`.
 
 
 ```c++
@@ -1947,24 +1971,16 @@ template<class E2> constexpr bool operator==(const expected& x, const unexpected
 *Mandates*: The expression `x.error() == e.value()` is well-formed and
 its result is convertible to `bool`.
 
-*Returns*: `x.has_value() ? false : x.error() == e.value()`.
+*Returns*: `!x.has_value() && static_cast<bool>(x.error() == e.value())`.
 
 
-�.�.7.9 Specialized algorithms [*expected.specalg*] {#expected.specalg}
---------------------------------------------------
-
-```c++
-constexpr void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
-```
-
-*Effects*: Equivalent to `x.swap(y)`.
 
 �.�.8 Partial specialization of expected for void types [*expected.void*] {#expected.void}
 ---------------------------------------------------
 
 ```c++
 template<class T, class E> requires is_void_v<T>
-class expected {
+class expected<T, E> {
 public:
     using value_type = T;
     using error_type = E;
@@ -2007,14 +2023,15 @@ public:
 
     // �.�.8.4, modifiers
 
-    constexpr T& emplace() noexcept;
+    constexpr void emplace() noexcept;
 
     // �.�.8.5, swap
     constexpr void swap(expected&) noexcept(see below);
 
-    // �.�.7.6, observers
+    // �.�.8.6, observers
     constexpr explicit operator bool() const noexcept;
     constexpr bool has_value() const noexcept;
+    constexpr void operator*() const noexcept;
     constexpr void value() const&;
     constexpr void value() &&;
     constexpr const E& error() const&;
@@ -2022,21 +2039,20 @@ public:
     constexpr const E&& error() const&&;
     constexpr E&& error() &&;
 
-    // �.�.7.7, Expected equality operators
+    // �.�.8.7, Expected equality operators
     template<class T2, class E2> requires is_void_v<T2>
         friend constexpr bool operator==(const expected& x, const expected<T2, E2>& y);
     template<class E2>
         friend constexpr bool operator==(const expected&, const unexpected<E2>&);
 
-    // �.�.7.10, Specialized algorithms
+    // �.�.8.10, Specialized algorithms
     friend constexpr void swap(expected&, expected&) noexcept(see below);
 
 private:
     bool has_val; // exposition only
     union
     {
-        byte val; // exposition only
-        unexpected_type unex; // exposition only
+        E unex;   // exposition only
     };
 };
 ```
@@ -2167,7 +2183,7 @@ template<class U, class... Args>
 constexpr ~expected();
 ```
 
-*Effects*: If  `has_value()` is `false`, calls `unex.~E()`.
+*Effects*: If  `has_value()` is `false`, destroys `unex`.
 
 *Remarks*: If `is_trivially_destructible_v<E>` is `true`, then this destructor
 is a trivial destructor.
@@ -2184,7 +2200,7 @@ constexpr expected& operator=(const expected& rhs);
 
   * If `this->has_value() && rhs.has_value()` is `true`, no effects.
   * Otherwise, if `this->has_value()` is `true`, equivalent to: `construct_at(addressof(unex), rhs.unex); has_val = false;`
-  * Otherwise, if `rhs.has_value()` is `true`, equivalent to: `unex.~E(); has_val = true;`
+  * Otherwise, if `rhs.has_value()` is `true`, destroys `unex` and sets `has_val` to `true`.
   * Otherwise, equivalent to `unex = rhs.error()`.
 
 *Returns*: `*this`.
@@ -2202,7 +2218,7 @@ constexpr expected& operator=(expected&& rhs) noexcept(see below);
 
   * If `this->has_value() && rhs.has_value()` is `true`, no effects.
   * Otherwise, if `this->has_value()` is `true`, equivalent to: `construct_at(addressof(unex), std::move(rhs.unex)); has_val = false;`
-  * Otherwise, if `rhs.has_value()` is `true`, equivalent to: `unex.~E(); has_val = true;`
+  * Otherwise, if `rhs.has_value()` is `true`, destroys `unex` and sets `has_val` to `true`.
   * Otherwise, equivalent to `unex = rhs.error()`.
 
 *Returns*: `*this`.
@@ -2223,7 +2239,7 @@ template<class G>
 
 Let `GF` be `const G&` for the first overload and `G` for the second overload.
 
-*Constraints*: `is_nothrow_constructible_v<E, GF>` is `true` and `is_assignable_v<E&, GF>` is `true`.
+*Constraints*: `is_constructible_v<E, GF>` is `true` and `is_assignable_v<E&, GF>` is `true`.
 
 *Effects*:
 
@@ -2234,14 +2250,8 @@ Let `GF` be `const G&` for the first overload and `G` for the second overload.
 constexpr void emplace() noexcept;
 ```
 
-*Effects*: Equivalent to:
-
-```c++
-if (!has_value())
-  unex.~E();
-  has_val = true;
-}
-```
+*Effects*:
+If `has_value()` is `false`, destroys `unex` and sets `has_val` to `true`.
 
 
 �.�.8.4 Swap [*expected.void.swap*] {#expected.void.swap}
@@ -2252,10 +2262,8 @@ constexpr void swap(expected& rhs) noexcept(see below);
 ```
 
 *Constraints*:
-
-  * `is_swappable_v<T>` is `true`; and
-  * `is_swappable_v<E>` is `true`; and
-  * `is_move_constructible_v<E>` is `true`.
+  `is_swappable_v<E>` is `true`; and
+  `is_move_constructible_v<E>` is `true`.
 
 *Effects*: See Table *editor-please-pick-a-number-5*
 
@@ -2276,7 +2284,7 @@ constexpr void swap(expected& rhs) noexcept(see below);
 <td>
 See below <sup>†</sup>.
 </td>
-    <td>calls `using std::swap; swap(unex, rhs.unex)`</td>
+    <td>equivalent to: `using std::swap; swap(unex, rhs.unex);`</td>
   </tr>
 </table>
 
@@ -2284,14 +2292,24 @@ See below <sup>†</sup>.
 
 ```
 construct_at(addressof(unex), std::move(rhs.unex));
-rhs.unex.~E();
-swap(has_val, rhs.has_val);
+destroy_at(addressof(rhs.unex));
+has_val = false;
+rhs.has_val = true;
 ```
 
 *Throws*: Any exception thrown by the expressions in the *Effects*.
 
 *Remarks*: The exception specification is
  `is_nothrow_move_constructible_v<E> && is_nothrow_swappable_v<E>`.
+
+
+
+```c++
+friend constexpr void swap(expected& x, expected& y) noexcept(noexcept(x.swap(y)));
+```
+
+*Effects*: Equivalent to `x.swap(y)`.
+
 
 
 �.�.8.5 Observers [*expected.void.observe*] {#expected.void.observe}
@@ -2303,6 +2321,13 @@ constexpr bool has_value() const noexcept;
 ```
 
 *Returns*: `has_val`.
+
+```c++
+constexpr void operator*() const noexcept;
+```
+
+*Preconditions*: `has_value()` is `true`.
+
 
 ```c++
 constexpr void value() const&;
@@ -2346,11 +2371,12 @@ template<class T2, class E2>
 ```
 
 *Mandates*: The expression
-`x.error()== y.error()` is well-formed and its result
+`x.error() == y.error()` is well-formed and its result
 is convertible to `bool`.
 
-*Returns*: If `x.has_value() != y.has_value()`, `false`; otherwise if `x.has_value() == false`,
-`x.error() == y.error()`; otherwise `true`.
+*Returns*:
+If `x.has_value()` does not equal `y.has_value()`, `false`;
+otherwise `x.has_value() || static_cast<bool>(x.error() == y.error())`.
 
 ```c++
 template<class E2>
@@ -2360,63 +2386,23 @@ template<class E2>
 *Mandates*: The expression `x.error() == e.value()` is well-formed and
 its result is convertible to `bool`.
 
-*Returns*: `x.has_value() ? false : x.error() == e.value()`.
+*Returns*: `!x.has_value() && static_cast<bool>(x.error() == e.value())`.
 
 
 16.4.5.3.2 Zombie names [*zombie.names*] {#zombie.names}
 ----------------------------------------
 
-Remove `unexpected` from zombie names as follows:
+Remove `unexpected` from the list of zombie names as follows:
 
 <blockquote>
   In namespace `std`, the following names are reserved for previous standardization:
-  <ol>
-    <li>`auto_ptr`,
-    <li>`auto_ptr_ref`,
-    <li>`binary_function`,
-    <li>`binary_negate`,
-    <li>`bind1st`,
-    <li>`bind2nd`,
-    <li>`binder1st`,
-    <li>`binder2nd`,
-    <li>`const_mem_fun1_ref_t`,
-    <li>`const_mem_fun1_t`,
-    <li>`const_mem_fun_ref_t`,
-    <li>`const_mem_fun_t`,
-    <li>`declare_no_pointers`,
-    <li>`declare_reachable`,
-    <li>`get_pointer_safety`,
-    <li>`get_temporary_buffer`,
-    <li>`get_unexpected`,
-    <li>`gets`,
-    <li>`is_literal_type`,
-    <li>`is_literal_type_v`,
-    <li>`mem_fun1_ref_t`,
-    <li>`mem_fun1_t`,
-    <li>`mem_fun_ref_t`,
-    <li>`mem_fun_ref`,
-    <li>`mem_fun_t`,
-    <li>`mem_fun`,
-    <li>`not1`,
-    <li>`not2`,
-    <li>`pointer_safety`,
-    <li>`pointer_to_binary_function`,
-    <li>`pointer_to_unary_function`,
-    <li>`ptr_fun`,
-    <li>`random_shuffle`,
-    <li>`raw_storage_iterator`,
-    <li>`result_of`,
-    <li>`result_of_t`,
-    <li>`return_temporary_buffer`,
-    <li>`set_unexpected`,
-    <li>`unary_function`,
-    <li>`unary_negate`,
-    <li>`uncaught_exception`,
+  <ul>
+    <li>[...],
     <li>`undeclare_no_pointers`,
     <li>`undeclare_reachable`,<ins> and</ins>
     <li><del>`unexpected`, and</del>
     <li>`unexpected_handler`.
-  </ol>
+  </ul>
 </blockquote>
 
 
