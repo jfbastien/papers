@@ -2,7 +2,7 @@
 Title: std::expected
 Shortname: D0323
 Revision: 11
-!Draft Revision: 8
+!Draft Revision: 9
 Audience: LWG
 Status: D
 Group: WG21
@@ -34,7 +34,7 @@ The interface and the rational are based on `std::optional` [[N3793]]. We consid
 Revision History {#cool-story}
 ================
 
-This paper updates [[P0323r10]] following an LWG review on 2021-09-10.
+This paper updates [[P0323r10]] following a few LWG reviews on 2021-09-10 and later. Remove conversions from `std::unexpected`. Rationalize constraints and effects throughout. Define separate partial specialization for `expected<cv void, E>`. Many other small edits.
 
 In the 2021-04-06 LEWG telecon, LEWG decided to target the IS instead of a TS.
 
