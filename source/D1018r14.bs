@@ -1,15 +1,15 @@
 <pre class='metadata'>
-Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/09–2021/10
+Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/09–2022/01
 Shortname: P1018
 Revision: 14
-!Draft Revision: 0
+!Draft Revision: 1
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P1018r14
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r14.bs">github.com/jfbastien/papers/blob/master/source/P1018r14.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2021-09-23
+Date: 2022-01-02
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -28,13 +28,13 @@ We have not met in-person since the February 2020 meeting in Prague because of t
 Our main achievements have been:
 
 * **Issue processing**: most of the 50 language evolution issues have proposed resolutions, and a large number of them have been voted on through electronic polling.
-* **C++23**: we've started work on papers for C++23 and later.
+* **C++23**: we've worked on papers for C++23 and later. As of January 2023, EWG is not considering new papers for C++23.
 * **Incubation**: we've acted as EWG-I and "incubated" some early papers by providing early feedback to authors.
 
 This paper outlines:
 
 * The work achieved in [[#telecons]]; 
-* Lists the [[#polls]] for the August 2021 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period and [[P1018r11]] for the results of the May 2021 polling period);
+* Lists the [[#polls]] for the Early 2022 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period, [[P1018r11]] for the results of the May 2021 polling period, and [[P1018r13]] for the results of the August polling period);
 * Lists the remaining outstanding issues in [[#issues]], some are still open while others are waiting for polling;
 * [[#future]].
 
@@ -73,297 +73,135 @@ Poll {#polls}
 
 The results of the polls which EWG took in the August 2021 polling period are:
 
-P2138r4 Rules of Design `<=>` Wording engagement {#P2138r4}
+P2280r3 Using unknown references in constant expressions {#P2280r3}
 -------
 
-* [[P2138r4]]
-* <a href="https://github.com/cplusplus/papers/issues/853">GitHub issue</a>
-* **Highlight:** process description of how proposal reviews should work between Language Evolution and Core, as well as between Library Evolution and Library.
-* **🗳  Poll:** For the next plenary, put up the following joint Language and Library Evolution motion: P2138r4 "Rules of Design `<=>` Wording engagement" as the official process of the C++ Evolution groups.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>6</td><td>15</td><td>3</td><td>3</td><td>6</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ❌ no consensus. LEWG electronic poll results are similarly distributed.
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strongly favor:** This is the golden standard for process and a good description of the current process.
-  <li>**Strongly favor:** Formalizing the process we've agreed to will make it easier to object when we try to rush. 
-  <li>**Strongly favor:** We need a checklist and a description for how proposals flow through the committee; it's unreasonable to continue to do that in an ad-hoc manner.
-  <li>**Neutral:** Not sure evolving processes during covid time is a good idea
-  <li>**Neutral:**I'm torn on this paper. It gives a clear description of the process of digesting a proposal and the rationale behind it. I'm all for clear process descriptions - there's even an ISO norm for that. But I can't see how it helps adressing bullet point 1 in the list of problems. The scarce ressource of "wordsmiths" is unavoidably tapped in the design cycle (!), effectively sucking the people involved there into a gatekeeping function in the design process, asking them for doing work outside of their group, and possibly eventually stalling the process there. In other words, the former specification review -> design feedback cycle is now embedded into the new design cycle. Looking at the whole process description I can see an almost certain slow-down of the pipeline, an improved quality of the process itself, and the hope for higher quality proposals forwarded to plenary. Unfortunately, improving process quality isn't correlated with improvements in quality of the processed items.
-  <li>**Against:** The problems this process aims to address are plainly real: lots of our limited wording-group bandwidth is consumed by reviewing wording that is unusably incomplete, and disagreements about the design intent of papers approved by design groups have been very problematic.  Also, distinguishing papers with approved designs but no wording is simply good process engineering, since they can't be reviewed yet.  However, it is not clear that the design groups can reliably evaluate whether wording implements the design intent without duplicating the wording group's work.  Also, wordsmiths' time is also limited, and while there's no requirement that they agree with a proposal to review its initial wording, the natural tendency would be to spend their limited time on those that they favor.  It doesn't seem right to subject proposals to that sort of pocket veto.  A wording review group would of course be well within its rights to suspect that a paper's wording might not be ready and deputize one of its members to ascertain that fact and communicate it to the author (who would be just as capable of securing help with it as they would be under this proposal).  While the paper discusses means of accelerating urgent proposals, it is nonetheless plain that this process would in general extend the review process.  That's not intrinsically undesirable, but lengthening the process by fiat (rather than, say, because implementation concerns have been raised) is of questionable value.  It's a little unreasonable to require a notional author of one paper to attend every in-person meeting (when those are happening) for years in case one of the many reviews for it occurs at one of them.  In particular, having a "park for further design feedback" stage in addition to a "Tentatively Wording" stage seems gratuitous.
-  <li>**Against:** I'm not a fan of the requirement that wording must exist to advance out of (L)EWG. My experience suggests that this actively causes harm. What we've seen is that authors now see that they need wording, so they spend time writing wording. The problem is, the wording is often bad anyway -- so you end up with a paper with potentially pages of wording that doesn't really help explain the design because the authors spent time writing bad wording that could have been spent writing clearer motivation, examples, prose, etc. Or the author knows that they can't write wording, so they go try to get wording review for a paper that may just not be a good design, which ends up not being a good use of the wordsmith's time either. Even when the wording is fine, it's just actively distracting from the discussion - which should be at this point about the design. So you get comments about wording issues that are, frankly, completely irrelevant and wholly unproductive. I think the best thing you could say about requiring wording is that it's simply a waste of time in that the author had to spend their time producing wording earlier than necessary. The presented problem (papers show up to CWG/LWG with poor wording) can be solved by just requiring that papers show up to CWG/LWG with good wording - requiring EWG/LEWG to see it seems like a completely needless extra step in the process. 
-  <li>**Against:** The proposed approach further complicates already complicated committee workflow without solving the real issue in the committee. People who used to ignore the rules will continue ignore the rules.
-  <li>**Abstain:** I don't care. The proposal would change nothing in practice
-  <li>**Strongly against:** This paper: does not make any distinction between tiny improvements and huge feature changes; does not acknowledge the need for quicker turn-around on National Body comments during the Committe Draft review stage; incorrectly assumes that the perceived quality issues with recent proposals relates to a lack of formalized process rather than a failure on the part of experienced WG21 participants to actively help to improve proposals; introduces unhelpful gatekeeping and obscured hurdles for new WG21 participants to jump through.
-Not convinced this will improve processes and am concerned it will cause contributor burnout.
-This proposal will have the following effects if adopted by LEWG:  1. It will cement a complex and baroque process even further into WG21. 2. It will increase the already high gatekeeper discrimination of proposals. 3. It will allow LWG to discriminate against LEWG by discounting their consensus findings. 4. It will place unbounded decision power on individuals with undefined credentials.  Hence it is unconscionable of me to vote anything but strongly against.
-  <li>**Strongly against:** We should not optimize our process against small papers or against new participants.
-  <li>**Strongly against:** This paper bloats the process with unnecessary checks and abdicates the responsibility of actually vetting the design from the initial design groups to people later in the stage. The time to check for deployment experience and implementation experience is in the incubator and design groups, not before plenary when things are ALMOST ready to head out the door. The proposal also adds mandatory waiting times, rather than leaving it discretionary-by-default, and requires chairs and other individuals to lodge special exceptions in more cases (not less) to move a paper forward. Nothing about this paper improves the process in a material or tangible way that benefits the proposal process, and all it does is add in more places for a proposal to fail and be sent all the way back to the beginning of the process. As a person who ahd to carry a few proposals that suffered from that, this paper is perhaps the worst possible path forward I can imagine for the evolution of C++.
-  <li>**Strongly against:** This paper will have disastrous consequences on WG21 that the committee, its members, and proposal writers are wholly unprepared to deal with. If the idea is that, instead of an open process, we should endeavor to make improving C++ so difficult that it makes COBOL's submission process look easy or similar by comparison, then I suppose this paper is "working as intended". If this paper moves through to plenary and is adopted I can see several people simply not participating in C++ anymore. But then again, making the process less accessible may be the point?
-</ul>
-
-
-P2266r1 Simpler implicit move {#P2266r1}
--------
-
-* [[P2266r1]]
-* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
-* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
-* **🗳  Poll:** Forward P2266r1 "Simpler implicit move" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>11</td><td>14</td><td>5</td><td>2</td><td>2</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus. However, the against votes are from implementors, and bring relevant new information. This topic needs to be re-discussed, and might fail a plenary vote.
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strongly Favor:** This is a bugfix that unifies handling. Should have been the case from the beginning.
-  <li>**Strongly Favor:** This makes the language much more pleasant to use, and fixes a decades-old problem of returning references to locals.
-  <li>**Strongly Favor:** This is a sensible improvement for the rules on implicit move.
-  <li>**Strongly Favor:** Fixing these kind of corner cases makes the language more consistent and easier to use and teach.
-  <li>**Strongly Favor:** The great talk on C++Now 2021 explained everything.
-  <li>**Favor:** The `decltype(auto)` case is unfortunate but overall it's a simpler rule.
-  <li>**Neutral:** I am in favor of most of this proposal, however the interactions with decltype(auto) have me slightly concerned it will cause more surprising behavior. I cannot decide either way.
-  <li>**Neutral:** I'm in two minds about this: on the one hand, the proposal seems useful and matches what some users expect, on the other hand, this is adding even more magic to a part of the language that's already full of implicit rules that are increasingly hard to keep in mind, and this will change what some other users expect.
-  <li>**Against:** The rule change appears reasonable, but Arthur's implementation did reveal breaks in real code, and the implementation experience has not been discussed in committee.  I do not believe this is ready to move to core.
-  <li>**Against:** I was in favor of this until we started getting implementation experience with it. The implementation work done in Clang exposed issues in the MSVC STL headers (among others) where code stopped compiling. I don't think this goes far enough to keep working code working, as this turned out to be a disruptive change.
-  <li>**Strongly Against:** This has, as far as I understand, not been implemented nor tested. Yet it changes the meaning of currently-valid code. Until we have reasonable evidence that it has been implemented this should not move forward.
-  <li>**Strongly Against:** The implementation in clang ended up causing a ton of failures in existing code, particularly in the MSVC headers. We’ve been dealing with the fallout from the clang-implementation for about a week and a half now, and it is really painful so far.
-</ul>
-
-
-P2128r5 Multidimensional subscript operator {#P2128r5}
--------
-
-* [[P2128r5]]
-* <a href="https://github.com/cplusplus/papers/issues/845">GitHub issue</a>
-* **Highlight:** user-defined types can define a subscript operator with multiple arguments to better support multi-dimensional containers and views, for example `template<class... IndexType> constexpr reference operator[](IndexType...);`.
-* **🗳  Poll:** Forward P2128r5 "Multidimensional subscript operator" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>20</td><td>11</td><td>1</td><td>2</td><td>1</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strongly Favor:** The language allows expressing a difference between invocation and indexing for single-element forms but not for multi-element forms; with this proposal, that inconsistency is fixed, and programmers who want to make the difference clear can do so, going forward.
-  <li>**Strongly Favor:** This is why we deprecated comma inside the subscript expression. Given the small number of cases where this is used that have so far been reported I see no problem with moving ahead with this for C++23.
-  <li>**Strongly Favor:** Avoids hijacking the function call operator for subscription.
-  <li>**Strongly Favor:** We would adopt this as soon as possible if/when made available.
-  <li>**Favor:** This is natural extension of the syntax, however I am not convinced with repurposing syntax, before making it ill-formed for at least one standard.
-  <li>**Favor:** This is one of those questions that comes up again and again, and the status quo is made worse by the existence of comma expressions, which give the illusion that we already support this feature.  The comma expression behavior is unintuitive and surprising (and deprecated since C++20 in order to make room for this feature).  Let's fix that.
-  <li>**Against:** I'm not comfortable with the fact that both a[1, 2, 3] and a(1, 2, 3) might be valid at the same time, but mean totally different things. I would like to see restrictions against a type having both operator() and operator[], or at least a discussion of this issue
-  <li>**Against:** I'm not sold on the motivation and value of this change.  While true, the question is pretty common, but so is the answer and where it emerged the programmer could pick one of 3 ways, each straightforward.  Strange, that the 3 are not the same we see in the paper, the baseline, that is to use a named finxtion is not even mentioned. And the code that uses .At(x, y, z) may have a few extra characters but is simple to read and write. Has less gotchas than the other 2 ways -- using other operator like () or using an indexing object.  It also solves the "generic code" problem. Unfortunate that our standard lib did not follow the guidelines of the era and only introduced a .at() function with a different contract.   If the language had this, I probably could find a use somewhere but remain skeptic it would take over in general due to the many existing libraries. We'd just have the N+1 problem for long time. And keep writing shims for generics.   My gut tells me that if the paper did have the non-member op[] with demonstration that I could use it with the old libs and make my code switch to a single [] syntax, that might switch me to F. But can't tell without looking at all the fallout.
-  <li>**Strongly Against:** This doesn't actually add significant capability, but it does add confusion.
-</ul>
-
-P2036r2 Changing scope for lambda *trailing-return-type* {#P2036r2}
--------
-
-* [[P2036r2]]
-* <a href="https://github.com/cplusplus/papers/issues/766">GitHub issue</a>
-* **Highlight:** the way that name lookup works in lambdas is surprising: it behaves differently in the trailing-return-type than it does in the lambda body. The current behavior is surprising and error-prone. The proposed change treats the *trailing-return-type* like the function body rather than treating it like a function parameter.
-* **🗳  Poll:** Forward P2036r2 "Changing scope for lambda trailing-return-type" to Core for C++23. Treat it as a Defect Report.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>19</td><td>11</td><td>0</td><td>0</td><td>1</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strongly Favor:** Names in a lambda should be looked up with a consistent set of rules
-  <li>**Strongly Favor:** Colleagues expect the behavior this paper proposes rather than the behavior without.
-  <li>**Strongly Against:** This has, as far as I understand, not been implemented nor tested. Yet it changes the meaning of currently valid code.
-</ul>
-
-P2334r1 Add support for preprocessing directives `elifdef` and `elifndef` {#P2334r1}
--------
-
-* [[P2334r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1016">GitHub issue</a>
-* **Highlight:** the `#ifdef` and `#ifndef` preprocessing directives exist today as shorthand for `#if defined(identifier)` and `#if !defined(identifier)`, respectively. However, no analogous shorthand preprocessing directives exist for `#elif defined(identifier)` and `#elif !defined(identifier)`. Add two new preprocessing directives `#elifdef` and `#elifndef` that exactly parallel the functionality supplied in the existing `#ifdef` and `#ifndef` directives.
-* **🗳  Poll:** Forward P2334r1 "Add support for preprocessing directives `elifdef` and `elifndef`" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>11</td><td>13</td><td>9</td><td>3</td><td>2</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strongly Favor:** Compatibility with the C preprocessor is important. I have had colleagues asking why this is missing in previous versions of C/C++
-  <li>**Strongly Favor:** Even though not strictly necessary, the gap closed by this proposal looks so obvious in hindsight that I can't find a good reason to object to that.
-  <li>**Strongly Favor:** Speaking for myself, I've wanted this feature for nearly as long as I've been programming in C++.  Given that C is adopting this change to the preprocessor, I don't see how we could reasonably refuse to adopt it.
-  <li>**Strongly Favor:** It fills a hole that people have been complaining about for 40 years; WG14 already adopted the feature and a diverging preprocessor would be Very Bad.
-  <li>**Favor:** While tweaks to the preprocessor aren't the best extensions we could spend our time on, this seems reasonable.
-  <li>**Favor:** We would prefer the preprocessor be, as closely as possible, the same between C and C++.
-  <li>**Favor:** In a vacuum, optimizing conditional compilations when we should try to have less of it is a waste of time. But WG14 is forcing our hand, the work was done, users like it, ship it.
-  <li>**Favor:** Compatibility with C is important, changes in that should be adopted unless there is a good reason not to. Here we have no reason.  If it was not coming up from C, I'd vote SA as the motivation is moot and the change not necessary for anything. 
-  <li>**Favor:** C compat. 
-  <li>**Favor:** This proposal is trivial; it might not be worth the bother, but alignment with C makes it plainly desirable.
-  <li>**Favor:** Given WG14's interest in this, too, this seems helpful.
-  <li>**Favor:** Keeps C++ aligned with upcoming changes in C.  Aligns with user expectations.  Seems like there's some good and no harm here at all.
-  <li>**Favor:** I'm not thrilled by adding features to the preprocessor, but this seems to be liked by WG14, making this a C23 compatibility issue.
-  <li>**Favor:** A simple and useful facility.
-  <li>**Favor:** We should minimize preprocessor usage, but this seems straightforward
-  <li>**Neutral:** Folks have asked for this for years, but this is just a compatibility thing. I care neither way.
-  <li>**Against:** Let us not extend the preprocessor any further. It is okay for PP code to be ugly as hell, this way we will get proper alternatives faster.
-  <li>**Against:** It is worrying that on implementations without this feature, uses of these directives can still compile but not do what you want: #if 0 ... #elifdef Y ... #endif is valid today and simply preprocesses to nothing without checking Y.
-  <li>**Against:** This does not bring new functionality to the language, does not solve real world problem. It does not worth committee time.
-  <li>**Strongly Against:** As far as I understand this has not been implemented or tested. This creates bifurcation in the preprocessor (between C and C++, between new and old), in an area that is specifically used to deal with different compiler versions... but this feature cannot be used that way since it doesn't exist in current and older versions.
-  <li>**Strongly Against:** Completely redundant useless feature, adds unnecessary complexity to preprocessor. Adding it to C was a mistake which we shouldn't repeat.
-</ul>
-
-P2066r7 Suggested draft TS for C++ Extensions for Transaction Memory Light {#P2066r7}
--------
-
-* [[P2066r7]]
-* See [[P1875r2]] for discussion.
-* Current TS [[N4514]]: ISO/IEC TS 19841:2015 Technical Specification for C++ Extensions for Transactional Memory.
-* <a href="https://github.com/cplusplus/papers/issues/793">GitHub issue</a>
-* **Highlight:** transactions can be expressed with atomic statements of the form `atomic do { /* work goes here */ }`.
-* **🗳  Poll:** Forward P2066r7 "Suggested draft TS for C++ Extensions for Transaction Memory Light" to Core to become the Transactional Memory TS v2.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>6</td><td>12</td><td>3</td><td>0</td><td>1</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strongly Favor:** Looks like good MVP for TS.
-  <li>**Strongly Favor:** Our last hope to see transactional memory TS actually implemented.
-  <li>**Strongly Favor:** The UK NB is happy to see this. There’s useful section “questions for TS deployment” explaining what is hoped for from the TS process.
-  <li>**Favor:** This feature helps users writing safer code without the need of understanding all of the possibly non-obvious interactions of atomics. In particular when there's more than one atomic involved.
-  <li>**Favor:** This looks like an marked improvement over the first TS, and hopefully will permit gathering some experience with transactional memory use in C++.
-  <li>**Favor:** Not sure what the goal here is, but sure. Worth noting that we have a Reflection TS that nobody has implemented. 
-  <li>**Favor:** Recent reflector discussions seem to have established that this proposal has the correct degree of maturity to become a Technical Specification; the implementation experience one hopes to derive via that process will be valuable.
-  <li>**Neutral:** The paper lacks motivation and implementers of compiler and chips do not seem super enthusiastic about it. Only ARM seems to have the hardware support. 
-  <li>**Strongly Against:** It is a huge mistake to re-use "atomic", which we have already been shipping as a templated type for over a decade.  It may limit future design choices.  Once this TS is out there, the bar for changing this contextual keyword is much, much higher.  This isn't even one of the questions being asked of the TS deployment.  A word that isn't quite so common would be far better.
-</ul>
-
-P2360r0 Extend *init-statement* to allow *alias-declaration* {#P2360r0}
--------
-
-* [[P2360r0]]
-* <a href="https://github.com/cplusplus/papers/issues/1034">GitHub issue</a>
-* **Highlight:** This is currently valid `for (typedef int T; T e : v) /* something */;` but this isn't `for (using T = int; T e : v) /* something */;`. Make the later one valid.
-* **🗳  Poll:** Forward P2360r0 "Extend *init-statement* to allow *alias-declaration*" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>13</td><td>12</td><td>7</td><td>2</td><td>0</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-<ul>
-  <Li>**Strongly Favor:** An obvious fix with no side effects
-  <Li>**Strongly Favor:** It's surprising that it doesn't work already; removing discrepancies between typedef and using here is a good thing
-  <Li>**Favor:** Once again, not strictly a necessary feature that's proposed here. But a feature that fixes an inconsistency, that is allegedly easy to implement, and that breathes "modern" is a good thing.
-  <Li>**Neutral:** On one side I agree that it is an inconsistency and overlook, I see no practical reason for any client to notice the difference.  Accepting the change improves the language but I can't evaluate the implementation cost. If it's provably low, then I vote F.  If it's adopted it should be a DR to close the incosistency gap for good.  And that rises the bar even more. If restricted to just for C++23 onwards I more lean to A.
-  <Li>**Against:** This paper offers to fix an inconsistency to a grammar that we don't know make sense and the code it allows to write is unlikely to pass many code reviews.  
-  <Li>**Against:** This needs an implementation and testing.
-</ul>
-
-P2246r1 Character encoding of diagnostic text {#P2246r1}
--------
-
-* [[P2246r1]]
-* <a href="https://github.com/cplusplus/papers/issues/942">GitHub issue</a>
-* **Highlight:** the standard provides a few mechanisms that suggest an implementation issues a diagnostic based on text written in the source code. However, the standard does not uniformly address what should happen if the execution character set of the compiler cannot represent the text in the source character set. Because the display of diagnostic messages should be merely a matter of Quality of Implementation, the proposal is to place no character set related requirements on the diagnostic output with the understanding that implementations will do what makes the most sense for their situation when issuing diagnostics in terms of which characters need to be escaped or otherwise handled in a special way. 
-* **🗳  Poll:** Forward P2246r1 "Character encoding of diagnostic text" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>12</td><td>19</td><td>1</td><td>0</td><td>0</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-  <Li>**Strongly Favor:** This keeps C++ and C in step, with WG14's N2563 paper having been adopted.
-  <Li>**Strongly Favor:** One of a number of overdue encoding clarifications/fixes.
-</ul>
-
-P2314r2 Character sets and encodings {#P2314r2}
--------
-
-* [[P2314r2]]
-* <a href="https://github.com/cplusplus/papers/issues/998">GitHub issue</a>
-* **Highlight:** switch C++ to a modified "model C" approach for universal-character-names as described in the <a href="http://www.open-std.org/jtc1/sc22/wg14/www/C99RationaleV5.10.pdf">C99 Rationale v5.10</a>, section 5.2.1. Introduce the term "literal encoding". For purposes of the C++ specification, the actual set of characters is not relevant, but the sequence of code units (i.e. the encoding) specified by a given character or string literal are.
-* **🗳  Poll:** Forward P2314r2 "Character sets and encodings" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>14</td><td>12</td><td>2</td><td>0</td><td>0</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-  <Li>**Strongly Favor:** Important clean up and clarification that brings the language specification much closer to the way that it's actually implemented.
-  <Li>**Strongly Favor:** Having the term "Literal encoding" makes life much easier when discussing text. 
-  <Li>**Strongly Favor:** This improves the quality of the standard with a clearly specified terminology that happens to match the behaviour of existing implementations. The most noble objective of the committee is hereby met.
-  <Li>**Strongly Favor:** This paper is crucial to the work SG16 is currently doing to improve Unicode during lexing and fixes some misconception about how lexing works
-  <Li>**Neutral:** I'm SF for a paper that resolves 5 core issues for good and really just codifies what is already done by implementations.  However, evaluating that it is indeed the case goes beyond my comprehension.   The claim about the implementation reads like just being derived from one code sample and behavior of #.   Rather than a direct query of implementors on the mechanic itself.   The March 10 SG16 poll suggest that even the experts are unsure and their later turning to favor may come from the wrong motivation.  I'd sugges caution on this and hope the votes that will count will come only from people who are confident in both the design and the wording.
-</ul>
-
-P2316r1 Consistent character literal encoding {#P2316r1}
--------
-
-* [[P2316r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1000">GitHub issue</a>
-* **Highlight:** character literals in preprocessor conditional are changed to behave the same way as they do in C++ expressions. For example, `'A' == '\x41'` is not currently guaranteed to behave the same in a preprocessor condition as it is in a C++ expression.
-* **🗳  Poll:** Forward P2316r1 "Consistent character literal encoding" to Core for C++23. Treat it as a Defect Report.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>16</td><td>15</td><td>0</td><td>1</td><td>0</td></tr>
-</table>
-<br><strong>Poll outcome:</strong> ✅ consensus.
-
-<strong>Salient comments:</strong>
-  <Li>**Strongly Favor:** One of the many encoding related fixes that are long overdue.
-  <Li>**Strongly Favor:** Improving encoding issues is very important. The old behaviour was inconsistent at best, so I think it is reasonable to treat this as a DR
-  <Li>**Strongly Favor:** The fewer defects with character encoding the b̵̳̋e̷͉͗t̴̟̊ẗ̸͚́e̷̖̓r̶͈̃
-  <Li>**Favor:** Consistency is always a laudable goal in a specification. Here it's even in the title of the proposal. And its content matches existing implementations. The only "drawback" is it might render existing, already broken code officially as such.
-  <Li>**Favor:** This paper proposes to standardize the behavior of existing implementations.
-  <Li>**Against:** I could write an example very similar to the motivating example with integer literals, so this issue does not look at all discrepancies. By solving one and ignoring the others, it increases the risk that someones does a mistake. Small detail: The paper says: "Because this paper proposes to standardize the behavior of all existing implementations" but only 4 implementations are mentioned...
-</ul>
-
-
-<!-- For next polling period:
-
-P2280r2 Using unknown references in constant expressions {#P2280r2}
--------
-
-* [[P2280r2]]
+* [[P2280r3]]
 * <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
 * **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
-* **🗳  Poll:** Forward P2280r2 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
+* **🗳  Poll:** Forward P2280r3 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
 
--->
+P2468r1 The Equality Operator You Are Looking For {#P2468r1}
+-------
+
+* [[P2468r1]]
+* <a href="https://github.com/cplusplus/papers/issues/1127">GitHub issue</a>
+* **Highlight:** Make rewriting equality in expressions less of a breaking change.
+* **🗳  Poll:** Forward P2468r1 "The Equality Operator You Are Looking For" to Core for C++23. Treat it as a Defect Report against C++20.
+
+P2327r1 De-deprecating `volatile` compound operations {#P2327r1}
+-------
+
+* [[P2327r1]]
+* <a href="https://github.com/cplusplus/papers/issues/1023">GitHub issue</a>
+* **Highlight:** C++20 deprecated many uses for `volatile`. This paper un-deprecates the bitwise compound operators (`|=`, `&=`,and `^=`) on `volatile` left operands.
+* **🗳  Poll:** Forward P2327r1 "De-deprecating `volatile` compound operations" to Core for C++23.
+
+P2266r2 Simpler implicit move {#P2266r2}
+-------
+
+* [[P2266r2]]
+* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
+* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
+* **Note:** r1 of this paper went through electronic polling, received mixed feedback based on new information, see [[P1018r13]] for the poll comments. It was updated to r2, re-discussed in the <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-10-07">2021-10-07 teleconference</a> to address the new information, and is now being re-polled.
+* **🗳  Poll:** Forward P2266r2 "Simpler implicit move" to Core for C++23.
+
+
+P1467r8 Extended floating-point types and standard names {#P1467r8}
+-------
+
+* [[P1467r8]]
+* <a href="https://github.com/cplusplus/papers/issues/227">GitHub issue</a>
+* **Highlight:** In addition to the three standard floating-point types, `float`, `double`, and `long double`, implementations may define any number of *extended floating-point types*, similar to how implementations may define extended integer types. An extended floating-point type may have the same representation and the same set of values as a standard floating-point type. But the extended floating-point type is still a separate type, and is not just an alias for the standard type. The proposal covers conversion rank, promotion, implicit conversion, usual arithmetic conversion, narrowing conversion, overload resolution, literal suffixes. It also contains library changes.
+* **🗳  Poll:** Forward the language changes in P1467r8 "Extended floating-point types and standard names" to Core for C++23, assuming that Library Evolution will separately forward the library changes to Library for C++23.
+
+P2350r2 `constexpr class` {#P2350r2}
+-------
+
+* [[P2350r2]]
+* <a href="https://github.com/cplusplus/papers/issues/1028">GitHub issue</a>
+* **Highlight:** Allow `constexpr` in the `class`-head, declaring that all member functions, including special member functions, in this `class` are implicitly `constexpr`.
+* **🗳  Poll:** Forward P2350r2 "`constexpr class`" to Core for C++23.
+
+P1169r3 `static operator()` {#P1169r3}
+-------
+
+* [[P1169r3]]
+* <a href="https://github.com/cplusplus/papers/issues/1022">GitHub issue</a>
+* **Highlight:** Allow declaring `operator()` as `static`, as well as making lambdas `static`.
+* **🗳  Poll:** Forward P1169r3 "`static operator()`" to Core for C++23.
+
+P1774r5 Portable assumptions {#P1774r5}
+-------
+
+* [[P1774r5]]
+* <a href="https://github.com/cplusplus/papers/issues/529">GitHub issue</a>
+* **Highlight:** Add the <code>[[assume(<em>assignment-expression</em>)]]</code> attributes. The use of assumptions is intended to allow implementations to analyze the form of the expression and deduce information used to optimize the program.
+* **🗳  Poll:** Forward P1774r5 "Portable assumptions" to Core for C++23.
+
+P2448r0 Relaxing some `constexpr` restrictions {#P2448r0}
+-------
+
+* [[P2448r0]]
+* <a href="https://github.com/cplusplus/papers/issues/1119">GitHub issue</a>
+* **Highlight:** Remove are two rules about `constexpr` that make code ill-formed or ill-formed (no diagnostic required) when functions or function templates are marked `constexpr` that might never evaluate to a constant expression.
+* **🗳  Poll:** Forward P2448r0 "Relaxing some `constexpr` restrictions" to Core for C++23.
+
+P2437r0 Support for `#warning` {#P2437r0}
+-------
+
+* [[P2437r0]]
+* <a href="https://github.com/cplusplus/papers/issues/1103">GitHub issue</a>
+* **Highlight:** C23 is adding support for `#warning` as a complement to `#error`. Add it to C++23 as well.
+* **🗳  Poll:** Forward P2437r0 "Support for `#warning`" to Core for C++23.
+
+P2324r1 Labels at the end of compound statements (C compatibility) {#P2324r1}
+-------
+
+* [[P2324r1]]
+* <a href="https://github.com/cplusplus/papers/issues/1006">GitHub issue</a>
+* **Highlight:** Labels are allowed at the end of compound statements in C, but not C++. For example `int main() { invalid_cpp: }`. This paper rectifies this minor divergence.
+* **🗳  Poll:** Forward P2324r1 "Labels at the end of compound statements (C compatibility)" to Core for C++23.
+
+P2071r1 Named universal character escapes {#P2071r1}
+-------
+
+* [[P2071r1]]
+* <a href="https://github.com/cplusplus/papers/issues/798">GitHub issue</a>
+* **Highlight:** C++ programmers have been able to portably use characters outside of the basic source character set in character and string literals since the introduction of *universal-character-names* in C++11. For example the following UTF-8 string literal: `u8"\u0100\u0300"`. This proposal enables the above literal to be written using Unicode assigned names instead of Unicode code point values. The following is equivalent to the preceding C++11 example `u8"\N{LATIN CAPITAL LETTER A WITH MACRON}\N{COMBINING GRAVE ACCENT}"`.
+* **🗳  Poll:** Forward P2071r1 "Named universal character escapes" to Core for C++23.
+
+P2295r5 Support for UTF-8 as a portable source file encoding {#P2295r5}
+-------
+
+* [[P2295r5]]
+* <a href="https://github.com/cplusplus/papers/issues/985">GitHub issue</a>
+* **Highlight:** The set of source file character sets is currently implementation-defined. This paper mandates that C++ compilers must accept UTF-8 as an input format. How the source file encoding is detected, which other input formats are accepted, and what the storage media is (e.g. files), remain implementation-defined.
+* **🗳  Poll:** Forward P2295r5 "Support for UTF-8 as a portable source file encoding" to Core for C++23.
+
+P2290r2 Delimited escape sequences {#P2290r2}
+-------
+
+* [[P2290r2]]
+* <a href="https://github.com/cplusplus/papers/issues/983">GitHub issue</a>
+* **Highlight:** Add an additional, clearly delimited syntax for octal, hexadecimal and universal character name escape sequences. The new syntaxes `\u{}`, `\o{}`, `\x{}` are usable in places where `\u`, `\x`, `\nnn` currently are.
+* **🗳  Poll:** Forward P2290r2 "Delimited escape sequences" to Core for C++23.
+
+P2362r3 Remove non-encodable wide character literals and multicharacter wide character literals {#P2362r3}
+-------
+
+* [[P2362r3]]
+* <a href="https://github.com/cplusplus/papers/issues/1036">GitHub issue</a>
+* **Highlight:** C++ currently permits writing a wide character literal with multiple characters or characters that cannot fit into a single `wchat_t` codeunit. This paper makes these literals ill-formed.
+* **🗳  Poll:** Forward P2362r3 "Remove non-encodable wide character literals and multicharacter wide character literals" to Core for C++23.
+
+P2348r2 Whitespaces Wording Revamp {#P2348r2}
+-------
+
+* [[P2348r2]]
+* <a href="https://github.com/cplusplus/papers/issues/1027">GitHub issue</a>
+* **Highlight:** Clarify what constitutes a new-line and a whitespace, using Unicode terminology.
+* **🗳  Poll:** Forward P2348r2 "Whitespaces Wording Revamp" to Core for C++23.
 
 
 <!--
@@ -388,8 +226,6 @@ P2280r2 Using unknown references in constant expressions {#P2280r2}
 </ul>
 
 -->
-
-
 
 
 Polling Process {#process}
@@ -471,6 +307,18 @@ Here are the minutes for the virtual discussions that were held since the Prague
 <li>2021-08-12 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-08-12">P2355 Postfix fold expressions</a>
 <li>2021-08-26 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-08-26">P2295 Support for UTF-8 as a portable source file encoding and P2362 Remove non-encodable wide character literals and multicharacter wide character literals</a>
 <li>2021-09-01 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-09-01">P2414R1 Pointer lifetime-end zap proposed solutions</a>
+<li>2021-09-15 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-09-15">P2327 De-deprecating volatile compound assignment</a>
+<li>2021-09-23 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-09-23">P2277 Packs outside of Templates</a>
+<li>2021-09-29 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-09-29">P2012 Fix the range-based for loop</a>
+<li>2021-10-07 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-10-07">P2280 Using unknown pointers and references in constant expressions && P2266 Simpler implicit move</a>
+<li>2021-10-13 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-10-13">P2448 Relaxing some <code>constexpr</code> restrictions && P2350 <code>constexpr</code> class</a>
+<li>2021-10-21 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-10-21">P1467 extended floating-point</a>
+<li>2021-10-27 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-10-27">P2437 support for <code>#warning</code></a>
+<li>2021-11-04 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-11-04">P1494 Partial program correctness</a>
+<li>2021-11-10 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-11-10">P2348 Whitespaces Wording Revamp && P2071 Named universal character escapes</a>
+<li>2021-12-02 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-12-02">P2324 Labels at the end of compound statements && P114R5 Portable assumptions</a>
+<li>2021-12-08 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-12-08">P1705 Enumerating Core Undefined Behavior (short paper, unlikely that there's content for EWG, let SG12 send to CWG) && P2468R0 The Equality Operator You Are Looking For</a>
+<li>2021-12-16 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-12-16">P1467R7 Extended floating-point types and standard names</a>
 </ol>
 
 
@@ -679,10 +527,10 @@ The following table lists all remaining open issues referred to EWG by Core or L
         <p><b>Meeting:</b></p>
         <p>Hubert <a href="https://lists.isocpp.org/ext/2020/05/13799.php"><span>forked the thread on the reflector</span></a>. Might want the education SG to take a look, or might want a paper.</p>
         <p><b>Meeting 2020-10-28</b>: Inbal will try to put together the wording, to prove / disprove whether this is a defect.</p>
-        <p><a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-09-23">Notes 2021-09-23</a>: POLL: mark CWG2261 as Not A Defect, the example is now clearly ill-formed thanks to p1787, if we want to change this then we’d need a paper.
+        <p><a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-09-23">Notes 2021-09-23</a>: POLL: in a new world with modules, inline isn’t merely an ODR tool. We therefore believe that CWG2270 is Not a Defect.
         <pre>
         | SF | F  | N  |  A | SA |
-        | 3  | 8  | 3  |  0 |  0 |
+        | 0  | 10 | 2  |  0 |  0 |
         </pre>
       </td>
       <td valign="top">
@@ -1333,4 +1181,4 @@ The following table lists all remaining open issues referred to EWG by Core or L
 Near-future EWG plans {#future}
 =====================
 
-We will continue to work on issue resolution and C++23, prioritizing according to [[P0592R4]].
+We will continue to work on issue resolution, handle any C++23 fixes, start working on C++26, prioritizing according to [[P0592R4]].
