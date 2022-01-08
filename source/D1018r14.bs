@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/09–2022/01
 Shortname: P1018
 Revision: 14
-!Draft Revision: 1
+!Draft Revision: 2
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P1018r14
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r14.bs">github.com/jfbastien/papers/blob/master/source/P1018r14.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2022-01-02
+Date: 2022-01-08
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -28,7 +28,7 @@ We have not met in-person since the February 2020 meeting in Prague because of t
 Our main achievements have been:
 
 * **Issue processing**: most of the 50 language evolution issues have proposed resolutions, and a large number of them have been voted on through electronic polling.
-* **C++23**: we've worked on papers for C++23 and later. As of January 2023, EWG is not considering new papers for C++23.
+* **C++23**: we've worked on papers for C++23 and later. As of January 2022, EWG is not considering new papers for C++23.
 * **Incubation**: we've acted as EWG-I and "incubated" some early papers by providing early feedback to authors.
 
 This paper outlines:
@@ -39,8 +39,8 @@ This paper outlines:
 * [[#future]].
 
 
-Paper of note {#note}
-=============
+Papers of note {#note}
+==============
 
 * [[P1000R4]] C++ IS schedule
 * [[P0592R4]] To boldly suggest an overall plan for C++23
@@ -63,15 +63,15 @@ You can follow the lists of papers on GitHub:
 Issue Processing {#issue-pro}
 ================
 
-We've reviewed 50 Language Evolution issues at the Core groups' request, and have tentative resolutions for most. We don't want to poll all of these at the same time, and therefore only poll a subset in each polling period, reserving other issues for later polling periods. We've therefore only poll the "tentatively ready" issues (since they're tied to papers, and polled with said papers, as outlined below), as well as the "resolved" issues since telecon attendees believe that prior work has already addressed the issues.
+We've reviewed 50 Language Evolution issues at the Core groups' request, and have tentative resolutions for most. We don't want to poll all of these at the same time, and therefore only poll a subset in each polling period, reserving other issues for later polling periods. We've therefore only polled the "tentatively ready" issues (since they're tied to papers, and polled with said papers, as outlined below), as well as the "resolved" issues since telecon attendees believe that prior work has already addressed the issues.
 
 [[#issues]] contains a list of issues which aren't being voted on in this polling period.
 
 
-Poll {#polls}
-====
+Polls {#polls}
+=====
 
-The results of the polls which EWG took in the August 2021 polling period are:
+The polls which EWG will take in the January 2022 polling period are:
 
 P2280r3 Using unknown references in constant expressions {#P2280r3}
 -------
@@ -144,7 +144,7 @@ P2448r0 Relaxing some `constexpr` restrictions {#P2448r0}
 
 * [[P2448r0]]
 * <a href="https://github.com/cplusplus/papers/issues/1119">GitHub issue</a>
-* **Highlight:** Remove are two rules about `constexpr` that make code ill-formed or ill-formed (no diagnostic required) when functions or function templates are marked `constexpr` that might never evaluate to a constant expression.
+* **Highlight:** Remove two rules about `constexpr` that make code ill-formed or ill-formed (no diagnostic required) when functions or function templates are marked `constexpr` that might never evaluate to a constant expression.
 * **🗳  Poll:** Forward P2448r0 "Relaxing some `constexpr` restrictions" to Core for C++23.
 
 P2437r0 Support for `#warning` {#P2437r0}
@@ -192,7 +192,7 @@ P2362r3 Remove non-encodable wide character literals and multicharacter wide cha
 
 * [[P2362r3]]
 * <a href="https://github.com/cplusplus/papers/issues/1036">GitHub issue</a>
-* **Highlight:** C++ currently permits writing a wide character literal with multiple characters or characters that cannot fit into a single `wchat_t` codeunit. This paper makes these literals ill-formed.
+* **Highlight:** C++ currently permits writing a wide character literal with multiple characters or characters that cannot fit into a single `wchar_t` codeunit. This paper makes these literals ill-formed.
 * **🗳  Poll:** Forward P2362r3 "Remove non-encodable wide character literals and multicharacter wide character literals" to Core for C++23.
 
 P2348r2 Whitespaces Wording Revamp {#P2348r2}
