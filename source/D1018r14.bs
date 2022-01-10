@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/09–2022/01
 Shortname: P1018
 Revision: 14
-!Draft Revision: 2
+!Draft Revision: 3
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P1018r14
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r14.bs">github.com/jfbastien/papers/blob/master/source/P1018r14.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2022-01-08
+Date: 2022-01-10
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -136,7 +136,7 @@ P1774r5 Portable assumptions {#P1774r5}
 
 * [[P1774r5]]
 * <a href="https://github.com/cplusplus/papers/issues/529">GitHub issue</a>
-* **Highlight:** Add the <code>[[assume(<em>assignment-expression</em>)]]</code> attributes. The use of assumptions is intended to allow implementations to analyze the form of the expression and deduce information used to optimize the program.
+* **Highlight:** Add the <code>[[assume(<em>expression</em>)]]</code> attribute. The use of assumptions is intended to allow implementations to assume that a given expression is true, and to optimize the program based on that assumption.
 * **🗳  Poll:** Forward P1774r5 "Portable assumptions" to Core for C++23.
 
 P2448r0 Relaxing some `constexpr` restrictions {#P2448r0}
@@ -168,7 +168,7 @@ P2071r1 Named universal character escapes {#P2071r1}
 
 * [[P2071r1]]
 * <a href="https://github.com/cplusplus/papers/issues/798">GitHub issue</a>
-* **Highlight:** C++ programmers have been able to portably use characters outside of the basic source character set in character and string literals since the introduction of *universal-character-names* in C++11. For example the following UTF-8 string literal: `u8"\u0100\u0300"`. This proposal enables the above literal to be written using Unicode assigned names instead of Unicode code point values. The following is equivalent to the preceding C++11 example `u8"\N{LATIN CAPITAL LETTER A WITH MACRON}\N{COMBINING GRAVE ACCENT}"`.
+* **Highlight:** C++ programmers have been able to portably use characters outside of the basic source character set in character and string literals using *universal-character-names* since C++ was standardized. For example the following UTF-8 string literal: `u8"\u0100\u0300"`. This proposal enables the above literal to be written using Unicode assigned names instead of Unicode code point values. The following is equivalent to the preceding C++ example `u8"\N{LATIN CAPITAL LETTER A WITH MACRON}\N{COMBINING GRAVE ACCENT}"`.
 * **🗳  Poll:** Forward P2071r1 "Named universal character escapes" to Core for C++23.
 
 P2295r5 Support for UTF-8 as a portable source file encoding {#P2295r5}
