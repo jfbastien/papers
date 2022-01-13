@@ -2,14 +2,14 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2021/09–2022/01
 Shortname: P1018
 Revision: 14
-!Draft Revision: 3
+!Draft Revision: 4
 Audience: WG21, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P1018r14
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r14.bs">github.com/jfbastien/papers/blob/master/source/P1018r14.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2022-01-10
+Date: 2022-01-13
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: false
@@ -95,7 +95,7 @@ P2327r1 De-deprecating `volatile` compound operations {#P2327r1}
 * [[P2327r1]]
 * <a href="https://github.com/cplusplus/papers/issues/1023">GitHub issue</a>
 * **Highlight:** C++20 deprecated many uses for `volatile`. This paper un-deprecates the bitwise compound operators (`|=`, `&=`,and `^=`) on `volatile` left operands.
-* **🗳  Poll:** Forward P2327r1 "De-deprecating `volatile` compound operations" to Core for C++23.
+* **🗳  Poll:** Forward P2327r1 "De-deprecating `volatile` compound operations" to Core for C++23. Treat it as a Defect Report against C++20.
 
 P2266r2 Simpler implicit move {#P2266r2}
 -------
@@ -139,13 +139,21 @@ P1774r5 Portable assumptions {#P1774r5}
 * **Highlight:** Add the <code>[[assume(<em>expression</em>)]]</code> attribute. The use of assumptions is intended to allow implementations to assume that a given expression is true, and to optimize the program based on that assumption.
 * **🗳  Poll:** Forward P1774r5 "Portable assumptions" to Core for C++23.
 
+P1494r2 Partial program correctness {#P1494r2}
+-------
+
+* [[P1494r2]]
+* <a href="https://github.com/cplusplus/papers/issues/376">GitHub issue</a>
+* **Highlight:** Adds `std::observable()` (<em>name pending LEWG review</em>) which establishes an observable checkpoint, inhibiting "time travel" of Undefined Behavior past the checkpoint.
+* **🗳  Poll:** Forward P1494r2 "Partial program correctness" to Core for C++23, pending LEWG approval.
+
 P2448r0 Relaxing some `constexpr` restrictions {#P2448r0}
 -------
 
 * [[P2448r0]]
 * <a href="https://github.com/cplusplus/papers/issues/1119">GitHub issue</a>
 * **Highlight:** Remove two rules about `constexpr` that make code ill-formed or ill-formed (no diagnostic required) when functions or function templates are marked `constexpr` that might never evaluate to a constant expression.
-* **🗳  Poll:** Forward P2448r0 "Relaxing some `constexpr` restrictions" to Core for C++23.
+* **🗳  Poll:** Forward P2448r0 "Relaxing some `constexpr` restrictions" to Core for C++23. Treat it as a Defect Report.
 
 P2437r0 Support for `#warning` {#P2437r0}
 -------
