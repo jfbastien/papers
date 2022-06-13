@@ -28,13 +28,13 @@ We have not met in-person since the February 2020 meeting in Prague because of t
 Our main achievements have been:
 
 * **Issue processing**: most of the 50 language evolution issues have proposed resolutions, and a large number of them have been voted on through electronic polling.
-* **C++23**: we've worked on papers for C++23 and later. As of January 2022, EWG is not considering new papers for C++23.
+* **C++23**: we've worked on papers for C++23 and later. As of January 2022, EWG is not considering new papers for C++23. As of June 2022, EWG has resolved all feedback it intends to have received from CWG.
 * **Incubation**: we've acted as EWG-I and "incubated" some early papers by providing early feedback to authors.
 
 This paper outlines:
 
 * The work achieved in [[#telecons]]; 
-* Lists the [[#polls]] results for the Early 2022 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period, [[P1018r11]] for the results of the May 2021 polling period, and [[P1018r13]] for the results of the August polling period);
+* Lists the [[#polls]] June 2022 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period, [[P1018r11]] for the results of the May 2021 polling period, [[P1018r13]] for the results of the August polling period, and [[P1018r15]] for the results of the Early 2022 polling period);
 * Lists the remaining outstanding issues in [[#issues]], some are still open while others are waiting for polling;
 * [[#future]].
 
@@ -71,422 +71,8 @@ We've reviewed 50 Language Evolution issues at the Core groups' request, and hav
 Polls {#polls}
 =====
 
-The polls which EWG took in the January 2022 polling period, and the poll results, are:
+Here are the polls for the June 2022 EWG polling period:
 
-P2280r3 Using unknown references in constant expressions {#P2280r3}
--------
-
-* [[P2280r3]]
-* <a href="https://github.com/cplusplus/papers/issues/973">GitHub issue</a>
-* **Highlight:** `constexpr` usage of unknown references doesn't work, that's surprising, make it work as expected.
-* **🗳  Poll:** Forward P2280r3 "Using unknown references in constant expressions" to Core for C++23. Treat it as a Defect Report.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>20</td><td>12</td><td>2</td><td>0</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 11</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** While this paper de-fact introduce the special-case for the constexpr function, I think that it leads to more intuitive and teachable behaviour of constexpr functions.
-  <li>**Strong Favor:** This covers cases where the compiler knows what I am asking, but refuses to answer because it's not allowed to. This allows the compiler to tell me what it knows well.
-  <li>**Strong Favor:** It is pretty hard to explain to a non-language-lawyer why asking for the size of a by-reference `std::array` parameter is non-constant but doing so for a by-value `std::array` parameter is constant; and references `+` this seems like a good place to draw the line. Ship it.
-  <li>**Strong Favor:** I believe this is useful and relatively easily implementable.
-  <li>**Favor:** Constant evaluation is unequivocally weird: it can use non-static local variables initialized with constant expressions when no call to the function ever takes place, and it notionally occurs at runtime even though its failure can make the program ill-formed.  This paper is in line with these properties, freely inventing objects with overlapping storage of types that can never be constructed and changing lvalues with known referents to refer to such phantoms instead.  That said, the change somehow makes the language less surprising, as the frequency of confusion over the non-`static` `std::array::size` illustrates.  As a matter of convenience, then, if not of coherence, it is an improvement.
-</ul>
-
-P2468r1 The Equality Operator You Are Looking For {#P2468r1}
--------
-
-* [[P2468r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1127">GitHub issue</a>
-* **Highlight:** Make rewriting equality in expressions less of a breaking change.
-* **🗳  Poll:** Forward P2468r1 "The Equality Operator You Are Looking For" to Core for C++23. Treat it as a Defect Report against C++20.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>19</td><td>14</td><td>1</td><td>0</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 11</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Favor:** It is amazing that the new comparison rules continue to cause so much trouble after so much time.  The examples given show that these revised rewrite rules are at the very least a significant improvement and should reduce the pain of updating existing code to newer language standards.
-  <li>**Favor:** This is a necessary update to C++20. Migration to C++20 did sometimes cost a lot of time due to the various issues mentioned in the paper.
-  <li>**Strong Favor:** Given that implementations are doing something along those lines to avoid breaking existing code already - ship it.
-</ul>
-
-P2327r1 De-deprecating `volatile` compound operations {#P2327r1}
--------
-
-* [[P2327r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1023">GitHub issue</a>
-* **Highlight:** C++20 deprecated many uses for `volatile`. This paper un-deprecates the bitwise compound operators (`|=`, `&=`,and `^=`) on `volatile` left operands.
-* **🗳  Poll:** Forward P2327r1 "De-deprecating `volatile` compound operations" to Core for C++23. Treat it as a Defect Report against C++20.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>13</td><td>19</td><td>1</td><td>0</td><td>2</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 10</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** The proposal retains compatibility with large swaths of often vendor-supplied hardware support libraries targeted at C. This makes C++ more viable in the embedded world. Programming patterns that embedded systems engineers are familiar with keep on working.
-  <li>**Strong Favor:** We want to increase the usage of C++ for embedded code; *not* doing this would alienate some users, and add more support for a "C++ is bad for embedded" position
-  <li>**Favor:** I can understand the problems caused by the C++20 change in that respect; the paper, however, does not fully address (it seems to me) the problems that led to the deprecation in the first place (the paper _does_ explain how these operations can be well used under specific circumstances and by specific parties, of course, but use of these operations is not limited to such parties and circumstances). I'm split, but will err on the side of trusting users...
-  <li>**Favor:** It is a misfeature of the language that volatility pertains equally to reads and writes despite the fact that memory-mapped devices are often simplex.  It is the correct balance to allow programmers to idiomatically use objects associated with such devices even though, even on hardware that supports an appropriately atomic modification, the language does not provide a mechanism for the compound assignment operators to support full-duplex communication.
-  <li>**Strong Against:** To me, the semantic of the compound assignment is not well defined in the standard. It says: `E1 op= E2` is equivalent to `E1 = E1 op E2` except that `E1` is evaluated only once. This is not enough to define volatile semantics. We need to know how many read access and how many write access occur, in what order. The standard was unclear before, so be it. It was cleaned, that was good. Reintroducing inaccurately defined construct is not the right way to go. I would be in favor if the semantics were defined. The paper claims that deprecation(and eventually removal) will force developers to change the way they write embedded code. This is not true. Embedded compilers would probably support this construct as an extension, which is the right thing to do for something that has no clearly specified semantic (and I hope they will define the semantic they selected in their documentation).
-  <li>**Strong Against:** It is evident from discussion in and outside the committee that, while people are hurt by that depreciation, the semantics of compound assignments are too often assumed to be atomic or are otherwise unclear. The motivation for deprecating them hasn't disappear. It is important that the C committee and the industry follows suite with that - and it might take time. However, undeprecating them sends the wrong message, and still leaves users with the bugs the original paper was trying to correct.
-</ul>
-
-P2266r2 Simpler implicit move {#P2266r2}
--------
-
-* [[P2266r2]]
-* <a href="https://github.com/cplusplus/papers/issues/968">GitHub issue</a>
-* **Highlight:** In C++20, `return` statements can *implicitly move* from local variables of *rvalue* reference type; but a defect in the wording means that *implicit move* fails to apply to functions that return references. C++20’s implicit move is specified via a complicated process involving two overload resolutions, which is hard to implement, causing implementation divergence. We fix the defect and simplify the spec by saying that a returned move-eligible *id-expression* is always an *xvalue*.
-* **Note:** r1 of this paper went through electronic polling, received mixed feedback based on new information, see [[P1018r13]] for the poll comments. It was updated to r2, re-discussed in the <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-10-07">2021-10-07 teleconference</a> to address the new information, and is now being re-polled.
-* **🗳  Poll:** Forward P2266r2 "Simpler implicit move" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>15</td><td>13</td><td>1</td><td>2</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 14</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Favor:** Reading through the rationale presented in the paper, I find that these rules are consistent with thinking of r-value references as "owning" in the sense that they represent a promise that modifications to the referenced object will not be observed except by components to which ownership is subsequently transferred.  These rules changes preserve that intuitive property without requiring extra syntax.
-  <li>**Favor:** It's unfortunate to break any existing code doing something as simple as returning a local variable, but even within that set many cases are plainly bugs or were already broken by C++20.  Given that the language has a means of identifying Xpiring values in the type system, it seems only appropriate to use it in such a particularly straightforward context.
-  <li>**Favor:** The current "implicit move" semantics for a return statement are unlike any other overload resolution mechanism in the language. So this seems like a good direction.  I would have preferred also treating this as a defect report.
-  <li>**Favor:** "It is a simpler rule, but probably will have more downstream consequences than the ones presented here. It's hard to know what those are. I think we should really invest, as an organization, in the ability to test changes like this.  If we had an implementation of `==`, and the ability to test this on many large code bases with test suites, we probably would've never had the problem that P2468 now has to solve. Here, we do have an implementation of this paper, and we have some feedback of its impact. But to what extent is this a thorough-enough testing? It'd be nice if we could actually provide a good answer to that question in a way that could give us the confidence to say "Yes, this breaks some code, in these situations, and that is okay." Today, the best I can do is vote FOR and hope that no further, larger issues will pop up."
-  <li>**Against:** Weakly against P2266 (vs strongly before).  There hasn't been any glut of new errors, and the problems seem to have "settled" from the Clang implementation.  That said, the throw-example still gives me heartburn, otherwise I have no implementation concerns.
-  <li>**Against:** This broke code in STL headers written by C++ experts; that gives me no confidence it won't also break user code in the wild, which may be written by less-expert folks. Thankfully, the breakages we saw at Intel finally stopped, which is why this is an Against instead of a Strongly Against (but I'm borderline strong on this).
-</ul>
-
-P1467r8 Extended floating-point types and standard names {#P1467r8}
--------
-
-* [[P1467r8]]
-* <a href="https://github.com/cplusplus/papers/issues/227">GitHub issue</a>
-* **Highlight:** In addition to the three standard floating-point types, `float`, `double`, and `long double`, implementations may define any number of *extended floating-point types*, similar to how implementations may define extended integer types. An extended floating-point type may have the same representation and the same set of values as a standard floating-point type. But the extended floating-point type is still a separate type, and is not just an alias for the standard type. The proposal covers conversion rank, promotion, implicit conversion, usual arithmetic conversion, narrowing conversion, overload resolution, literal suffixes. It also contains library changes.
-* **🗳  Poll:** Forward the language changes in P1467r8 "Extended floating-point types and standard names" to Core for C++23, assuming that Library Evolution will separately forward the library changes to Library for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>11</td><td>15</td><td>2</td><td>1</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 16</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Favor:** While the feature as proposed still has some rough edges (e.g., imperfect C compatibility and complicated overload resolution behavior), the numerous reviews have plainly identified the least problematic means of integrating several new fundamental types into the language.  Those types are of increasing practical importance and have the hardware support appropriate for a language feature.
-  <li>**Favor:** This will allow C++ applications to take advantage of existing and yet-to-come floating-point hardware in a standard way.
-  <li>**Against:** The lack of implementation experience of the proposed overload resolution rules is concerning.
-</ul>
-
-P2350r2 `constexpr class` {#P2350r2}
--------
-
-* [[P2350r2]]
-* <a href="https://github.com/cplusplus/papers/issues/1028">GitHub issue</a>
-* **Highlight:** Allow `constexpr` in the `class`-head, declaring that all member functions, including special member functions, in this `class` are implicitly `constexpr`.
-* **🗳  Poll:** Forward P2350r2 "`constexpr class`" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>12</td><td>12</td><td>9</td><td>5</td><td>2</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 5</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>❌ no consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** The standard library is moving towards "constexpr all the things" as much as it makes sense. We're at the point where slapping a "constexpr" at every declaration in a class becomes a nuisance and mental burden. This should be avoided by moving the constexpr-ness of all direct class members up at the class level. Stuff that's not constexpr will then stand out as something to possibly reconsider in the design.
-  <li>**Strong Favor:** The code using this is way friendlier to read and maintain. The infrastructure was already introduced, so it is easy to teach and grok. If P2448 is accepted at the same time I see no downside.
-  <li>**Favor:** Useful to avoid a lot of boilerplate in modern code bases.
-  <li>**Against:** The value is IMO minimal, and I is going in the wrong direction of where constexpr is headed.  Moving the annotation to the class makes the formerly "obvious" annotation less obvious.
-  <li>**Against:** Allowing `struct X constexpr ...` but not `struct X consteval ...` is suspect.
-  <li>**Against:** P2448 removes some of the important caveats to using this feature, but it remains a clever workaround for one of the defaults being wrong rather than a meaningful feature.  The constexpr status of static data members seems orthogonal at best, such that this convenience encourages silly things like adding a base class to hold any non-constexpr ones.
-  <li>**Strong Against:** This goes into the wrong direction. Faced with the fantastic problem of everything being constexpr, WG21 should rather consider whether the keyword is useful at all. As pointed out by P2448, the constexpr keyword already offer no guarantee, and if it doesn't then maybe everything that can be called in a constant expression should be, and as such maybe an implenentation should always try to evaluate member function calls at constexpr. The feature proposed by P2350 is a short term solution that only works in very narrow cases, and adding a non constexpr function forces to modify the whole class.
-  <li>**Strong Against:** Applying constexpr on static member functions turns this feature into a different one. Now users will start open classes with all static member functions to write constexpr libraries because there is no other way in the language to mark a series of free functions with constexpr.
-</ul>
-
-P1169r3 `static operator()` {#P1169r3}
--------
-
-* [[P1169r3]]
-* <a href="https://github.com/cplusplus/papers/issues/1022">GitHub issue</a>
-* **Highlight:** Allow declaring `operator()` as `static`, as well as making lambdas `static`.
-* **🗳  Poll:** Forward P1169r3 "`static operator()`" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>16</td><td>16</td><td>3</td><td>1</td><td>1</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 8</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** It is a little weird to exploit the ability to call static member functions via member-access syntax to allow a performance improvement, but the feature is valuable and the semantics are the only ones possible.  Yet another default is now wrong (for captureless lambdas), although those are so often inlined that the practical impact may be small.
-  <li>**Strong Favor:** I have thought that this was possible many times only to find out (again) that it is not. Finally it will be.
-  <li>**Favor:** Sheds needless overhead.
-  <li>**Favor:** Seems generally useful. The restriction against static here seems arbitrary. 
-  <li>**Against:** It's a patch
-  <li>**Strong Against:** This adds a lot of subtlety for very little gain in practice.
-</ul>
-
-P1774r5 Portable assumptions {#P1774r5}
--------
-
-* [[P1774r5]]
-* <a href="https://github.com/cplusplus/papers/issues/529">GitHub issue</a>
-* **Highlight:** Add the <code>[[assume(<em>expression</em>)]]</code> attribute. The use of assumptions is intended to allow implementations to assume that a given expression is true, and to optimize the program based on that assumption.
-* **🗳  Poll:** Forward P1774r5 "Portable assumptions" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>14</td><td>17</td><td>3</td><td>4</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 7</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** There are use cases where assumptions can significantly improve performance and decrease code size, and they have been existing practice on all major compilers for many years, but in a non-standardised, non-unified, non-portable, not-very-well-defined way. This paper fixes it. I am strongly in favour of including this in C++23.
-  <li>**Strong Favor:** Useful tool for code optimization, impressive usage examples for the standard library
-  <li>**Against:** The specification of what this actually DOES is too handwavy for my comfort.  I'm still not sure what the limitations being placed on the implementation are, and the paper's assumption (hah!) of how the current implementations of similar things seem to be misguided.
-  <li>**Against:** This tool is too sharp and too seductive. I expect it to introduce many new UB in user code, any many cases without measurable benefits.
-  <li>**Against:** high potential for overuse leading to serious errors
-</ul>
-
-P1494r2 Partial program correctness {#P1494r2}
--------
-
-* [[P1494r2]]
-* <a href="https://github.com/cplusplus/papers/issues/376">GitHub issue</a>
-* **Highlight:** Adds `std::observable()` (<em>name pending LEWG review</em>) which establishes an observable checkpoint, inhibiting "time travel" of Undefined Behavior past the checkpoint.
-* **🗳  Poll:** Forward P1494r2 "Partial program correctness" to Core for C++23, pending LEWG approval.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>10</td><td>7</td><td>3</td><td>4</td><td>1</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 20</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>❌ no consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** We need this to properly reason about asserts and contracts. Until we get full contracts this will help us to get the correct behaviour in user build solutions
-  <li>**Favor:** This is potentially useful, though I think its usefulness in practical terms is quite limited, as it's hard to imagine why I would reach for this unless I already thought I had UB that I needed to protect against -- in which case I would rather fix the UB.  I could see myself using this feature while actively iterating on code, but I doubt I'd ever commit code with this in it.
-  <li>**Favor:** This proposal seems pretty wild, but I'm curious to see where it goes.
-  <li>**Favor:** This seems like a useful - if expert-only - feature.
-  <li>**Favor:** Useful,  although I'm sure it will get misunderstood and misused.
-  <li>**Neutral:** In the war between programmer implicit assumptions, and what the compiler can observe, I am not confident this helps more than other rewrites that acknowledge UB that the compiler has noted. 
-  <li>**Against:** I waffle back and forth between liking the idea and having no confidence we have any idea how well this will work in practice because there is zero implementation experience.
-  <li>**Against:** This seems to lack real implementation experience.
-  <li>**Strong Against:** This solves a problem.... that users don't know exist, in a way users won't know about. This is a very expert-friendly solution, for a very narrow set of experts. And unlike other esoteric language feature, this paper doesn't provide specific use cases where such an expert could significantly improve a program using this feature. Are we doing anything more than *technically* providing a solution? Where in my code, should i put that? I can only assume every other line of code i write triggers some UB, and so, should i add std::observable calls everywhere? The paper seems to be greatly concerned about I/O, was stating that returning from I/O functions constitute checkpoints considered?
-</ul>
-
-P2448r0 Relaxing some `constexpr` restrictions {#P2448r0}
--------
-
-* [[P2448r0]]
-* <a href="https://github.com/cplusplus/papers/issues/1119">GitHub issue</a>
-* **Highlight:** Remove two rules about `constexpr` that make code ill-formed or ill-formed (no diagnostic required) when functions or function templates are marked `constexpr` that might never evaluate to a constant expression.
-* **🗳  Poll:** Forward P2448r0 "Relaxing some `constexpr` restrictions" to Core for C++23. Treat it as a Defect Report.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>20</td><td>12</td><td>1</td><td>2</td><td>1</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 9</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** Seems to go against the spirit of constexpr rules of just diagnosing things that aren't actually wrong, with the added harm that the rules aren't consistently enforced. 
-  <li>**Favor:** This improves the usability of constexpr and the language as a whole.  Implementation is trivial.
-  <li>**Favor:** This change is consistent with the general principle of diagnosing constexpr violations as they occur, rather than trying to predict whether or not a code path conforms to constexpr requirements.  This is much more useful for programmers, particularly those who need to support multiple language dialects.
-  <li>**Neutral:** I cannot make my mind if helping experts that write code that works seamlessly with several versions of the standard is more or less important than helping beginners that may have just badly written a constexpr function... I would be in favor of beginners (and vote against this) if I trusted diagnostics to work well in many non-toy examples, but since I don't, I'll be neutral.
-  <li>**Against:** This paper removes any amount of value to the constexpr keyword; which is that the compiler will make SOME effort to validate its usability as constexpr.  I don't like at all that this causes us to no longer catch some obvious mistakes in the user's code.
-  <li>**Strong Against:** Footgun. I do not agree with the logic that a function must be used to be checked for legality. Telling the user "this can NEVER be correct" is a powerful feature in the real world, where not every user tests every function immediately upon writing it. Why make them write the test when the compiler can tell them at compile time, which is the whole value-add for constexpr in the first place?
-</ul>
-
-P2437r0 Support for `#warning` {#P2437r0}
--------
-
-* [[P2437r0]]
-* <a href="https://github.com/cplusplus/papers/issues/1103">GitHub issue</a>
-* **Highlight:** C23 is adding support for `#warning` as a complement to `#error`. Add it to C++23 as well.
-* **🗳  Poll:** Forward P2437r0 "Support for `#warning`" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>26</td><td>11</td><td>2</td><td>0</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 6</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Favor:** Simple, straight forward, useful, retains compatibility with C, standardizes existing practice. Ship it.
-</ul>
-
-P2324r1 Labels at the end of compound statements (C compatibility) {#P2324r1}
--------
-
-* [[P2324r1]]
-* <a href="https://github.com/cplusplus/papers/issues/1006">GitHub issue</a>
-* **Highlight:** Labels are allowed at the end of compound statements in C, but not C++. For example `int main() { invalid_cpp: }`. This paper rectifies this minor divergence.
-* **🗳  Poll:** Forward P2324r1 "Labels at the end of compound statements (C compatibility)" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>20</td><td>11</td><td>3</td><td>0</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 11</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Favor:** Improves compatibility with C23, removes an IMHO unnecessary restriction.
-</ul>
-
-P2071r1 Named universal character escapes {#P2071r1}
--------
-
-* [[P2071r1]]
-* <a href="https://github.com/cplusplus/papers/issues/798">GitHub issue</a>
-* **Highlight:** C++ programmers have been able to portably use characters outside of the basic source character set in character and string literals using *universal-character-names* since C++ was standardized. For example the following UTF-8 string literal: `u8"\u0100\u0300"`. This proposal enables the above literal to be written using Unicode assigned names instead of Unicode code point values. The following is equivalent to the preceding C++ example `u8"\N{LATIN CAPITAL LETTER A WITH MACRON}\N{COMBINING GRAVE ACCENT}"`.
-* **🗳  Poll:** Forward P2071r1 "Named universal character escapes" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>12</td><td>14</td><td>3</td><td>3</td><td>1</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 12</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** Avoid specifying magic values in code.
-  <li>**Favor:** One would hope that many `\u` escape sequences are accompanied by comments explaining the character being selected.  It is plainly superior to have the compiler map from the human-readable concept to the numeric one, just as it does for machine code.  The size cost in the implementation appears to be acceptable.
-  <li>**Favor:** Unicode compatibility is extremely important, and this feature makes it easier for users to incorporate Unicode into their applications.  I find the concerns about increased binary size of the compiler to be extremely underwhelming.
-  <li>**Neutral:** While I can see the usefulness, I'm not sure Unicode character escapes is something that will be used often enough to make up for the need of a dictionary in the compiler.  Neutral simply because it is not an overly large dictionary.
-  <li>**Against:** Concern about the compiler space overhead.
-  <li>**Strong Against:** Having to add a few hundred KB to C++ tools (which are often only a few MB) is way too high of a cost for the relatively minor convenience this feature offers.
-</ul>
-
-P2295r5 Support for UTF-8 as a portable source file encoding {#P2295r5}
--------
-
-* [[P2295r5]]
-* <a href="https://github.com/cplusplus/papers/issues/985">GitHub issue</a>
-* **Highlight:** The set of source file character sets is currently implementation-defined. This paper mandates that C++ compilers must accept UTF-8 as an input format. How the source file encoding is detected, which other input formats are accepted, and what the storage media is (e.g. files), remain implementation-defined.
-* **🗳  Poll:** Forward P2295r5 "Support for UTF-8 as a portable source file encoding" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>20</td><td>9</td><td>3</td><td>0</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 13</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** This is the most important change we can make for Unicode support in C++.  It allows for string literals to seamlessly incorporate UTF-8 code sequences without worrying about how those sequences will be interpreted across varying compilers.
-</ul>
-
-P2290r2 Delimited escape sequences {#P2290r2}
--------
-
-* [[P2290r2]]
-* <a href="https://github.com/cplusplus/papers/issues/983">GitHub issue</a>
-* **Highlight:** Add an additional, clearly delimited syntax for octal, hexadecimal and universal character name escape sequences. The new syntaxes `\u{}`, `\o{}`, `\x{}` are usable in places where `\u`, `\x`, `\nnn` currently are.
-* **🗳  Poll:** Forward P2290r2 "Delimited escape sequences" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>9</td><td>15</td><td>3</td><td>1</td><td>1</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 16</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** The current alternative (write every character as a 3-digit octal number) is user-hostile.  This is a welcome addition.
-  <li>**Neutral:** It's not clear that having yet another syntax is preferable to having our current less ergonomic forms, especially given that `\U00012345` is not much longer than `\u{12345}` and `\u1234` isn't greedy and is shorter than almost all `\u{...}` values.  The greedy `\x` is a bit more trouble, but it's very common to have "binary" escapes in long sequences; code generators that might need to generate a mixture of escapes and ordinary characters can of course handle the awkwardness in just one place.
-  <li>**Against:** `\u{...}` saves characters and no longer asks users to learn both `\u` and `\U`, so people will use them. The other two are unlikely to be popular. `{0x2c, 0x10, 0}` is about the same length and more straightforward comparing to `"\x{2c}\x{10}"`. For the beneficial parts, this paper seems unnecessary if we further extend on top of P2071 `\N{U+10034}`.
-  <li>**Strong Against:** Unnecessary
-</ul>
-
-P2362r3 Remove non-encodable wide character literals and multicharacter wide character literals {#P2362r3}
--------
-
-* [[P2362r3]]
-* <a href="https://github.com/cplusplus/papers/issues/1036">GitHub issue</a>
-* **Highlight:** C++ currently permits writing a wide character literal with multiple characters or characters that cannot fit into a single `wchar_t` codeunit. This paper makes these literals ill-formed.
-* **🗳  Poll:** Forward P2362r3 "Remove non-encodable wide character literals and multicharacter wide character literals" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>14</td><td>12</td><td>2</td><td>1</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 16</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-h  <li>**Favor:** Multicharacter literals in general are not usefully standardized, and the wide-character variants have no practical application, not least because they suffer from the inadequate wchar_t on Windows.  That the change is a simplification to one of the ugliest parts of the standard is a bonus.
-  <li>**Favor:** It's hard to imagine that any use of these sequences is not a bug.
-  <li>**Against:** I don't know what this paper **enables,** and the issue still looks like a QoI to me.
-</ul>
-
-P2348r2 Whitespaces Wording Revamp {#P2348r2}
--------
-
-* [[P2348r2]]
-* <a href="https://github.com/cplusplus/papers/issues/1027">GitHub issue</a>
-* **Highlight:** Clarify what constitutes a new-line and a whitespace, using Unicode terminology.
-* **🗳  Poll:** Forward P2348r2 "Whitespaces Wording Revamp" to Core for C++23.
-
-<strong>Poll votes:</strong>
-<table>
-    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>10</td><td>17</td><td>2</td><td>0</td><td>0</td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> 16</td></tr>
-</table>
-<br><strong>Poll outcome:</strong>✅ consensus
-
-<strong>Salient comments:</strong>
-<ul>
-  <li>**Strong Favor:** This sort of modernization is welcome, if only so that we can stop spending time thinking about these issues informally.  Removing silly things like IFNDR for comments is plainly an improvement.  Consistency with other practical languages is more important than following Unicode's suggestions for plain text when there (unfortunately) is disagreement.
-</ul>
 
 
 <!--
@@ -605,6 +191,47 @@ Here are the minutes for the virtual discussions that were held since the Prague
 <li>2021-12-02 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-12-02">P2324 Labels at the end of compound statements && P114R5 Portable assumptions</a>
 <li>2021-12-08 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-12-08">P1705 Enumerating Core Undefined Behavior (short paper, unlikely that there's content for EWG, let SG12 send to CWG) && P2468R0 The Equality Operator You Are Looking For</a>
 <li>2021-12-16 <a href="https://wiki.edg.com/bin/view/Wg21telecons2021/EWG-2021-12-16">P1467R7 Extended floating-point types and standard names</a>
+
+<li>2022-04-14 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-04-14">notes</a>
+<ul>
+<li>P2507 Only `[[assume]]` conditional-expressions (<a href="https://github.com/cplusplus/papers/issues/1162">GitHub</a>) bugfix on <code>assume</code>
+<li>CWG2507 Default arguments for <code>operator[]</code> (<a href="https://github.com/cplusplus/papers/issues/1217">GitHub</a>)
+</ul>
+</li>
+
+<li>2022-04-28 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-04-28">notes</a>
+<ul>
+<li>P1854 Conversion to literal encoding should not lead to loss of meaning (<a href="https://github.com/cplusplus/papers/issues/608">GitHub</a>) might be considered a bugfix <!-- confirmed -->
+<li>P2460 Relax requirements on <code>wchar_t</code> to match existing practices (<a href="https://github.com/cplusplus/papers/issues/1122">GitHub</a>) bugfix <!-- confirmed -->
+<li>P2448 Relaxing some constexpr restrictions (<a href="https://github.com/cplusplus/papers/issues/1119">GitHub</a>) this was voted forward, but there's discussion about whether it should be a DR (<a href="http://lists.isocpp.org/ext/2021/10/18112.php">mailing list discussion</a>)
+</ul>
+</li>
+
+<li>2022-05-12 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-05-12">notes</a>
+<ul>
+<li><a href="https://github.com/cplusplus/papers/issues/1227">CWG2569</a> Use of `decltype(capture)` in a lambda's parameter-declaration-clause / <a href="https://isocpp.org/files/papers/D2579R0.pdf">D2579R0</a> Mitigation strategies for P2036 ”Changing scope for lambda trailing-return-type”
+<li>P2513 <code>char8_t</code> Compatibility and Portability Fix (<a href="https://github.com/cplusplus/papers/issues/1171">GitHub</a>) bugfix <!-- confirmed with Tom, JeanHeyd hasn't responded -->
+<li>P2152 Querying the alignment of an object (<a href="https://github.com/cplusplus/papers/issues/886">GitHub</a>) might be considered a bugfix <!-- confirmed -->
+</ul>
+</li>
+ 
+
+<li>2022-05-26 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-05-26">notes</a>
+<ul>
+<li> P1774 `[[assume]]` feedback for LWG
+<li>P2141 Aggregates are named tuples (<a href="https://github.com/cplusplus/papers/issues/885">GitHub</a>)
+<li>P2477 Allow programmer to control and detect coroutine elision (<a href="https://github.com/cplusplus/papers/issues/1133">GitHub</a>)
+</ul>
+</li>
+ 
+<li>2022-06-09 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-06-09">notes</a>
+<ul>
+<li><a href="https://cplusplus.github.io/CWG/issues/2586.html">CWG2586</a> Explicit object parameter for assignment and comparison</a> (<a href="https://github.com/cplusplus/papers/issues/1235">GitHub</a>)
+<li><a href="https://cplusplus.github.io/CWG/issues/2588.html">CWG2588</a> friend declarations and module linkage</a> (<a href="https://github.com/cplusplus/papers/issues/1253">GitHub</a>)
+<li>P0901 Core Behavior questions friend declarations and module linkage</a> (<a href="https://github.com/cplusplus/papers/issues/18">GitHub</a>)
+</ul>
+</li>
+
 </ol>
 
 
