@@ -100,7 +100,7 @@ P2513 char8_t Compatibility and Portability Fixes {#P2513}
 CWG2569 Use of `decltype(capture)` in a lambda's parameter-declaration-clause {#CWG2569}
 -------
 
-* <a href="https://cplusplus.github.io/CWG/issues/2569.html">CWG2569</a> and <a href=https://wg21.link/D2579R0">D2579R0</a>
+* <a href="https://cplusplus.github.io/CWG/issues/2569.html">CWG2569</a> and <a href="https://wg21.link/D2579R0">D2579R0</a>
 * <a href="https://github.com/cplusplus/papers/issues/1227">GitHub issue</a>
 * **Highlight:** [[P2036R3]] (<a href="https://github.com/cplusplus/papers/issues/766">GitHub</a>) was approved as a Defect Report, but its changes make popular existing standard library implementations ill-formed. Thus, there is concern about too much breakage, in particular with the "DR" aspect of P2036R3.
 * **🗳  Poll:** Accept Option E from D2579R0 as a resolution to CWG2569, which treats all captures as non-`const` for all places before the `mutable` keyword.
