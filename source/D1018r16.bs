@@ -79,7 +79,8 @@ CWG2588 friend declarations and module linkage {#CWG2588}
 * <a href="https://cplusplus.github.io/CWG/issues/2588.html">CWG2588</a>
 * <a href="https://github.com/cplusplus/papers/issues/1253">GitHub issue</a>
 * **Highlight:** The linkage of friend functions and classes is unclear, if the first (and possibly only) declaration is in a class.
-* **🗳  Poll:** A friend's linkage should be affected by the presence/absence of export on the containing class definition itself, but ONLY if the friend is a definition (<a href="https://github.com/cplusplus/papers/issues/2">#2</a>, modified by Jason's suggestion). This resolves CWG2588.
+* **🗳  Poll:** A friend's linkage should be affected by the presence/absence of export on the containing class definition itself, but ONLY if the friend is a definition (option #2, modified by Jason's suggestion). This resolves CWG2588.
+* **Note:** Jason's suggestion: A friend declaration shouldn't affect linkage if it is not a definition. Exporting definition of class exports "friendliness" but not export of friend function itself.
 
 CWG2586 Explicit object parameter for assignment and comparison {#CWG2586}
 -------
