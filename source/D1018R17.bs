@@ -342,6 +342,33 @@ Here are the minutes for the virtual discussions that were held since the Prague
 </ul>
 </li>
 
+<li>2022-06-23 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-06-23">notes</a>
+<ul>
+<li>CWG2443 Meaningless template exports (<a href="https://github.com/cplusplus/papers/issues/1236">GitHub</a>)
+<li>[[P1967r7]] <code>#embed</code> - a simple, scannable preprocessor-based resource acquisition method (<a href="https://github.com/cplusplus/papers/issues/700">GitHub</a>)
+<li>[[P1040r6]] <code>std::embed</code> (<a href="https://github.com/cplusplus/papers/issues/28">GitHub</a>) (related paper, but this one isn't ready to be seen as of r6)
+</ul>
+</li>
+
+<li>2022-07-07 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-07-07">notes</a>
+<ul>
+<li><a href="https://cplusplus.github.io/CWG/issues/2597.html">CWG2597</a> Replaceable allocation and deallocation functions in the global module (<a href="https://github.com/cplusplus/papers/issues/1273">GitHub</a>)
+<li>[[P2484r0]] Extending class types as non-type template parameters (<a href="https://github.com/cplusplus/papers/issues/1141">GitHub</a>)
+<li>[[P2361r4]] Unevaluated strings (<a href="https://github.com/cplusplus/papers/issues/1035">GitHub</a>)
+</ul>
+</li>
+
+<li>2022-07-21 <a href="https://wiki.edg.com/bin/view/Wg21telecons2022/EWG-2022-07-21">notes</a>
+<ul>
+<li>CWG2443 Meaningless template exports (<a href="https://github.com/cplusplus/papers/issues/1236">GitHub</a>) / <a href="https://isocpp.org/files/papers/P2615R0.html">P2615r0</a> Meaningful exports
+<li>[[P2564r0]] consteval needs to propagate up (<a href="https://github.com/cplusplus/papers/issues/1223">GitHub</a>)
+<li>[[P2547r0]] Language support for customisable functions (<a href="https://github.com/cplusplus/papers/issues/1208">GitHub</a>) LEWG would like to hear from EWG to plan for C++26
+</ul>
+</li>
+
+<li>2022-07-25 virtual plenary
+</li>
+
 </ol>
 
 
