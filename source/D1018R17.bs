@@ -81,6 +81,12 @@ CWG2588 friend declarations and module linkage {#CWG2588}
 * **🗳  Poll:** A friend's linkage should be affected by the presence/absence of export on the containing class definition itself, but ONLY if the friend is a definition (option #2, modified by Jason's suggestion). This resolves CWG2588.
 * **Note:** Jason's suggestion: A friend declaration shouldn't affect linkage if it is not a definition. Exporting definition of class exports "friendliness" but not export of friend function itself.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -97,6 +103,12 @@ CWG2586 Explicit object parameter for assignment and comparison {#CWG2586}
 * **Highlight:** It's obvious that the situation for comparison operators is a wording oversight, but it's less obvious whether the relaxation of the rules is desirable for copy/move assignment operators, since those are a lot more restricted in the status quo (they can't be friends, for example).
 * **🗳  Poll:** Adopt CWG2586's suggested resolution to resolve CWG2586.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -113,6 +125,12 @@ P2513 char8_t Compatibility and Portability Fixes {#P2513}
 * **Highlight:** `char8_t` has compatibility problems and issues during deployment that people have had to spend energy working around. This paper aims to alleviate some of those compatibility problems, for both C and C++, around string and character literals for the `char8_t` type.
 * **🗳  Poll:** Forward P2513r1 to CWG, with the modification to exclude `signed char` from the allowable conversions list, treat it as a Defect Report against C++20.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -129,6 +147,12 @@ CWG2569 Use of `decltype(capture)` in a lambda's parameter-declaration-clause {#
 * **Highlight:** [[P2036R3]] (<a href="https://github.com/cplusplus/papers/issues/766">GitHub</a>) was approved as a Defect Report, but its changes make popular existing standard library implementations ill-formed. Thus, there is concern about too much breakage, in particular with the "DR" aspect of P2036R3.
 * **🗳  Poll:** Accept Option E from D2579R0 as a resolution to CWG2569, which treats all captures as non-`const` for all places before the `mutable` keyword.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -145,6 +169,12 @@ CWG2538 Can standard attributes be syntactically ignored? {#CWG2538}
 * **Highlight:** There is a general notion in C++ that standard attributes should be “ignorable”. However, currently there does not seem to be a common understanding of what this means exactly.
 * **🗳  Poll:** Resolve CWG2538 by clarifying that it is EWG's intent that [**dcl.attr**]/6 ONLY permits an implementation to ignore a standard attribute's effect, but not appertainment and argument parsing.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -161,6 +191,12 @@ P2460 Relax requirements on `wchar_t` to match existing practices {#P2460}
 * **Highlight:** Remove the constraints put on the encoding associated with `wchar_t` in the core wording, as these constraints do not match existing practice.
 * **🗳  Poll:** Forward P2460r1 "Relax requirements on `wchar_t` to match existing practices" to CWG for C++23, treat it as a Defect Report.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -177,6 +213,12 @@ P1854 Conversion to literal encoding should not lead to loss of meaning {#P1854}
 * **Highlight:** Make non-encodable characters (characters that cannot be represented in the literal encoding) in character and string literals ill-formed, and restrict the valid characters in a multicharacter literal to avoid visual ambiguity caused by graphemes constituted of multiple code points.
 * **🗳  Poll:** Forward P1854r3 "Conversion to literal encoding should not lead to loss of meaning" to CWG for inclusion in C++26.
 
+<strong>Poll votes:</strong>
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+</table>
 <br><strong>Poll outcome:</strong> 
 
 <strong>Salient comments:</strong>
@@ -197,7 +239,7 @@ P1854 Conversion to literal encoding should not lead to loss of meaning {#P1854}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
     <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
 </table>
 <br><strong>Poll outcome:</strong> 
