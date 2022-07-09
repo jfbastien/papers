@@ -27,13 +27,14 @@ We have not met in-person since the February 2020 meeting in Prague because of t
 Our main achievements have been:
 
 * **Issue processing**: most of the 50 language evolution issues have proposed resolutions, and a large number of them have been voted on through electronic polling.
-* **C++23**: we've worked on papers for C++23 and later. As of January 2022, EWG is not considering new papers for C++23. As of June 2022, EWG has resolved all feedback it intends to have received from CWG.
+* **C++23**: we are done working on papers for C++23. As of January 2022, EWG is not considering new papers for C++23. As of July 2022, EWG has resolved all feedback it intends to have received from CWG.
+* **C++26**: we are working on papers for C++26 and beyond.
 * **Incubation**: we've acted as EWG-I and "incubated" some early papers by providing early feedback to authors.
 
 This paper outlines:
 
 * The work achieved in [[#telecons]]; 
-* Lists the [[#polls]] June 2022 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period, [[P1018r11]] for the results of the May 2021 polling period, [[P1018r13]] for the results of the August polling period, and [[P1018r15]] for the results of the Early 2022 polling period);
+* Lists the [[#polls]] results for the June 2022 polling period and explain the [[#process]] (see [[P1018r9]] for the results of the February 2021 polling period, [[P1018r11]] for the results of the May 2021 polling period, [[P1018r13]] for the results of the August polling period, and [[P1018r15]] for the results of the Early 2022 polling period);
 * Lists the remaining outstanding issues in [[#issues]], some are still open while others are waiting for polling;
 * [[#future]].
 
