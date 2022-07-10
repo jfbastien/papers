@@ -85,14 +85,22 @@ CWG2588 friend declarations and module linkage {#CWG2588}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 4 </td><td> 12 </td><td> 4 </td><td> 1 </td><td> 1 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 6</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong> ✅ consensus
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: <p>True hidden friends appear in exactly one place where they are both declared and defined. In just that case, the only syntactically viable option to decide on the linkage of a hidden friend is to base it on the linkage of the class within it lexically appears. In all other cases, the linkage of the befriended entity can (and should) be determined by existing rules.
+Consistency increased, uncertainty removed.</p>
+  <li>*Favor*: This properly differentiates friends that are definitions and those that are just references to functions declared elsewhere.
+  <li>*Favor*: This seems to be the best option on the table, but even this is incomplete.  If I want my hidden friend to be exported, I have to define it in the body of the class definition.  I'd like to be able to define it in a module implementation unit instead.
+  <li>*Favor*: This seems like the only sensible and implementable way to set linkage.
+  <li>*Against*: As phrased, this implies that a friend function declaration that is not a definition and not declared previously is in some kind of limbo wrt. linkage. In post-vote discussions, I believe Jason mentioned that his intent was different and that #4 (not sure?) rules would apply if the friend isn't a definition.
+  <li>*Strongly against*: <p>[I am the submitter of the DR]. The DR was intentionally about non-defining friends, because their linkage must be known.  The non-defining friend is callable (via ADL), and therefore its linkage must be known, as that may affect symbol mangling or whatever (particularly with weak ownership model). [the definitionn could be provided by another TU of course]
+The suggested resolution does not resolve the issue (and introduces a new implementation case of 'declaration with uncertain linkage').
+I strongly protest.  (sadly timezones got the better of me with the EWG meeting).  If this resolution advances, I will  have to file another defect pointing the above out.</p>
 </ul>
 
 
@@ -107,14 +115,15 @@ CWG2586 Explicit object parameter for assignment and comparison {#CWG2586}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 8 </td><td> 15 </td><td> 2 </td><td> 0 </td><td> 0 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 3</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong>  ✅ consensus
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: The resolution resolves an obvious wording oversight that introduces a gratitious restriction and inconsistency. Implementation experience corroborates this assessment.
+  <li>*Strongly favor*: The rules given are the obvious interpretation of the extant intent in terms of the new language feature (which is not meant to provide new semantics specifically with regard to these operators).
 </ul>
 
 
@@ -129,14 +138,18 @@ P2513 char8_t Compatibility and Portability Fixes {#P2513}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 6 </td><td> 16 </td><td> 1 </td><td> 0 </td><td> 0 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 5</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong>   ✅ consensus
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: Doooooo iiiiiiiiiiiiit
+  <li>*Strongly favor*: Experience from the field with char8_t suggests that these fixes are very necessary.
+  <li>*Favor*: This improves compatibility with previous standards without unduly weakening the type system.  I agree with the specific choices made in the final version of the paper.
+  <li>*Favor*: It is existing practice that string literals can be used to initialize an array of arbitrary ordinary character type; it's a natural extension to allow u8 string literals to do the same (minus "signed char").
+  <li>*Favor*: This will avoid otherwise unnecessary heroics to use UTF-8 with `char` and `unsigned char` as is required by some existing projects and will improve compatibility with code written for C23 where `char8_t` is a typedef of `unsigned char`.
 </ul>
 
 
@@ -151,14 +164,25 @@ CWG2569 Use of `decltype(capture)` in a lambda's parameter-declaration-clause {#
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 5 </td><td> 12 </td><td> 5 </td><td> 1 </td><td> 1 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 4</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong>  ✅ consensus
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: The current lookup rules in lambdas might be known to well-versed users but also may seem totally unintuitive to many others, defying their mental model how closure objects work. The proposed solution is not perfect, but it is possibly the best we can come up with. Changing the rules now is certainly better than later, thusly containing the scope of adaptions to the new order.
+  <li>*Strongly favor*: (Author), OPtion E is consistent with existing member function and the changeis necessary as the status quo has proven too disruptive to be implementable in a shipping implementation.
+  <li>*Favor*: It is unfortunate that the interpretation of a (potentially) captured entity cannot be made consistent throughout a lambda-expression without undue implementation difficulty, but the consistency with member function declarations (which have the same parsing issues and almost the same set of scopes available) is a reasonable fallback position.
+  <li>*Favor*: This is the only right choice.  It is consistent with the behavior of decltype in an ordinary class member function declaration.  Lambdas should not have special behavior here.
+  <li>*Favor*: The proposed wording should be more explicit about not including parenthesized used of the unqualified-id.  Other than that, this seems like a reasonable compatibility adjustment.
+  <li>*Neutral*: I appreciate that a problem exists. I'm not particularly thrilled by the complexity and novelty of the solution, but it seems like there is no good answer.
+  <li>*Against*: <p>a whole list of options where none of them are good choices. Option E isn't the worst option -- it definitely solves the problem. But it's a confusing way to resolve the issue compared to Option D, which will give a consistent type for placeholder types.
+
+Also, it's not at all clear whether P2036R3 should be accepted as a DR as part of this resolution.</p>
+  <li>*Strongly against*: <p>This whole business of trying to patch the original paper in place over and over without implementation experience (only to have implementers find that the paper was poorly thought through), then apply it as DRs is madness.  I realize we dislike the status quo, but this whole space is terrible.
+
+This option E isn't AWFUL and is implementable (we think!), but the fact that we're going through all of this without ANY implementation experience is foolish.  We need to step back, find a solution we like, implement it, and make sure it doesnt' break the world again.</p>
 </ul>
 
 
@@ -173,14 +197,29 @@ CWG2538 Can standard attributes be syntactically ignored? {#CWG2538}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 11 </td><td> 6 </td><td> 4 </td><td> 0 </td><td> 3 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 4</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong> ❌ no consensus
+<br><strong>Note:</strong> There is sufficient implementor pushback, some implementors also voting neutral, to override the otherwise positive support.
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: Attributes are not just arbitrary token sequences; they must be parsed to ensure they meet the requirements, even if their effects are ignored.
+  <li>*Strongly favor*: This was the original intent, but got lost in the wording.
+  <li>*Strongly favor*: If standard attributes appertainment and argument parsing should be ignorable (effectively making standard attributes conditionally-supported), then the standard needs to contain explicit wording to that effect.
+  <li>*Strongly favor*: Appertainment and argument checking is core to the safe usage of standard attributes given that an important promise of the development of standard attributes is predictability across implementations in terms of the accepted syntax and possible semantic effects.
+  <li>*Strongly favor*: The standard defines a great number of syntactic rules that implementations must diagnose.  It is not especially helpful to allow them to summarily dismiss all contents of `[[...]]` just because no such construct individually has a mandatory effect on the interpretation of the program.
+  <li>*Strongly favor*: Effectiveness of standard attributes is implementation-defined but their associated syntax rules are not. We don't want gratitious non-portability
+  <li>*Neutral*: This is tricky.
+  <li>*Neutral*: Honestly it's getting a bit difficult to reason about attributes and their intent. While the change may seem reasonable, quid of standard attributes that are not yet implemented by implementations? Should compliers error on standard (unscoped) attributes they don't yet recognize? In which case, doesn't that defeat the purpose of attributes entierly?
+  <li>*Neutral*: If we're going to mandate something about attributes, I'm not sure that appertainment is the one thing we need to mandate? 
+  <li>*Strongly against*: <p>The room was clearly Implementers-vs-wellwishers.  My implementations cant/wont implement this, and I know of at least 1 other that has said they will refuse to implement this.  This interpretation of the standardeeze is contrary to what implementers have been doing for years, and contrary to what they will be doing for the foreseeable future.  
+
+I'd prefer we not make a decision that has guaranteed MULTIPLE implementer veto on day 1.</p>
+  <li>*Strongly against*: <p>If adopted, this will be implementer veto'ed in Clang and ICX as this new interpretation of the standard imposes too significant of an implementation burden for us. We've been happy with the interpretation that any attribute can be syntactically ignored and have come to rely on that in the past 10+ years. Changing it now is not something we're willing to consider further due to the significant risk of introducing bugs compared to the extremely minor QoI benefit of checking semantic requirements for something with no semantic effect (and we have no evidence of users asking for this to change). We will continue to utilize the standard's allowance that the minimum we have to do for conformance is emit some message to the user (aka, we'll keep saying "warning: attribute ignored" and nothing else, even for incorrect appertainment). So if the goal here was clarity, it's not actually being achieved by adopting this given that we know implementations will ignore the proposed changes out of necessity and still be conforming.
+
+It's worth noting that during the EWG polling of this, implementers generally voted differently than the rest of the room and the rest of the room's viewpoint won out.</p>
 </ul>
 
 
@@ -195,14 +234,19 @@ P2460 Relax requirements on `wchar_t` to match existing practices {#P2460}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 10 </td><td> 12 </td><td> 1 </td><td> 1 </td><td> 1 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 3</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong>  ✅ consensus
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: Though this change does make for a less coherent design in the standard, it also reflects the reality that exists in existing implementations.
+  <li>*Strongly favor*: The standard and existing practice does not match. Only the standard can practically change here. We have to start the journey somewhere, and this paper found a way to do that.
+  <li>*Strongly favor*: Inheritance from C is both a burden and an asset. Denying that (and implementation reality) but rather insisting on existing wording seems unsolicited. In particular when doing so renders large swaths of users "working outside of the standard". Just bite the bullet and standardize existing practice.
+  <li>*Favor*: This change doesn't have any impact on implementations, which already behave this way, and is in effect an acknowledgment that the status quo simply cannot be changed.
+  <li>*Against*: While this approach reflects an unfortunate reality, the practical goals of this paper are not well achieved by merely recategorizing the noncompliance as a misfeature of the C string library, not least because WG14 ought to be the one deprecating its own library features if appropriate.
+  <li>*Strongly against*: This is not an improvement. If WG21 wishes to support environments where wchar_t uses UTF-16 encoding, then the fix should encompass both core and library (by e.g. offering a replacement for iswalpha and most other functions taking wchar_t arguments). This change removes the core restriction, but keeps the library restriction, meaning that UTF-16 is still not supported as an execution encoding. With this paper, the newly allowable execution character set would be "Unicode 1.0 without surrogates" or similar, which is not a character set used in practice.
 </ul>
 
 
@@ -217,14 +261,15 @@ P1854 Conversion to literal encoding should not lead to loss of meaning {#P1854}
 <strong>Poll votes:</strong>
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
-    <tr><td>  </td><td>  </td><td>  </td><td>  </td><td>  </td></tr>
-    <tr><td colspan=5><strong>Abstain:</strong> </td></tr>
+    <tr><td> 10 </td><td> 13 </td><td> 1 </td><td> 0 </td><td> 0 </td></tr>
+    <tr><td colspan=5><strong>Abstain:</strong> 4</td></tr>
 </table>
-<br><strong>Poll outcome:</strong> 
+<br><strong>Poll outcome:</strong>  ✅ consensus
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>*Strongly favor*: Trying to use characters that can't be encoded should be an error, not silently produce incorrect results.
+  <li>*Favor*: Yes, noisy compile-time breakage is preferable to silent changes in meaning at runtime.
 </ul>
 
 
@@ -247,7 +292,7 @@ P1854 Conversion to literal encoding should not lead to loss of meaning {#P1854}
 
 <strong>Salient comments:</strong>
 <ul>
-  <li>**:**
+  <li>**: 
 </ul>
 
 -->
