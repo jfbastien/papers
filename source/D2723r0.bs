@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 0
+!Draft revision: 1
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -40,7 +40,7 @@ execute after this initialization.
 
 <pre><code>
 static char global[128];            // already zero-initialized
-std::thread_local int thread_state; // already zero-initialized
+thread_local int thread_state;      // already zero-initialized
 
 int main() {
   char buffer[128];                 // not zero-initialized before this proposal
