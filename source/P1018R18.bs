@@ -2,9 +2,8 @@
 Title: C++ Language Evolution status 🦠 pandemic edition 🦠 2022/07–2022/11
 Shortname: P1018
 Revision: 18
-!Draft Revision: 0
 Audience: WG21, EWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P1018r18
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P1018r18.bs">github.com/jfbastien/papers/blob/master/source/P1018r18.bs</a>
