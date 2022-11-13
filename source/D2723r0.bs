@@ -32,9 +32,9 @@ when:
 * Stack structs / arrays / unions with padding are copied.
 
 This proposal only addresses the above issues when they occur for automatic
-storage duration objects (on the stack). The proposal does not tackle objects
+storage duration objects (on the stack). The proposal does not address objects
 with dynamic object duration. Objects with static or thread local duration are
-not problematic because they are already zero-initialized if the cannot be
+not problematic because they are zero-initialized if they cannot be
 constant initialized, even if they are non-trivial and have a constructor
 execute after this initialization.
 
@@ -102,7 +102,7 @@ Opting out {#out-out}
 
 In deploying this scheme, we've found that some codebases see unacceptable
 regressions because they allocate large values on the stack and see performance
-/ size regressions. We therefor propose standardizing an attribute which denotes
+/ size regressions. We therefore propose standardizing an attribute which denotes
 intent, `[[uninitialized]]`. When put on automatic variables, no initialization
 is performed. The programmer is then responsible for what happens because they
 are back to C++23 behavior. This makes C++ safe by default for this class of
@@ -120,8 +120,8 @@ Security details {#security}
 
 What exactly is the security issues?
 
-Currently, uninitialized stack variables are Undefined Behavior if they are
-used. The typical outcome is that the program reads stale stack or register
+Currently, reading uninitialized stack variables is undefined behavior. 
+The typical outcome is that the program reads stale stack or register
 values, that is whatever previous value happened to be compiled to reside in the
 same stack slot or register. This leads to bugs. Here are the potential
 outcomes:
@@ -146,9 +146,9 @@ int get_hw_address(struct device *dev, struct user *usr) {
 </code></pre>
 
 Example from [[LinuxInfoleak]]. What can this leak? ASLR information, or
-anything from another process. ASLR leak can enable Return Oriented Programming
-(ROP) or make an arbitrary write effective (e.g. figure out where high-value
-data structures are). Even padding could leak secrets.
+anything from another process. ASLR leak can enable return oriented programming
+(ROP) or make an arbitrary write effective (e.g., locate high-value
+data structures). Even padding could leak secrets.
 
 
 <pre><code>
@@ -196,7 +196,7 @@ In Chrome we find 1100+ security bugs for “use of uninitialized value”
 12% of all exploitable bugs in Android are of this kind according to
 [[AndroidSec]].
 
-Kostya Serebryany has a very long list of issues caused by usage of
+Kostya Serebryany has a long list of issues caused by usage of
 uninitialized stack variables [[KCC]].
 
 
