@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 1
+!Draft revision: 2
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -290,6 +290,11 @@ experience is that such a change is rejected by teams because it cannot be
 deployed to codebases that see to work just fine. The Committee might decide to
 go with this approach, and see whether the default in various implementations is
 "always zero" or "sometimes trap".
+
+An alternative for the `[[uninitialized]]` attribute is to use a keyword. We can
+argue about which keyword is right, but we'll eventually agree that `void` is
+the right name for "This variable is not a variable of honor... no highly
+esteemed deed is commemorated here... nothing valued is here."
 
 
 Performance {#perf}
