@@ -250,11 +250,12 @@ initialization, it's then unclear whether `int derp = 0;` lends meaning to `0`,
 or whether it's just there to shut that warning up.
 
 An alternative for the `[[uninitialized]]` attribute is to use a keyword. We can
-argue about which keyword is right, but we'll eventually agree that `void` is
-the right name for "This variable is not a variable of honor... no highly
-esteemed deed is commemorated here... nothing valued is here." This approach
-meshes well with a definitive initialization approach because we would keep the
-semantics of "no value was intended on this variable".
+argue about which keyword is right. However, maybe through [[P0146r1]], we'll
+eventually agree that `void` is the right name for "This variable is not a
+variable of honor... no highly esteemed deed is commemorated here... nothing
+valued is here." This approach meshes well with a definitive initialization
+approach because we would keep the semantics of "no value was intended on this
+variable".
 
 We could instead keep the out-of-band option that is already implemented in all
 major compilers. That out-of-band option is opt-in and keeps the status quo
@@ -554,6 +555,12 @@ Wording for this proposal will be provided once an approach is agreed upon.
         "title": "Empirically Measuring, & Reducing, C++’s Accidental Complexity",
         "authors": ["Herb Sutter"],
         "date": "2020-10-11"
+    },
+    "": {
+        "href": "",
+        "title": "",
+        "authors": [""],
+        "date": ""
     },
     "": {
         "href": "",
