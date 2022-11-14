@@ -34,7 +34,7 @@ when:
 This proposal only addresses the above issues when they occur for automatic
 storage duration objects (on the stack). The proposal does not tackle objects
 with dynamic object duration. Objects with static or thread local duration are
-not problematic because they are already zero-initialized if the cannot be
+not problematic because they are already zero-initialized if they cannot be
 constant initialized, even if they are non-trivial and have a constructor
 execute after this initialization.
 
