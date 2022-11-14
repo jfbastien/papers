@@ -139,8 +139,10 @@ Here are a few examples:
 <pre><code>
 int get_hw_address(struct device *dev, struct user *usr) {
   unsigned char addr[MAX_ADDR_LEN];         // leak this memory 😢
+  
   if (!dev->has_address)
     return -EOPNOTSUPP;
+    
   dev->get_hw_address(addr);                // if this doesn’t fill addr
   return copy_out(usr, addr, sizeof(addr)); // copies all
 }
@@ -185,7 +187,7 @@ initializations can be proven redundant and eliminated.
 </blockquote>
 
 They use pure zero initialization, and claim to have taken the overheads down to
-within noise. They provide more details in[[CppConMSRC]] and [[InitAll]]. Don't
+within noise. They provide more details in [[CppConMSRC]] and [[InitAll]]. Don't
 just trust Microsoft though, here's another relevant person asking for this
 [[CLessDangerous]]. It's been proposed for GCC [[init-local-vars]] and LLVM
 [[LocalInit]] before.
