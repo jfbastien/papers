@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 2
+!Draft revision: 3
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -221,26 +221,40 @@ better or just write perfect code? However:
 * Attackers find what programmers don’t think of, and what fuzzers don’t hit.
 
 The annoyed suggester then says "couldn’t you just use `-Werror=uninitialized`
-and fix everything it complains about?" You are beginning to expect shortcoming,
-in this case:
+and fix everything it complains about?" This is similar to the
+[[CoreGuidelines]] recommendation. You are beginning to expect shortcoming, in
+this case:
 
 * Too much code to change.
 * Current `-Wuninitialized` is low quality, has false positives and false negatives. We could get better analysis if we had a compiler-frontend-based IR, but it still wouldn't be noise-free.
 * Similarly, static analysis isn’t smart enough.
-* The value chosen to initialize doesn’t necessarily make sense.
-* Code doesn’t express intent anymore.
+* The value chosen to initialize doesn’t necessarily make sense, meaning that code might move from unsafe to merely incorrect.
+* Code doesn’t express intent anymore, which leads readers to assume that the value is sensible when it might have simply been there to address the diagnostic.
+* It prevents checkers (static analysis, sanitizers) from diagnosing code because it was given semantics which aren't intended.
 
-Couldn’t you just use definitive initialization in the language? This one is
-interesting. Languages such as C# and Swift allow uninitialized values, but only
-if the compiler can prove that they're not used uniitialized, otherwise they
-must be initialized. It's similar to enforcing `-Wuninitialized` and is only as
-smart as the compiler analysis. We would want to deploy a low-code-churn change,
-therefore a high-quality analysis. This would require that the committee
-standardize the analysis, lest compilers diverge. But a high-quality analysis
-tends to be complex, and change as it improves, which is not sensible to
-standardize. Further with definitive initialization, it's then unclear whether
-`int derp = 0;` lends meaning to `0`, or whether it's just there to shut that
-warning up.
+Couldn’t you just use definitive initialization in the language? For example as
+explained in [[CppConDefinite]] and [[CppConComplexity]]. This one is interesting.
+Languages such as C# and Swift allow uninitialized values, but only if the
+compiler can prove that they're not used uniitialized, otherwise they must be
+initialized. It's similar to enforcing `-Wuninitialized`, depending on what is
+standardized. We then have a choice: standardize a simple analysis (such as
+"must be initialized within the block or before it escapes") and risk needless
+initializations (with mitigations explained in the prior references), or
+standardize a more complex analysis. We would likely want to deploy a
+low-code-churn change, therefore a high-quality analysis. This would require
+that the committee standardize the analysis, lest compilers diverge. But a
+high-quality analysis tends to be complex, and change as it improves, which is
+not sensible to standardize. This would leave us standardizing a high-code-churn
+analysis with much more limited visibility. Further with definitive
+initialization, it's then unclear whether `int derp = 0;` lends meaning to `0`,
+or whether it's just there to shut that warning up.
+
+An alternative for the `[[uninitialized]]` attribute is to use a keyword. We can
+argue about which keyword is right, but we'll eventually agree that `void` is
+the right name for "This variable is not a variable of honor... no highly
+esteemed deed is commemorated here... nothing valued is here." This approach
+meshes well with a definitive initialization approach because we would keep the
+semantics of "no value was intended on this variable".
 
 We could instead keep the out-of-band option that is already implemented in all
 major compilers. That out-of-band option is opt-in and keeps the status quo
@@ -290,11 +304,6 @@ experience is that such a change is rejected by teams because it cannot be
 deployed to codebases that see to work just fine. The Committee might decide to
 go with this approach, and see whether the default in various implementations is
 "always zero" or "sometimes trap".
-
-An alternative for the `[[uninitialized]]` attribute is to use a keyword. We can
-argue about which keyword is right, but we'll eventually agree that `void` is
-the right name for "This variable is not a variable of honor... no highly
-esteemed deed is commemorated here... nothing valued is here."
 
 
 Performance {#perf}
@@ -527,6 +536,30 @@ Wording for this proposal will be provided once an approach is agreed upon.
         "title": "[cfe-dev] [RFC] automatic variable initialization",
         "authors": ["Kostya Serebryany"],
         "date": "2019-01-16"
+    },
+    "CoreGuidelines": {
+        "href": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Res-always",
+        "title": "C++ Core Guidelines: ES.20: Always initialize an object",
+        "authors": ["Herb Sutter", "Bjarne Stroustrup"],
+        "date": "unknown"
+    },
+    "CppConDefinite": {
+        "href": "https://www.youtube.com/clip/UgkxpWxXNaoWvGqhlpSdWRQs0M3ayQcEhDoh",
+        "title": "Can C++ be 10x Simpler & Safer?",
+        "authors": ["Herb Sutter"],
+        "date": "2022-11-13"
+    },
+    "CppConComplexity": {
+        "href": "https://www.youtube.com/watch?v=6lurOCdaj0Y&t=971s",
+        "title": "Empirically Measuring, & Reducing, C++’s Accidental Complexity",
+        "authors": ["Herb Sutter"],
+        "date": "2020-10-11"
+    },
+    "": {
+        "href": "",
+        "title": "",
+        "authors": [""],
+        "date": ""
     }
 }
 </pre>
