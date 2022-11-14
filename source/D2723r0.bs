@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 3
+!Draft revision: 4
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -55,7 +55,7 @@ int main() {
     int big;
   } lopsided = '?';                 // padding zero-initialized with this proposal
 
-  int size = getSizze();
+  int size = getSize();
   char vla[size];                   // in C code, VLAs are zero-initialized with this proposal
   
   char *allocated = malloc(128);    // unchanged
@@ -68,7 +68,8 @@ This proposal therefore transforms some runtime undefined behavior into
 well-defined behavior.
 
 Adopting this change would mitigate or extinguish around 10% of exploits against
-security-relevant codebases.
+security-relevant codebases (see numbers from [[AndroidSec]] and [[InitAll]] for
+a representative sample).
 
 We propose to zero-initialize all objects of automatic storage duration, making
 C++ safer by default.
@@ -293,18 +294,25 @@ have a worst performance impact. That is why choosing implementation-defined
 values or runtime random values isn't a useful approach.
 
 Another alternative is to guarantee that accessing uninitialized values is
-implementation-defined behavior, but implementations must choose to either
-zero-initialize or trap on a per-value basis (we can argue separately as to
-whether "trap" is immediate termination, Itanium [[NaT]], or `std::terminate` or
-something else). Implementations would then do their best to trap on
-uninitialized value access, but when they can't prove that an access is
-uninitialized through however complex optimization scheme, they would revert to
-zero-initialization. This is an interesting approach which Richard Smith has
-implemented a prototype of in [[Trap]]. However, the author's and others'
-experience is that such a change is rejected by teams because it cannot be
-deployed to codebases that see to work just fine. The Committee might decide to
-go with this approach, and see whether the default in various implementations is
-"always zero" or "sometimes trap".
+implementation-defined behavior, where implementations *must* choose to either, on a per-value basis:
+
+   * zero-initialize; or
+
+   * trap (we can argue separately as to whether "trap" is immediate
+     termination, Itanium [[NaT]], or `std::terminate` or something else).
+
+Implementations would then do their best to trap on uninitialized value access,
+but when they can't prove that an access is uninitialized through however
+complex optimization scheme, they would revert to zero-initialization. This is
+an interesting approach which Richard Smith has implemented a prototype of in
+[[Trap]]. However, the author's and others' experience is that such a change is
+rejected by teams because it cannot be deployed to codebases that see to work
+just fine. The Committee might decide to go with this approach, and see whether
+the default in various implementations is "always zero" or "sometimes trap".
+
+We could also standardized a hybrid approach that mixes some of the above,
+creating implementation-defined alternatives which are effectively different
+build modes that the standard allows. This is what [[CarbonInit]] does.
 
 
 Performance {#perf}
@@ -354,9 +362,13 @@ There are a few caveats to this proposal.
 Making all automatic variables explicitly zero means that developers will come
 to rely on it. The current status-quo forces developers to express intent, and
 new code might decide not to do so and simply use the zero that they know to be
-there. It should still be best practice to only assign a value to a variable
-when this value is meaningful, and only use an "uninitialized" value when
-meaning has been give to it.
+there. This would then make it impossible to distinguish "purposeful use of the
+uninitialized zero" from "accidental use of the uninitialized zero". Tools such
+as memory sanitizers and valgrind would therefore be unable to diagnose
+correctness issues (but we would have removed the security issues). It should
+still be best practice to only assign a value to a variable when this value is
+meaningful, and only use an "uninitialized" value when meaning has been give to
+it.
 
 This proposal will now mean that objects with dynamic storage duration are now
 uniquely different from all other storage duration objects, in that they alone
@@ -400,6 +412,15 @@ Wording {#word}
 =======
 
 Wording for this proposal will be provided once an approach is agreed upon.
+
+The author expects that the solution that is agreed upon maintains the property
+that:
+
+   * Taking the address, passing this address, and manipulating the address of
+     data not explicitly initialized remains valid.
+
+   * `memcpy` of data not explicitly initialized (including padding) remains
+     valid, but reading from the data or the `memcpy`d data is invalid.
 
 
 
@@ -556,11 +577,11 @@ Wording for this proposal will be provided once an approach is agreed upon.
         "authors": ["Herb Sutter"],
         "date": "2020-10-11"
     },
-    "": {
-        "href": "",
-        "title": "",
-        "authors": [""],
-        "date": ""
+    "CarbonInit": {
+        "href": "https://github.com/carbon-language/carbon-lang/blob/trunk/proposals/p0257.md",
+        "title": "Carbon: Initialization of memory and variables",
+        "authors": ["Chandler Carruth"],
+        "date": "2021-06-22"
     },
     "": {
         "href": "",
