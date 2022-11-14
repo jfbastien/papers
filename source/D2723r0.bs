@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 6
+!Draft revision: 7
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -85,6 +85,9 @@ been deployed to:
 * Likely to your favorite videogame console.
 
 Unless of course you like esoteric devices.
+
+The above codebases contain many millions of lines of code of C, C++,
+Objective-C, and Objective-C++.
 
 The performance impact is negligible (less that 0.5% regression) to slightly
 positive (that is, some code gets *faster* by up to 1%). The code size impact
