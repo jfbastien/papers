@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 4
+!Draft revision: 5
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -96,6 +96,10 @@ automatic objects. We provide an attribute to opt-out of zero-initialization of
 objects of automatic storage duration. We then expect that programmer can audit
 their code for this attribute, and ensure that the unsafe subset of C++ is used
 in a safe manner.
+
+This change was not possible 30 years ago because optimizations simply were not
+as good as they are today, and the costs were too high. The costs are now
+negligible. We provide details in [[#perf]].
 
 
 Opting out {#out-out}
@@ -322,7 +326,7 @@ Performance {#perf}
 
 Previous publications [[Zeroing]] have cited 2.7 to 4.5% averages. This was true
 because, in the author's experience implementing this in LLVM [[LLVMJFB]], the
-compiler simly didn't perform sufficient optimizations. Deploying this change
+compiler simply didn't perform sufficient optimizations. Deploying this change
 required a variety of optimizations to remove needless work and reduce code
 size. These optimizations were generally useful for other code, not just
 automatic variable initialization.
