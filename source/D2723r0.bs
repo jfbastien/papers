@@ -105,6 +105,10 @@ This change was not possible 30 years ago because optimizations simply were not
 as good as they are today, and the costs were too high. The costs are now
 negligible. We provide details in [[#perf]].
 
+Overall, this proposal is a targeted fix which stands on its own, but should be
+considered as part of a wider push for type and resource safe C++ such as in
+[[P2687r0]].
+
 
 Opting out {#out-out}
 ==========
