@@ -1,15 +1,14 @@
 <pre class='metadata'>
 Title: Zero-initialize objects of automatic storage duration
-Shortname: D2723
+Shortname: P2723
 Revision: 0
-!Draft revision: 8
 Audience: EWG, SG12, SG22
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P2723
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2723r0.bs">github.com/jfbastien/papers/blob/master/source/D2723r0.bs</a>
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2723r0.bs">github.com/jfbastien/papers/blob/master/source/P2723r0.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2022-11-14
+Date: 2022-11-15
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -596,12 +595,6 @@ that:
         "title": "Carbon: Initialization of memory and variables",
         "authors": ["Chandler Carruth"],
         "date": "2021-06-22"
-    },
-    "": {
-        "href": "",
-        "title": "",
-        "authors": [""],
-        "date": ""
     }
 }
 </pre>
