@@ -2,7 +2,7 @@
 Title: Zero-initialize objects of automatic storage duration
 Shortname: D2723
 Revision: 0
-!Draft revision: 7
+!Draft revision: 8
 Audience: EWG, SG12, SG22
 Status: D
 Group: WG21
@@ -183,7 +183,7 @@ int queue_manage() {
 Example from [[LinuxUse]]. The attacker can control the value of backlog by
 making a previous function call, and ensuring the same stack slot gets reused.
 
-Security-minded folks think this is a good idea. The Microsoft Visual Studio
+Security-minded folks think this is a good idea. The Microsoft Windows security
 team [[WinKernel]] say:
 
 <blockquote>
@@ -200,9 +200,9 @@ initializations can be proven redundant and eliminated.
 
 They use pure zero initialization, and claim to have taken the overheads down to
 within noise. They provide more details in [[CppConMSRC]] and [[InitAll]]. Don't
-just trust Microsoft though, here's another relevant person asking for this
-[[CLessDangerous]]. It's been proposed for GCC [[init-local-vars]] and LLVM
-[[LocalInit]] before.
+just trust Microsoft's Windows security team though, here's another relevant
+person asking for this [[CLessDangerous]]. It's been proposed for GCC
+[[init-local-vars]] and LLVM [[LocalInit]] before.
 
 In Chrome we find 1100+ security bugs for “use of uninitialized value”
 [[ChromeUninit]].
