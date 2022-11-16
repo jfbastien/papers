@@ -201,9 +201,11 @@ initializations can be proven redundant and eliminated.
 
 They use pure zero initialization, and claim to have taken the overheads down to
 within noise. They provide more details in [[CppConMSRC]] and [[InitAll]]. Don't
-just trust Microsoft's Windows security team though, here's another relevant
-person asking for this [[CLessDangerous]]. It's been proposed for GCC
-[[init-local-vars]] and LLVM [[LocalInit]] before.
+just trust Microsoft's Windows security team though, here's upstream Linux
+Kernel security developer asking for this [[CLessDangerous]], and Linus agreeing
+[[Linus]]. [[LinuxExploits]] is an overview of what uninitialized stack exploit
+look like on Linux. It's been proposed for GCC [[init-local-vars]] and LLVM
+[[LocalInit]] before.
 
 In Chrome we find 1100+ security bugs for “use of uninitialized value”
 [[ChromeUninit]].
@@ -327,7 +329,7 @@ but when they can't prove that an access is uninitialized through however
 complex optimization scheme, they would revert to zero-initialization. This is
 an interesting approach which Richard Smith has implemented a prototype of in
 [[Trap]]. However, the author's and others' experience is that such a change is
-rejected by teams because it cannot be deployed to codebases that see to work
+rejected by teams because it cannot be deployed to codebases that seem to work
 just fine. The Committee might decide to go with this approach, and see whether
 the default in various implementations is "always zero" or "sometimes trap".
 
@@ -356,7 +358,8 @@ There are a few potential reasons:
     be renamed to the hardware-internal zero register, and instructions scheduled.
 
   * Zeroing of entire cache entries is magical, though for the stack this is
-    rarely the case.
+    rarely the case. There's questions of temporality, special instructions, and
+    special logic to support zeroed cachelines.
 
 Here are a few of the optimizations which have helped reduce overheads in LLVM:
 
@@ -490,6 +493,18 @@ that:
         "title": "Making C Less Dangerous",
         "authors": ["Kees Cook"],
         "date": "2018-08-28"
+    },
+    "Linus": {
+        "href": "https://lore.kernel.org/lkml/CAHk-=wgTM+cN7zyUZacGQDv3DuuoA4LORNPWgb1Y_Z1p4iedNQ@mail.gmail.com/",
+        "title": "Re: [GIT PULL] meminit fix for v5.3-rc2",
+        "authors": ["Linus Torvalds"],
+        "date": "2019-06-30"
+    },
+    "LinuxExploits": {
+        "href": "https://outflux.net/slides/2011/defcon/kernel-exploitation.pdf",
+        "title": "Kernel Exploitation via Uninitialized Stack",
+        "authors": ["Kees Cook"],
+        "date": "2019-08"
     },
     "init-local-vars": {
         "href": "https://gcc.gnu.org/ml/gcc-patches/2014-06/msg00615.html",
