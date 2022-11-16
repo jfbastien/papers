@@ -120,6 +120,8 @@ initialization is performed. The programmer is then responsible for what happens
 because they are back to C++23 behavior. This makes C++ safe by default for this
 class of bugs, and provides an escape hatch when the safety is too onerous.
 
+An `[[uninitialized]]` attribute was proposed in [[P0632r0]].
+
 As a quality of implementation tool, and to ease transitions, some
 implementations might choose to diagnose on large stack values that might
 benefit from this attribute. We caution implementations to avoid doing so in
@@ -271,6 +273,12 @@ valued is here." This approach meshes well with a definitive initialization
 approach because we would keep the semantics of "no value was intended on this
 variable".
 
+One alternative that was suggested instead of zero-initialization is to
+value-initialize. This would invoke constructors and therefore be a no-go as a
+significant behavior change. That said, some form of "trivial enough"
+initialization might be an acceptable approach to increase correctness (not
+merely safety) for types for which zero isn't a valid value.
+
 We could instead keep the out-of-band option that is already implemented in all
 major compilers. That out-of-band option is opt-in and keeps the status quo
 where "C++ is unsafe by default". Further, many compiler implementors are
@@ -366,6 +374,18 @@ This doesn't cover all relevant optimizations. Some optimizations will be
 architecture-specific, meaning that deploying this change to new architectures
 will require some optimization work to reduce cost.
 
+New codebases using automatic variable initialization might trigger
+missed-optimizations in compilers and experience a performance or size
+regression. The wide deployment of the opt-in compiler flag means that this is
+unlikely, but were this to happen then a bug should be filed against the
+compiler to fix the missed optimization.
+
+Some of the performance costs are hidden by modern CPUs being heavily
+superscalar. Embedded CPUs are often in-order, code running on them might
+therefore have a performance regression that is roughly proportional to code
+size increases. Here too, compiler optimizations can dignificantly reduce these
+costs.
+
 
 Caveats {#caveats}
 =======
@@ -398,7 +418,8 @@ correct. However, C++ has constructors to deal with this type of issue.
 
 For some types, the zero value might be the "dangerous" one, for example a null
 pointer might be a special sentinel value saying "has all priviledges" in a
-kernel.
+kernel. A concrete example is on Linux where `task->uid` of zero means `root`,
+uninitialized reads of zero have been the source of CVEs on Linux before.
 
 Some people think that reading uninitialized stack variables is a good source of
 randomness to seed a random number generator, but these people are wrong
