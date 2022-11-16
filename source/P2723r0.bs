@@ -145,7 +145,7 @@ outcomes:
 
    * *Read primitive*: this exploit could be formed from reading leaked secrets that reside on the stack or in registers, and using this information to use another bug. For example, leaking an important address to defeat ASLR.
    * *Write primitive*: an uninitialized value is used to perform a write to an arbitrary address. Such a write can be transformed into an execute primitive. For example a stack slot is used on a particular execution path to determine the address of a write. The attack can control the previous stack slot's content, and therefore control where the write occurs. Similarly, an attacker could control which value is written, but not where it is written.
-   * *Execute primitive*: an unitialized value is used to call a function.
+   * *Execute primitive*: an uninitialized value is used to call a function.
 
 Here are a few examples:
 
@@ -194,7 +194,7 @@ trust boundary. It would have also mitigated a number of bugs involving
 uninitialized struct data being used directly.
 
 To date, we are seeing noise level performance regressions caused by this
-change. We accomplished this by improving the compilers ability to kill
+change. We accomplished this by improving the compiler's ability to kill
 redundant stores. While everything is initialized at declaration, most of these
 initializations can be proven redundant and eliminated.
 </blockquote>
@@ -253,7 +253,7 @@ this case:
 Couldn’t you just use definitive initialization in the language? For example as
 explained in [[CppConDefinite]] and [[CppConComplexity]]. This one is interesting.
 Languages such as C# and Swift allow uninitialized values, but only if the
-compiler can prove that they're not used uniitialized, otherwise they must be
+compiler can prove that they're not used uninitialized, otherwise they must be
 initialized. It's similar to enforcing `-Wuninitialized`, depending on what is
 standardized. We then have a choice: standardize a simple analysis (such as
 "must be initialized within the block or before it escapes") and risk needless
@@ -303,7 +303,7 @@ offsets from the null pointer. Floating-point values are NaNs with payload,
 which propagate on floating-point operations and are therefore easy to
 root-cause. It is problematic for some integer values that represent sizes in a
 bounds check, because such a number is effectively larger that any bounds and
-would potentially permit out-of-bounds accesses that a zero initializetion would
+would potentially permit out-of-bounds accesses that a zero initialization would
 not.
 
 Unfortunately, this scheme optimizes much more poorly and end up being a roughly
@@ -333,7 +333,7 @@ rejected by teams because it cannot be deployed to codebases that seem to work
 just fine. The Committee might decide to go with this approach, and see whether
 the default in various implementations is "always zero" or "sometimes trap".
 
-We could also standardized a hybrid approach that mixes some of the above,
+We could also standardize a hybrid approach that mixes some of the above,
 creating implementation-defined alternatives which are effectively different
 build modes that the standard allows. This is what [[CarbonInit]] does.
 
@@ -392,7 +392,7 @@ For example, here is Android's experience on performance costs [[AndroidCosts]].
 Some of the performance costs are hidden by modern CPUs being heavily
 superscalar. Embedded CPUs are often in-order, code running on them might
 therefore have a performance regression that is roughly proportional to code
-size increases. Here too, compiler optimizations can dignificantly reduce these
+size increases. Here too, compiler optimizations can significantly reduce these
 costs.
 
 
@@ -409,8 +409,8 @@ uninitialized zero" from "accidental use of the uninitialized zero". Tools such
 as memory sanitizers and valgrind would therefore be unable to diagnose
 correctness issues (but we would have removed the security issues). It should
 still be best practice to only assign a value to a variable when this value is
-meaningful, and only use an "uninitialized" value when meaning has been give to
-it.
+meaningful, and only use an "uninitialized" value when meaning has been given
+to it.
 
 This proposal will now mean that objects with dynamic storage duration are now
 uniquely different from all other storage duration objects, in that they alone
@@ -426,7 +426,7 @@ assign meaning to zero. Initializing this type to zero is then safe, but not
 correct. However, C++ has constructors to deal with this type of issue.
 
 For some types, the zero value might be the "dangerous" one, for example a null
-pointer might be a special sentinel value saying "has all priviledges" in a
+pointer might be a special sentinel value saying "has all privileges" in a
 kernel. A concrete example is on Linux where `task->uid` of zero means `root`,
 uninitialized reads of zero have been the source of CVEs on Linux before.
 
@@ -442,7 +442,7 @@ things should rather be a hard-error in any serious codebase.
 
 `volatile` stack variables are weird. That's pre-existing, it's really the
 language's fault and this proposal keeps it weird. In LLVM, the author opted to
-initialize all `volatile` stack variables to zero. This is techically acceptable
+initialize all `volatile` stack variables to zero. This is technically acceptable
 because they don't have any special hardware or external meaning, they're only
 used to block the optimizer. It's technically incorrect because the compiler
 shouldn't be performing extra accesses to `volatile` variables, but one could
