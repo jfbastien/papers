@@ -348,6 +348,10 @@ required a variety of optimizations to remove needless work and reduce code
 size. These optimizations were generally useful for other code, not just
 automatic variable initialization.
 
+As stated in the introduction, the performance impact is now negligible (less
+that 0.5% regression) to slightly positive (that is, some code gets *faster* by
+up to 1%). The code size impact is negligible (smaller than 0.5%).
+
 Why do we sometimes observe a performance progression with zero-initialization?
 There are a few potential reasons:
 
@@ -382,6 +386,8 @@ missed-optimizations in compilers and experience a performance or size
 regression. The wide deployment of the opt-in compiler flag means that this is
 unlikely, but were this to happen then a bug should be filed against the
 compiler to fix the missed optimization.
+
+For example, here is Android's experience on performance costs [[AndroidCosts]].
 
 Some of the performance costs are hidden by modern CPUs being heavily
 superscalar. Embedded CPUs are often in-order, code running on them might
@@ -631,6 +637,12 @@ that:
         "title": "Carbon: Initialization of memory and variables",
         "authors": ["Chandler Carruth"],
         "date": "2021-06-22"
+    },
+    "AndroidCosts": {
+        "href": "https://clangbuiltlinux.github.io/CBL-meetup-2020-slides/glider/Fighting_uninitialized_memory_%40_CBL_Meetup_2020.pdf",
+        "title": "Fighting Uninitialized Memory in the Kernel",
+        "authors": ["Alexander Potapenko"],
+        "date": "2020"
     }
 }
 </pre>
