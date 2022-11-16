@@ -141,9 +141,9 @@ same stack slot or register. This leads to bugs. Here are the potential
 outcomes:
 
 * *Benign*: in the best case the program causes an unexpected result.
-* *Exploit*: in the worst case it leads to an exploit. There are two outcomes that can lead to an exploit:
+* *Exploit*: in the worst case it leads to an exploit. There are three outcomes that can lead to an exploit:
 
-   * *Read primitive*: this exploit could be formed from reading leaked secrets that reside on the stack or in registers, and using this information to use another bug. For example, leaking an important address to defeat ASLR.
+   * *Read primitive*: this exploit could be formed from reading leaked secrets that reside on the stack or in registers, and using this information to exploit another bug. For example, leaking an important address to defeat ASLR.
    * *Write primitive*: an uninitialized value is used to perform a write to an arbitrary address. Such a write can be transformed into an execute primitive. For example a stack slot is used on a particular execution path to determine the address of a write. The attack can control the previous stack slot's content, and therefore control where the write occurs. Similarly, an attacker could control which value is written, but not where it is written.
    * *Execute primitive*: an unitialized value is used to call a function.
 
@@ -201,11 +201,11 @@ initializations can be proven redundant and eliminated.
 
 They use pure zero initialization, and claim to have taken the overheads down to
 within noise. They provide more details in [[CppConMSRC]] and [[InitAll]]. Don't
-just trust Microsoft's Windows security team though, here's upstream Linux
-Kernel security developer asking for this [[CLessDangerous]], and Linus agreeing
-[[Linus]]. [[LinuxExploits]] is an overview of what uninitialized stack exploit
-look like on Linux. It's been proposed for GCC [[init-local-vars]] and LLVM
-[[LocalInit]] before.
+just trust Microsoft's Windows security team though, here's one of the upstream
+Linux Kernel security developer asking for this [[CLessDangerous]], and Linus
+agreeing [[Linus]]. [[LinuxExploits]] is an overview of a real-world execution
+control exploit using an uninitialized stack variable on Linux. It's been
+proposed for GCC [[init-local-vars]] and LLVM [[LocalInit]] before.
 
 In Chrome we find 1100+ security bugs for “use of uninitialized value”
 [[ChromeUninit]].
