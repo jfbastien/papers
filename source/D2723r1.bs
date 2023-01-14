@@ -186,7 +186,7 @@ Undefined Behavior {#ub}
 ------------------
 
 Currently, uninitialized stack variables are Undefined Behavior if they are
-used. The typical outcome is that the program reads stale stack or register
+read. The typical outcome is that the program reads stale stack or register
 values, that is whatever previous value happened to be compiled to reside in the
 same stack slot or register. This leads to bugs. Here are the potential
 outcomes:
@@ -225,8 +225,8 @@ int get_hw_address(struct device *dev, struct user *usr) {
 
 Example from [[LinuxInfoleak]]. What can this leak? ASLR information, or
 anything from another process. ASLR leak can enable Return Oriented Programming
-(ROP) or make an arbitrary write effective (e.g. figure out where high-value
-data structures are). Even padding could leak secrets.
+(ROP) or make an arbitrary write effective (e.g., figure out where high-value
+data structures are). Even padding has been shown to leak secrets.
 
 
 <pre><code>
@@ -282,7 +282,7 @@ In Chrome we find 1100+ security bugs for “use of uninitialized value”
 12% of all exploitable bugs in Android are of this kind according to
 [[AndroidSec]].
 
-Kostya Serebryany has a very long list of issues caused by usage of
+Kostya Serebryany has a long list of issues caused by usage of
 uninitialized stack variables [[KCC]].
 
 
@@ -378,7 +378,7 @@ initialization, then this category of issue goes away entirely, and the
 languages simpler and easier to learn. The behavior is not only well defined,
 but intuitive. We lose corner cases that would lead to folks falling into vexing
 parses, so explain that less often to students. The term “default constructed”
-is no longer ambiguous, ending many pedantic conversations. In fact, once value
+is no longer ambiguous, ending many pedantic conversations. Once value
 initialization is the only semantic, the term “default Initialization” can be
 repurposed to mean exactly that.
 
@@ -400,7 +400,7 @@ dissatisfied by this option because they believe it's effectively a language
 fork that users of the out-of-band option will come to rely on (this strategy is
 mitigated in MSVC by using a non-zero pattern in debug builds according to
 [[InitAll]]). These developers would rather see the language standardize the
-option officially (i.e. standardize existing practice).
+option officially (i.e., standardize existing practice).
 
 Other values {#ffff}
 ------------
@@ -413,7 +413,7 @@ author implemented a mode where the fundamental types dictate the value used:
 * Floating-point → repeated `0xFF`
 
 This is advantageous in 64-bit platforms because all pointer uses will trap with
-a very recognizable value, though most modern platforms will also trap for large
+a recognizable value, though most modern platforms will also trap for large
 offsets from the null pointer. Floating-point values are NaNs with payload,
 which propagate on floating-point operations and are therefore easy to
 root-cause. It is problematic for some integer values that represent sizes in a
@@ -451,7 +451,7 @@ on a per-value basis:
 Implementations would then do their best to trap on uninitialized value access,
 but when they can't prove that an access is uninitialized through however
 complex optimization scheme, they would revert to zero-initialization. This is
-an interesting approach which Richard Smith has implemented a prototype of in
+an interesting approach which Richard Smith has prototyped in
 [[Trap]]. However, the author's and others' experience is that such a change is
 rejected by teams because it cannot be deployed to codebases that seem to work
 just fine. The Committee might decide to go with this approach, and see whether
@@ -503,7 +503,7 @@ The WG14 C Standards Committee has had extensive discussions about "wobbly
 values" and "wobbly bits", specifically around [[DR451]] and [[N1793]],
 summarized in [[Seacord]].
 
-The C Standards Committee does not seem to have reached a conclusion for C2x,
+The C Standards Committee does not seem to have reached a conclusion for C23,
 and wobbly bits continue to wobble indeterminately.
 
 New Word of Power {#🧙}
@@ -524,7 +524,7 @@ the implementation to emit a diagnostic.
 Under "erroneous behavior", diagnostics are not tied to the erroneous
 evaluation, but can happen at any later point, or never.
 
-"Erroneous behavior" is an acknowledgement of the fact that real programs
+"Erroneous behavior" acknowledges that real programs
 contain errors. Erroneous behavior is always a programming error, but it is not
 always diagnosable by every desirable implementation. An erroneous result is
 well-defined, but never intentional.
@@ -539,8 +539,8 @@ all erroneous behavior, but at a cost.
 
 A design question arises: we might want the rule "if a diagnostic is emitted,
 the behavior is undefined", allowing arbitrary things to happen if an
-implementation chooses to diagnose an erroneous behavior (e.g. terminate,
-log-and-continue, etc.). Although it would be nice to "bound" that somewhat to,
+implementation chooses to diagnose an erroneous behavior (e.g., terminate,
+log-and-continue, etc.). Although it would be nice to bound that somewhat to,
 say, "either not return, or continue with the specified effects and values".
 
 With this new tool available, we can respecify a previously undefined behavior
@@ -549,8 +549,8 @@ to a well-defined, erroneous behavior. For example:
 A default-initialized automatic variable has an implementation-defined object
 representation. Performing `gl2pr` on that variable erroneously results in the
 value implied by that object representation. Note: the compiler must produce
-that specific, implementation-defined value, since that's the value all further
-uses see until a diagnostic is raised (if ever). Since the diagnostic may be
+that specific, implementation-defined value, because that's the value all further
+uses see until a diagnostic is raised (if ever). Because the diagnostic may be
 raised in a different translation unit at a later point, up to which the
 behavior remains well-defined, the compiler can't eagerly assume that the value
 won't be used.
@@ -563,8 +563,8 @@ an acceptable choice for certain (otherwise) unacceptable coding patterns. This
 avoids touching undefined behavior altogether, and instead allows us to
 selectively strengthen the specification of certain operations where we deem the
 risk from erroneous use to be high enough to warrant the performance cost. I
-think it is valuable to call out in the Standard the fact that real programs
-contain errors, since it is hard otherwise to talk about what we are trying to
+think it is valuable to call out in the Standard that real programs
+contain errors, because it is hard otherwise to discuss what we are trying to
 achieve.
 
 ### Other Words ### {#words}
