@@ -8,7 +8,7 @@ Group: WG21
 URL: http://wg21.link/P2723
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2723r1.bs">github.com/jfbastien/papers/blob/master/source/P2723r1.bs</a>
 Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2023-01-14
+Date: 2023-01-15
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -61,10 +61,12 @@ int main() {
     int big;
   } lopsided = '?';                 // padding zero-initialized with this proposal
 
-  int size = getSize();
+  size_t size = getSize();
   char vla[size];                   // in C code, VLAs are zero-initialized with this proposal
+                                    // C++ pretends that VLAs don't exist
 
-  void *allocated = alloca(size);   // in C and C++, alloca results are zero-initialized with this proposal
+  void *allocated = alloca(size);   // alloca results are zero-initialized with this proposal
+                                    // alloca is a common extension
   
   char *allocated = malloc(128);    // unchanged
   int *new_int = new int;           // unchanged
@@ -185,18 +187,18 @@ What exactly is the security issues?
 Undefined Behavior {#ub}
 ------------------
 
-Currently, uninitialized stack variables are Undefined Behavior if they are
-read. The typical outcome is that the program reads stale stack or register
-values, that is whatever previous value happened to be compiled to reside in the
-same stack slot or register. This leads to bugs. Here are the potential
-outcomes:
+Currently, uninitialized stack variables are Undefined Behavior if they are used
+(it is fine to copy them around, but not to use them). The typical outcome is
+that the program reads stale stack or register values, that is whatever previous
+value happened to be compiled to reside in the same stack slot or register. This
+leads to bugs. Here are the potential outcomes:
 
 * *Benign*: in the best case the program causes an unexpected result.
 * *Exploit*: in the worst case it leads to an exploit. There are three outcomes that can lead to an exploit:
 
    * *Read primitive*: this exploit could be formed from reading leaked secrets that reside on the stack or in registers, and using this information to exploit another bug. For example, leaking an important address to defeat ASLR.
    * *Write primitive*: an uninitialized value is used to perform a write to an arbitrary address. Such a write can be transformed into an execute primitive. For example a stack slot is used on a particular execution path to determine the address of a write. The attack can control the previous stack slot's content, and therefore control where the write occurs. Similarly, an attacker could control which value is written, but not where it is written.
-   * *Execute primitive*: an unitialized value is used to call a function.
+   * *Execute primitive*: an uninitialized value is used to call a function.
 
 Compiler Optimizations {#oops}
 ----------------------
@@ -259,7 +261,7 @@ trust boundary. It would have also mitigated a number of bugs involving
 uninitialized struct data being used directly.
 
 To date, we are seeing noise level performance regressions caused by this
-change. We accomplished this by improving the compilers ability to kill
+change. We accomplished this by improving the compiler's ability to kill
 redundant stores. While everything is initialized at declaration, most of these
 initializations can be proven redundant and eliminated.
 </blockquote>
@@ -418,7 +420,7 @@ offsets from the null pointer. Floating-point values are NaNs with payload,
 which propagate on floating-point operations and are therefore easy to
 root-cause. It is problematic for some integer values that represent sizes in a
 bounds check, because such a number is effectively larger that any bounds and
-would potentially permit out-of-bounds accesses that a zero initializetion would
+would potentially permit out-of-bounds accesses that a zero initialization would
 not.
 
 Unfortunately, this scheme optimizes much more poorly and end up being a roughly
@@ -469,7 +471,7 @@ non-conforming).
 Hybrid approach {#hybrid}
 ---------------
 
-We could also standardized a hybrid approach that mixes some of the above,
+We could also standardize a hybrid approach that mixes some of the above,
 creating implementation-defined alternatives which are effectively different
 build modes that the standard allows. This is what [[CarbonInit]] does.
 
@@ -503,8 +505,8 @@ The WG14 C Standards Committee has had extensive discussions about "wobbly
 values" and "wobbly bits", specifically around [[DR451]] and [[N1793]],
 summarized in [[Seacord]].
 
-The C Standards Committee does not seem to have reached a conclusion for C23,
-and wobbly bits continue to wobble indeterminately.
+The C Standards Committee has not reached a conclusion for C23, and wobbly bits
+continue to wobble indeterminately.
 
 New Word of Power {#🧙}
 -----------------
@@ -631,7 +633,7 @@ For example, here is Android's experience on performance costs [[AndroidCosts]].
 Some of the performance costs are hidden by modern CPUs being heavily
 superscalar. Embedded CPUs are often in-order, code running on them might
 therefore have a performance regression that is roughly proportional to code
-size increases. Here too, compiler optimizations can dignificantly reduce these
+size increases. Here too, compiler optimizations can significantly reduce these
 costs.
 
 
@@ -649,14 +651,14 @@ as static analysis, memory sanitizers, and valgrind would therefore be unable to
 diagnose correctness issues (but we would have removed the security issues). It
 should still be best practice to only assign a value to a variable when this
 value is meaningful, and only use an "uninitialized" value when meaning has been
-give to it.
+given to it.
 
 Some types might not have a valid zero value, for example an enum might not
 assign meaning to zero. Initializing this type to zero is then safe, but not
 correct. However, C++ has constructors to deal with this type of issue.
 
 For some types, the zero value might be the "dangerous" one, for example a null
-pointer might be a special sentinel value saying "has all priviledges" in a
+pointer might be a special sentinel value saying "has all privileges" in a
 kernel. A concrete example is on Linux where `task->uid` of zero means `root`,
 uninitialized reads of zero have been the source of CVEs on Linux before.
 
@@ -686,14 +688,15 @@ things should rather be a hard-error in any serious codebase.
 
 `volatile` stack variables are weird. That's pre-existing, it's really the
 language's fault and this proposal keeps it weird. In LLVM, the author opted to
-initialize all `volatile` stack variables to zero. This is techically acceptable
-because they don't have any special hardware or external meaning, they're only
-used to block the optimizer, or in rare cases preserve values across `setjmp` /
-`longjmp` or signals. The double initialization is technically incorrect because
-the compiler shouldn't be performing extra accesses to `volatile` variables, but
-one could argue that the compiler is zero-initializing the storage right before
-the `volatile` is constructed. This would be a pointless discussion which the
-author is happy to have if the counterparty is buying.
+initialize all `volatile` stack variables to zero. This is technically
+acceptable because they don't have any special hardware or external meaning,
+they're only used to block the optimizer, or in rare cases preserve values
+across `setjmp` / `longjmp` or signals. The double initialization is technically
+incorrect because the compiler shouldn't be performing extra accesses to
+`volatile` variables, but one could argue that the compiler is zero-initializing
+the storage right before the `volatile` is constructed. This would be a
+pointless discussion which the author is happy to have if the counterparty is
+buying.
 
 
 Wording {#word}
