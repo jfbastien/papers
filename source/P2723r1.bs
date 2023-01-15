@@ -1,9 +1,9 @@
 <pre class='metadata'>
 Title: Zero-initialize objects of automatic storage duration
-Shortname: D2723
+Shortname: P2723
 Revision: 1
 Audience: EWG, SG12, SG22
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P2723
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2723r1.bs">github.com/jfbastien/papers/blob/master/source/P2723r1.bs</a>
