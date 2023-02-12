@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 0
-!Draft Revision: 0
+!Draft Revision: 1
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
@@ -23,7 +23,7 @@ table, th, td { border: 2px solid grey; }
 Introduction {#intro}
 ============
 
-C and C++ diverge in their definition of forward progress guarantees, and have done so since C++11 and C11 added a memory model and acknowledged that threads exist. Both committees have been working together to reduce needless differences. [[P2735r?]] and [[JensGPaper?]] perform such harmonization.
+C and C++ diverge in their definition of forward progress guarantees, and have done so since C++11 and C11 added a memory model and acknowledged that threads exist. Both committees have been working together to reduce needless differences. [[P2735r0]] and [[N2644]] perform such harmonization.
 
 C does not make iteration statements whose controlling expression is a constant expression Undefined Behavior, whereas C++ does. C++ implementations therefore assume that even "trivial" infinite loops must terminate.
 
@@ -107,7 +107,7 @@ C99 6.8.5p4 states:
 
 C99 therefore disallows compilers from assuming that loops will eventually terminate.
 
-C++11 added a full memory model to C++ through [[Batty?]] and other efforts, allowing C++ to speak of threads and inter-thread communications in a useful manner. This forward progress guarantee does away with the C99 guarantee above. A key to concurrency and parallelism is understanding when forward progress is guaranteed, because without forward progress some concurrent and parallel algorithms do not work. For example, a pair of producer / consumer threads will never consume data if the producer does not have forward progress.
+C++11 added a full memory model to C++, allowing C++ to speak of threads and inter-thread communications in a useful manner. This forward progress guarantee does away with the C99 guarantee above. A key to concurrency and parallelism is understanding when forward progress is guaranteed, because without forward progress some concurrent and parallel algorithms do not work. For example, a pair of producer / consumer threads will never consume data if the producer does not have forward progress.
 
 This memory model work was imported into the C11 standard through [[N1349]]. There were discussions on the topic of forward progress:
 
@@ -168,10 +168,10 @@ Modify **[intro.progress]** as follows:
 <pre class=biblio>
 {
     "N1349": {
-        "href": "???",
-        "title": "???",
-        "authors": ["???"],
-        "date": "???"
+        "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1349.htm",
+        "title": "Parallel memory sequencing model proposal",
+        "authors": ["Clark Nelson", "Hans-J. Boehm", "Lawrence Crowl"],
+        "date": "2009-02-23"
     },
     "N1509": {
         "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1509.pdf",
@@ -185,23 +185,11 @@ Modify **[intro.progress]** as follows:
         "authors": ["Hans Boehm"],
         "date": "2010-10-27"
     },
-    "": {
-        "href": "",
-        "title": "",
-        "authors": [""],
-        "date": ""
-    },
-    "": {
-        "href": "",
-        "title": "",
-        "authors": [""],
-        "date": ""
-    },
-    "": {
-        "href": "",
-        "title": "",
-        "authors": [""],
-        "date": ""
+    "N2644": {
+        "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2644.pdf",
+        "title": "Programming languages — a common C/C++ core specification",
+        "authors": ["Jens Gustedt"],
+        "date": "2021-01-20"
     }
 }
 </pre>
