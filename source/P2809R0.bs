@@ -1,15 +1,14 @@
 <pre class='metadata'>
 Title: Trivial infinite loops are not Undefined Behavior
-Shortname: D2809
+Shortname: P2809
 Revision: 0
-!Draft Revision: 1
 Audience: SG1, SG22, EWG
-Status: D
+Status: P
 Group: WG21
 URL: http://wg21.link/P2809r0
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r0.bs">github.com/jfbastien/papers/blob/master/source/D2809r0.bs</a>
-Editor: JF Bastien, Woven Planet, cxx@jfbastien.com
-Date: 2023-02-11
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2809r0.bs">github.com/jfbastien/papers/blob/master/source/P2809r0.bs</a>
+Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
+Date: 2023-03-14
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -29,7 +28,7 @@ C does not make iteration statements whose controlling expression is a constant 
 
 This is unfortunate because using an infinite loop is a common idiom in low-level programming, particularly when a bare-metal system or kernel must halt progress. It would be easy for programmers to satisfy the C++ requirements on infinite loops, and it would be easy for compilers to diagnose "invalid" infinite loops. Neither programmers nor implementations have done so. Instead, programmers decry C++'s obtuseness, and implementations upset developers by optimizing away their infinite loops (marking them as unreachable, leading to surrounding code being optimized away).
 
-For example, this code prints `Hello, World!` in recent versions of clang:
+For example, this code prints `Hello, World!` in recent versions of clang (<a href="https://godbolt.org/z/d1WP4KP99">see example</a>):
 
 <xmp>
 #include <iostream>
@@ -44,7 +43,9 @@ void unreachable() {
 }
 </xmp>
 
-It is easy for the C++ Standards Committee to instead align with C, and allow "trivial" infinite loops as C does.
+It is easy for the C++ Standards Committee to instead align with C, and allow "trivial" infinite loops as C does. However, care most be taken when doing so. C++ has good reasons to specify that infinite loops are undefined behavior: it is desirable to express forward progress guarantees in a programming language because it unlocks a design space in concurrency and parallelism software and hardware design. An 80 minute deep-dive in this topic is available in [[ForwardProgress]]. A definition of "trivial" which continues supporting this design space is important to reach.
+
+Other programming languages, compilers, and hardware explicitly or de-facto rely on the C++ specification of its abstract machine, including the behavior infinite loops. Some by borrowing from C++'s specification, others by simply using compilers that implement C++ as their optimizer (see [[LLVMProgressDiscussion]], and <a href="https://github.com/rust-lang/rust/issues/28728">a Rust bug of this shape</a>), and yet others by being designed around C++ programs. It is therefore likely that a broader specification for an abstract machine, outside of C++, is needed to truly resolve problems as those tackled in this paper.
 
 
 Standards {#pedantry}
@@ -94,6 +95,8 @@ This forward progress guarantee applies to the follow iteration statements:
     `for` `(` *expression*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `)` *statement*<br>
     `for` `(` *declaration* *expression*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `)` *statement*<br>
 </blockquote>
+
+By omission, iteration statements are undefined if the controlling expression does not meet the criteria above.
 
 
 History {#yawn}
@@ -157,12 +160,24 @@ Modify **[intro.progress]** as follows:
 
   * terminate,
   * make a call to a library I/O function,
-  * perform an access through a `volatile` glvalue, or
+  * perform an access through a `volatile` glvalue,<del> or</del>
   * perform a synchronization operation or an atomic operation<del>.</del><ins>, or</ins>
-  * <ins>execute a loop whose controlling expression is a constant expression which evaluates to nonzero.</ins>
+  * <ins>execute an iteration statements specify looping (*[stmt.iter]*) whose controlling expression is a converted constant expression (*[expr.const]*) that evaluates to nonzero, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while` loop.</ins>
   
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of <ins>non-trivial </ins>empty loops, even when termination cannot be proven. —*end note*]
 </blockquote>
+
+
+Alternatives {#alt}
+============
+
+An advantage of the above proposal is that it matches the C semantics. Any alternative proposal would require changes to C, and might require changes to other languages, compilers, or hardware which rely on the behavior being changed. It should be pointed out that C technically does not have forward progress guarantees, but hints at maybe having some guarantees. C also doesn't reach the same conclusion about infinite loops using `goto` or `setjmp`/`longjmp`.
+
+A problem with the above resolution is that some GPU hardware would halt forward progress on *all* warps in a thread block if one of the warps were to have such an infinite loop. This behavior is acceptable while infinite loops are Undefined Behavior, An alternative would be to specify that such "trivial" infinite loops are equivalent to calling `std::this_thread::yield()` on the backedge. Care should then be taken to specify when an implicit `yield` is added depending on the loop body.
+
+The above approach with `yield` also resolves problems pertaining to code motion which the above resolution does not: is a compiler allowed to hoist code from below a "trivial" infinite loop to above it? The clear answer with the `yield` approach is "no, code cannot be hoisted".
+
+Another alternative would be to tie semantics of "trivial" infinite loops to the progress guarantees of the execution agent (i.e. for concurrent progress only).
 
 
 <pre class=biblio>
@@ -190,6 +205,18 @@ Modify **[intro.progress]** as follows:
         "title": "Programming languages — a common C/C++ core specification",
         "authors": ["Jens Gustedt"],
         "date": "2021-01-20"
+    },
+    "ForwardProgress": {
+        "href": "https://www.youtube.com/watch?v=CuWM-OrPitw",
+        "title": "Forward Progress in C++",
+        "authors": ["Olivier Giroux"],
+        "date": "2022-09-12"
+    },
+    "LLVMProgressDiscussion": {
+        "href": "https://reviews.llvm.org/D65718",
+        "title": "[LangRef] Document forward-progress requirement (Abandoned)",
+        "authors": ["Nikita Popov"],
+        "date": "2019-08-04"
     }
 }
 </pre>
