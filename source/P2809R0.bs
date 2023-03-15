@@ -162,7 +162,7 @@ Modify **[intro.progress]** as follows:
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue,<del> or</del>
   * perform a synchronization operation or an atomic operation<del>.</del><ins>, or</ins>
-  * <ins>execute an iteration statements specify looping (*[stmt.iter]*) whose controlling expression is a converted constant expression (*[expr.const]*) that evaluates to nonzero, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while` loop.</ins>
+  * <ins>execute an iteration statement (*[stmt.iter]*) whose controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while` loop.</ins>
   
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of <ins>non-trivial </ins>empty loops, even when termination cannot be proven. —*end note*]
 </blockquote>
@@ -173,9 +173,37 @@ Alternatives {#alt}
 
 An advantage of the above proposal is that it matches the C semantics. Any alternative proposal would require changes to C, and might require changes to other languages, compilers, or hardware which rely on the behavior being changed. It should be pointed out that C technically does not have forward progress guarantees, but hints at maybe having some guarantees. C also doesn't reach the same conclusion about infinite loops using `goto` or `setjmp`/`longjmp`.
 
+`yield` {#yield}
+-------
+
 A problem with the above resolution is that some GPU hardware would halt forward progress on *all* warps in a thread block if one of the warps were to have such an infinite loop. This behavior is acceptable while infinite loops are Undefined Behavior, An alternative would be to specify that such "trivial" infinite loops are equivalent to calling `std::this_thread::yield()` on the backedge. Care should then be taken to specify when an implicit `yield` is added depending on the loop body.
 
 The above approach with `yield` also resolves problems pertaining to code motion which the above resolution does not: is a compiler allowed to hoist code from below a "trivial" infinite loop to above it? The clear answer with the `yield` approach is "no, code cannot be hoisted".
+
+Early break {#break}
+-----------
+
+An issue with the proposed resolution (and the C status quo) is that this loop:
+
+```
+while (cond) {
+  // ...
+}
+```
+
+is not equivalent to:
+
+```
+while (true) {
+  if (!cond)
+    break;
+}
+```
+
+The same applies for any loop which has a constant expression controlling expression that converts to `true`, and has a `return`, `longjmp`, or (potentially nested) `throw`.
+
+Execution agent {#exe}
+---------------
 
 Another alternative would be to tie semantics of "trivial" infinite loops to the progress guarantees of the execution agent (i.e. for concurrent progress only).
 
