@@ -1,0 +1,323 @@
+<pre class='metadata'>
+Title: Trivial infinite loops are not Undefined Behavior
+Shortname: P2809
+Revision: 1
+!Draft Revision: 1
+Audience: SG1, SG22, EWG
+Status: D
+Group: WG21
+URL: http://wg21.link/D2809r1
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r1.bs">github.com/jfbastien/papers/blob/master/source/D2809r1.bs</a>
+Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
+Date: 2023-06-13
+Markup Shorthands: markdown yes
+Toggle Diffs: no
+No abstract: true
+</pre>
+
+<style>
+table, th, td { border: 2px solid grey; }
+ins { color: #080; }
+</style>
+
+
+Introduction {#intro}
+============
+
+C and C++ diverge in their definition of forward progress guarantees, and have done so since C++11 and C11 added a memory model and acknowledged that threads exist. Both committees have been working together to reduce needless differences. [[P2735r0]] and [[N2644]] perform such harmonization.
+
+C does not make iteration statements whose controlling expression is a constant expression Undefined Behavior, whereas C++ does. C++ implementations therefore assume that even "trivial" infinite loops must terminate.
+
+This is unfortunate because using an infinite loop is a common idiom in low-level programming, particularly when a bare-metal system or kernel must halt progress. It would be easy for programmers to satisfy the C++ requirements on infinite loops, and it would be easy for compilers to diagnose "invalid" infinite loops. Neither programmers nor implementations have done so. Instead, programmers decry C++'s obtuseness, and implementations upset developers by optimizing away their infinite loops (marking them as unreachable, leading to surrounding code being optimized away).
+
+For example, this code prints `Hello, World!` in recent versions of clang (<a href="https://godbolt.org/z/d1WP4KP99">see example</a>):
+
+<xmp>
+#include <iostream>
+
+int main() {
+  while (true)
+    ; 
+}
+
+void unreachable() {
+  std::cout << "Hello world!" << std::endl;
+}
+</xmp>
+
+It is easy for the C++ Standards Committee to instead align with C, and allow "trivial" infinite loops as C does. However, care most be taken when doing so. C++ has good reasons to specify that infinite loops are undefined behavior: it is desirable to express forward progress guarantees in a programming language because it unlocks a design space in concurrency and parallelism software and hardware design. An 80 minute deep-dive in this topic is available in [[ForwardProgress]]. A definition of "trivial" which continues supporting this design space is important to reach.
+
+Other programming languages, compilers, and hardware explicitly or de-facto rely on the C++ specification of its abstract machine, including the behavior infinite loops. Some by borrowing from C++'s specification, others by simply using compilers that implement C++ as their optimizer (see [[LLVMProgressDiscussion]], and <a href="https://github.com/rust-lang/rust/issues/28728">a Rust bug of this shape</a>), and yet others by being designed around C++ programs. It is therefore likely that a broader specification for an abstract machine, outside of C++, is needed to truly resolve problems as those tackled in this paper.
+
+
+Revision History {#rev}
+================
+
+[[P2809r0]] proposed matching the C semantics. It was discussed at the 2023 Varna meeting and received feedback from SG1 against matching C semantics, as explained below.
+
+
+Standards {#pedantry}
+=========
+
+Since C++11, the Standard's forward progress guarantees have been defined in **[intro.progress]** as follows:
+
+<blockquote>
+  The implementation may assume that any thread will eventually do one of the following:
+
+  * terminate,
+  * make a call to a library I/O function,
+  * perform an access through a `volatile` glvalue, or
+  * perform a synchronization operation or an atomic operation.
+
+  [*Note:* This is intended to allow compiler transformations such as removal of empty loops, even when termination cannot be proven. —*end note*]
+</blockquote>
+
+This forward progress guarantee applies to the following iteration statements:
+
+<blockquote>
+    `while` `(` *condition* `)` *statement*<br>
+    `do` *statement* `while` `(` *expression* `)` `;`<br>
+    `for` `(` *init-statement* *condition*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `)` *statement*<br>
+    `for` `(` *init-statement*<sub>*opt*</sub> *for-range-declaration* `:` *for-range-initializer* `)` *statement*<br>
+</blockquote>
+
+Since C11, the Standard's forward progress guarantees have been defined in **Iteration statements** (section 6.8.5 of C17) as follows:
+
+<blockquote>
+  An iteration statement may be assumed by the implementation to terminate if its controlling expression is not a constant expression<sup>†</sup>, and none of the following operations are performed in its body, controlling expression or (in the case of a `for` statement) its *expression-3*<sup>‡</sup>:
+
+  * input/output operations
+  * accessing a `volatile` object
+  * synchronization or atomic operations.
+
+  <sup>†</sup> An omitted controlling expression is replaced by a nonzero constant, which is a constant expression.
+
+  <sup>‡</sup> This is intended to allow compiler transformations such as removal of empty loops even when termination cannot be proven.
+</blockquote>
+
+This forward progress guarantee applies to the follow iteration statements:
+
+<blockquote>
+    `while` `(` *expression* `)` *statement*<br>
+    `do` *statement* `while` `(` *expression* `)` `;`<br>
+    `for` `(` *expression*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `)` *statement*<br>
+    `for` `(` *declaration* *expression*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `)` *statement*<br>
+</blockquote>
+
+By omission, iteration statements are undefined if the controlling expression does not meet the criteria above.
+
+
+History {#yawn}
+=======
+
+C99 6.8.5p4 states:
+
+<blockquote>
+  An iteration statement causes a statement called the loop body to be executed repeatedly until the controlling expression compares equal to `0`.
+</blockquote>
+
+C99 therefore disallows compilers from assuming that loops will eventually terminate.
+
+C++11 added a full memory model to C++, allowing C++ to speak of threads and inter-thread communications in a useful manner. This forward progress guarantee does away with the C99 guarantee above. A key to concurrency and parallelism is understanding when forward progress is guaranteed, because without forward progress some concurrent and parallel algorithms do not work. For example, a pair of producer / consumer threads will never consume data if the producer does not have forward progress.
+
+This memory model work was imported into the C11 standard through [[N1349]]. There were discussions on the topic of forward progress:
+
+* [[N1509]] proposed eliminating the paragraph on forward progress from C1X.
+* [[N1528]] responded to N1509, explaining the C1X wording.
+
+These two papers were discussed, and WG14 took the following decision:
+
+<blockquote>
+  **ACTION** Douglas to work with Larry to come up with the proposed words are:
+
+  Change 6.8.5p6 as follows:
+  
+  <blockquote>
+    An iteration statement whose controlling expression is not a constant expression (or omitted), that performs no input/output operations, does not access `volatile` objects, and performs no synchronization or atomic operations in its body, controlling expression, or (in the case of a `for` statement) its *expressionX3*, may be assumed by the implementation to terminate.
+  </blockquote>
+
+  **Decision:**  Adopt N1509, as modified above, to the C1X WP. result: 14 favor, 0 neutral, 1 against
+</blockquote>
+
+
+Rationale {#why}
+=========
+
+The forward progress guarantees were added to C++11 and C11 along with a memory model. This addition of forward progress guarantees reflected existing practice in compilers, and did not simply serve concurrency and parallelism goals. Indeed, compilers had been assuming that loops can terminate to enable optimizations that transform loops and reorder store instructions and other side-effects. Proving that loops terminate is generally equivalent to solving the halting problem. The compilers were therefore disregarding the C99 wording which said that loops terminate when their controlling expression becomes `0`, and were therefore non-conformant.
+
+The standards added the forward progress guarantees to change an optimization problem from "solve the halting problem" to "there will be observable side effects in the forms of termination, I/O, `volatile`, and/or atomic synchronization, any other operation can be reordered". The former is generally impossible to solve, whereas the latter is eminently tractable.
+
+Forward progress guarantees therefore helped program concurrency and parallelism, and standardized existing practice which unlocked performance in compiler optimizations.
+
+However, developers do sometimes rely on infinite loops, for valid reasons. When they do so, the loops have controlling expressions which are constant expressions. Such controlling expressions are known at compile-time by definition, and are therefore easy for a compiler to detect, and mark a loop as not open to optimizations which assume termination.
+
+That said, an issue arises with the current wording in C, because this loop:
+
+```
+while (cond) {
+  // ...
+}
+```
+
+is not equivalent to that loop:
+
+```
+while (true) {
+  if (!cond)
+    break;
+  // ...
+}
+```
+
+Because its controlling expression is not a constant expression. This difference is surprising because the loops look syntactically equivalent. The same applies for any loop which has a constant expression controlling expression that converts to `true`, and has a `return`, `longjmp`, or (potentially nested) `throw`.
+
+We could conside a change such as adding an implicit `std::this_thread::yield()` to all loops whose controlling expression is a constant expression, but doing so would needlessly pessimize code. This pessimization would likely be measured in multiples for GPU code. Indeed, without the `yield` some GPU hardware would halt forward progress on *all* warps in a thread block if one of the warps were to have an infinite loop. This behavior is acceptable while infinite loops are Undefined Behavior, but pessimizes loops which aren't infinite (and therefore don't exhibit forward progress issues).
+
+The approach with `yield` also causes problems pertaining to code motion: a compiler is no longer allowed to hoist code from below a loops whose controlling expression is a constant expression to above it, nor merge loops whose whose controlling expression is a constant expression. This is also a pessimization which affects more than "trivial" infinite loops.
+
+A change is therefore required which does not match the C semantics, and C would then need to be updated to match. It should be pointed out that C technically does not have forward progress guarantees, but hints at maybe having some guarantees, thefore changes to C ought to consider also adding forward progress guarantees.
+
+This paper does not affect other forms of backwards control flow such as `goto`, `setjmp`/`longjmp`, infinite tail recursion, nor looping with signal handlers. While they are also forms of loops, infinite versions of them are not idiomatic in C and C++. Functional programmers might be upset at this fact.
+
+
+Wording {#word}
+=======
+
+Modify **[intro.progress]** as follows:
+
+<blockquote>
+  The implementation may assume that any thread will eventually do one of the following:
+
+  * terminate,<ins>
+  * call a function marked `[[noreturn]]`,</ins>
+  * make a call to a library I/O function,
+  * perform an access through a `volatile` glvalue, or
+  * perform a synchronization operation or an atomic operation.
+
+  <ins>
+  
+  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::halt()` if this iteration statement:
+
+  </ins>
+
+  <ins>
+
+  * does not perform one of the above, and
+  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while` loop, and
+  * the iteration statement contains none of:
+
+    * a top-level `break` statement,
+    * a `goto` statement which goes out of the loop,
+    * a `return`,
+    * a `co_return` statement,
+    * a `co_await` statement,
+    * a `co_yield` statements, and
+
+  * the iteration statement isn't terminated by any of:
+
+    * an exception being thrown,
+    * a call to `std::longjmp()`,
+    * a signal handler.
+
+  </ins>
+  
+  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of <ins>non-trivial </ins>empty loops, even when termination cannot be proven. —*end note*]
+</blockquote>
+
+Modify **[utility.syn]** as follows:
+
+<blockquote>
+The header `<utility>` contains some basic function and class templates that are used throughout the rest of the library.
+
+  <pre><code>
+  namespace std {
+
+    // ...
+
+
+    // [utility.unreachable], unreachable
+    [[noreturn]] void unreachable();
+
+    <ins>
+    // [utility.halt], halt
+    [[noreturn]] void halt();
+    </ins>
+
+    // ...
+
+  }
+  </code></pre>
+</blockquote>
+
+Add a new section **[utility.halt]** as follows:
+
+<blockquote>
+  <ins>
+  
+  22.2.� Function halt [utility.halt]
+
+  <pre><code>
+    [[noreturn]] void halt();
+  </code></pre>
+
+  *Effects*: Equivalent to:
+  <pre><code>
+  volatile bool truth{true};
+  while (truth)
+    /* nothing */;
+  </code></pre>
+
+  </ins>
+</blockquote>
+
+
+Alternative {#alt}
+===========
+
+An alternative would be to specify something along the lines of:
+
+<blockquote>
+  A program containing an iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while` which has no forward progress guarantee, which is dynamically executes, has no forward progress guarantee until the iteration statement terminates.
+</blockquote>
+
+
+<pre class=biblio>
+{
+    "N1349": {
+        "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1349.htm",
+        "title": "Parallel memory sequencing model proposal",
+        "authors": ["Clark Nelson", "Hans-J. Boehm", "Lawrence Crowl"],
+        "date": "2009-02-23"
+    },
+    "N1509": {
+        "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1509.pdf",
+        "title": "Optimizing away infinite loops",
+        "authors": ["Douglas Walls"],
+        "date": "2010-09-02"
+    },
+    "N1528": {
+        "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1528.htm",
+        "title": "Why undefined behavior for infinite loops?",
+        "authors": ["Hans Boehm"],
+        "date": "2010-10-27"
+    },
+    "N2644": {
+        "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2644.pdf",
+        "title": "Programming languages — a common C/C++ core specification",
+        "authors": ["Jens Gustedt"],
+        "date": "2021-01-20"
+    },
+    "ForwardProgress": {
+        "href": "https://www.youtube.com/watch?v=CuWM-OrPitw",
+        "title": "Forward Progress in C++",
+        "authors": ["Olivier Giroux"],
+        "date": "2022-09-12"
+    },
+    "LLVMProgressDiscussion": {
+        "href": "https://reviews.llvm.org/D65718",
+        "title": "[LangRef] Document forward-progress requirement (Abandoned)",
+        "authors": ["Nikita Popov"],
+        "date": "2019-08-04"
+    }
+}
+</pre>
