@@ -196,6 +196,8 @@ Modify **[intro.progress]** as follows:
 
   <ins>
   
+  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of <ins>non-trivial </ins>empty loops, even when termination cannot be proven. —*end note*]
+  
   Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::halt()` if this iteration statement:
 
   </ins>
@@ -220,8 +222,7 @@ Modify **[intro.progress]** as follows:
     * a signal handler.
 
   </ins>
-  
-  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of <ins>non-trivial </ins>empty loops, even when termination cannot be proven. —*end note*]
+
 </blockquote>
 
 Modify **[utility.syn]** as follows:
