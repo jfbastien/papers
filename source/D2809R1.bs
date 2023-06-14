@@ -188,8 +188,8 @@ Modify **[intro.progress]** as follows:
 <blockquote>
   The implementation may assume that any thread will eventually do one of the following:
 
-  * terminate,<ins>
-  * call a function marked `[[noreturn]]`,</ins>
+  * terminate,
+  * <ins>call a function marked `[[noreturn]]`,</ins>
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue, or
   * perform a synchronization operation or an atomic operation.
