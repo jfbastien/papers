@@ -1,0 +1,47 @@
+<pre class='metadata'>
+Title: Canadian friends are not friends
+Shortname: D????
+Revision: 0
+Audience: EWG
+Status: D
+Group: WG21
+URL: http://wg21.link/P????
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/DCanadian.bs">github.com/jfbastien/papers/blob/master/source/DCanadian.bs</a>
+Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
+Editor: Bruno Cardoso Lopes, Meta, bruno.cardoso@gmail.com
+Editor: Michael Spencer, Apple, bigcheesegs@gmail.com
+Date: 2023-06-13
+Markup Shorthands: markdown yes
+Toggle Diffs: no
+No abstract: true
+</pre>
+
+This paper addresses [[CWG1699]].
+
+```
+import Canadian; // Contains `export class Canadian { class buddy {}; friend struct friendly; };`
+
+class c {
+    class n {};
+    friend struct friendly;
+};
+
+void g() { // #2
+  // 'n' accessible here? 
+}
+
+struct friendly {
+    friend class c::n;          // #1
+    friend void g();            // #2
+    friend void h();            // #3
+    friend void f() { c::n(); } // #4 (EDG/MSVC Reject, Clang/GCC Accept)
+    friend class Canadian::buddy;
+    friend void ohCanada() {    // #5
+        // Canadian::buddy accessible here?
+    }
+};
+
+void h() { // #3
+  // 'n' accessible here? 
+}
+```
