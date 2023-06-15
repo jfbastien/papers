@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 1
+!Draft Revision: 2
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
@@ -177,6 +177,10 @@ The approach with `yield` also causes problems pertaining to code motion: a comp
 
 A change is therefore required which does not match the C semantics, and C would then need to be updated to match. It should be pointed out that C technically does not have forward progress guarantees, but hints at maybe having some guarantees, thefore changes to C ought to consider also adding forward progress guarantees.
 
+The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a call to a new function, `std::halt();`. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
+
+The proposed wording also adds to the list of allowed assumptions that a `[[noreturn]]` function will be called. It was a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
+
 This paper does not affect other forms of backwards control flow such as `goto`, `setjmp`/`longjmp`, infinite tail recursion, nor looping with signal handlers. While they are also forms of loops, infinite versions of them are not idiomatic in C and C++. Functional programmers might be upset at this fact.
 
 
@@ -194,12 +198,10 @@ Modify **[intro.progress]** as follows:
   * perform an access through a `volatile` glvalue, or
   * perform a synchronization operation or an atomic operation.
 
-  <ins>
+  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
-  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of <ins>non-trivial </ins>empty loops, even when termination cannot be proven. —*end note*]
-  
+  <ins>  
   Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::halt()` if this iteration statement:
-
   </ins>
 
   <ins>
@@ -212,8 +214,8 @@ Modify **[intro.progress]** as follows:
     * a `goto` statement which goes out of the loop,
     * a `return`,
     * a `co_return` statement,
-    * a `co_await` statement,
-    * a `co_yield` statements, and
+    * a `co_await` expression,
+    * a `co_yield` expression, and
 
   * the iteration statement isn't terminated by any of:
 
@@ -222,6 +224,8 @@ Modify **[intro.progress]** as follows:
     * a signal handler.
 
   </ins>
+
+  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial empty loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
 
 </blockquote>
 
@@ -253,23 +257,136 @@ The header `<utility>` contains some basic function and class templates that are
 Add a new section **[utility.halt]** as follows:
 
 <blockquote>
-  <ins>
   
-  22.2.� Function halt [utility.halt]
+  <ins>22.2.� Function halt [utility.halt]</ins>
 
   <pre><code>
-    [[noreturn]] void halt();
+    <ins>[[noreturn]] void halt();</ins>
   </code></pre>
 
-  *Effects*: Equivalent to:
+  <ins>*Effects*: Equivalent to:</ins>
   <pre><code>
-  volatile bool truth{true};
-  while (truth)
-    /* nothing */;
+  <ins>for (volatile bool done{false}; !done; )</ins>
+    <ins>/* nothing */;</ins>
   </code></pre>
 
-  </ins>
 </blockquote>
+
+
+Effect {#effect}
+======
+
+Here are examples of the effects of this proposed change:
+
+<table>
+        <thead><tr><th>Code</th><th>Current equivalence in C++</th><th>Current equivalence in C</th><th>Equivalence with this change</th><th>Note</th></tr></thead>
+        <tbody>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        while (true)
+                                            /* nothing */;
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::halt();`)
+                                </td>
+                                <td>
+                                        <pre><code>std::halt();</code></pre>
+                                </td>
+                                <td>
+                                        Idiomatic trivial infinite loop
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        for (;;)
+                                            /* nothing */;
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::halt();`)
+                                </td>
+                                <td>
+                                        <pre><code>std::halt();</code></pre>
+                                </td>
+                                <td>
+                                        Idiomatic trivial infinite loop
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        bool done = false;
+                                        while (!done)
+                                            /* nothing */;
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        The iteration statement's controlling expression isn't a constant expression which converts to `true`
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        bool done = false;
+                                        while (true)
+                                            if (done)
+                                                break;
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::halt();`)
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        Contains `break;`, the iteration statement's controlling expression is a constant expression which converts to `true`
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        void external();
+                                        while (true)
+                                            external();
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        unchanged
+                                </td>
+                                <td>
+                                        unchanged
+                                </td>
+                                <td>
+                                        unchanged
+                                </td>
+                                <td>
+                                        `external` might contain a side-effect, the loop cannot be assumed to be infinite
+                                </td>
+                </tr>
+        </tbody>
+</table>
 
 
 Alternative {#alt}
@@ -278,8 +395,20 @@ Alternative {#alt}
 An alternative would be to specify something along the lines of:
 
 <blockquote>
-  A program containing an iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while` which has no forward progress guarantee, which is dynamically executes, has no forward progress guarantee until the iteration statement terminates.
+  The implementation may assume that any thread will eventually do one of the following:
+
+  * terminate,
+  * <ins>call a function marked `[[noreturn]]`,</ins>
+  * make a call to a library I/O function,
+  * perform an access through a `volatile` glvalue, or
+  * perform a synchronization operation or an atomic operation.
+
+  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
+
+  <ins>Notwithstanding the above, a program containing an iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` loop, or the `expression` of a `do`/`while`, which is dynamically executes, but which does not contain one of the above, has no forward progress guarantee until the iteration statement terminates, at which point its forward progress guarantees are restored.</ins>
 </blockquote>
+
+This approach would cast a wider net, and allow SIMT implementation or cooperative multithreading implementation on a uniprocessor to fail to manifest forward progress on long-running loops which don't have side-effects yet do terminate.
 
 
 <pre class=biblio>
