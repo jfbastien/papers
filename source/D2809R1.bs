@@ -202,7 +202,7 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::halt()` if this iteration statement:
+  Notwithstanding the above, the implementation must implement an iteration statement (*[stmt.iter]*) by a call to `std::halt()` if this iteration statement:
   </ins>
 
   <ins>
