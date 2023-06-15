@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 2
+!Draft Revision: 3
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
@@ -179,7 +179,7 @@ A change is therefore required which does not match the C semantics, and C would
 
 The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a call to a new function, `std::halt();`. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
 
-The proposed wording also adds to the list of allowed assumptions that a `[[noreturn]]` function will be called. It was a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
+The proposed wording also adds to the list of allowed assumptions that a `[[noreturn]]` function or `std::this_thread::yield()` will be called. They were a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
 
 This paper does not affect other forms of backwards control flow such as `goto`, `setjmp`/`longjmp`, infinite tail recursion, nor looping with signal handlers. While they are also forms of loops, infinite versions of them are not idiomatic in C and C++. Functional programmers might be upset at this fact.
 
@@ -194,6 +194,7 @@ Modify **[intro.progress]** as follows:
 
   * terminate,
   * <ins>call a function marked `[[noreturn]]`,</ins>
+  * <ins>call `std::this_thread::yield()`,</ins>
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue, or
   * perform a synchronization operation or an atomic operation.
@@ -324,7 +325,7 @@ Here are examples of the effects of this proposed change:
                 <tr>
                                 <td>
                                         <pre><code>
-                                        bool done = false;
+                                        bool done{false};
                                         while (!done)
                                             /* nothing */;
                                         </code></pre>
@@ -345,7 +346,7 @@ Here are examples of the effects of this proposed change:
                 <tr>
                                 <td>
                                         <pre><code>
-                                        bool done = false;
+                                        bool done{false};
                                         while (true)
                                             if (done)
                                                 break;
@@ -383,6 +384,27 @@ Here are examples of the effects of this proposed change:
                                 </td>
                                 <td>
                                         `external` might contain a side-effect, the loop cannot be assumed to be infinite
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        bool done{false};
+                                        while (!done)
+                                            std::this_thread::yield();
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                </td>
+                                <td>
+                                        undefined behavior (using `thrd_yield()`)
+                                </td>
+                                <td>
+                                        unchanged
+                                </td>
+                                <td>
+                                        a loop without side-effects which nonetheless yields provides forward progress
                                 </td>
                 </tr>
         </tbody>
