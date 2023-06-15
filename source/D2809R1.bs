@@ -95,7 +95,7 @@ Since C11, the Standard's forward progress guarantees have been defined in **Ite
   <sup>‡</sup> This is intended to allow compiler transformations such as removal of empty loops even when termination cannot be proven.
 </blockquote>
 
-This forward progress guarantee applies to the follow iteration statements:
+This forward progress guarantee applies to the following iteration statements:
 
 <blockquote>
     `while` `(` *expression* `)` *statement*<br>
