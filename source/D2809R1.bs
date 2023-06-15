@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 4
+!Draft Revision: 5
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r1
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r1.bs">github.com/jfbastien/papers/blob/master/source/D2809r1.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2023-06-13
+Date: 2023-06-15
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -177,7 +177,7 @@ The approach with `yield` also causes problems pertaining to code motion: a comp
 
 A change is therefore required which does not match the C semantics, and C would then need to be updated to match. It should be pointed out that C technically does not have forward progress guarantees, but hints at maybe having some guarantees, thefore changes to C ought to consider also adding forward progress guarantees.
 
-The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a call to a new function, `std::hang();`. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
+The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a call to a new function, `std::this_thread::hang();`, which is freestanding. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
 
 The proposed wording also adds to the list of allowed assumptions that a `[[noreturn]]` function or `std::this_thread::yield()` will be called. They were a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
 
@@ -203,7 +203,9 @@ The header `<utility>` contains some basic function and class templates that are
 
     <ins>
     // [utility.hang], hang
-    [[noreturn]] void hang();
+    namespace this_thread {
+      [[noreturn]] void hang();
+    }
     </ins>
 
     // ...
@@ -219,7 +221,11 @@ Add a new section **[utility.hang]** as follows:
   <ins>22.2.� Function hang [utility.hang]</ins>
 
   <pre><code>
-    <ins>[[noreturn]] void hang();</ins>
+    <ins>
+    namespace this_thread {
+      [[noreturn]] void hang();
+    }
+    </ins>
   </code></pre>
 
   <ins>*Effects*: Equivalent to:</ins>
@@ -233,16 +239,12 @@ Add a new section **[utility.hang]** as follows:
 Library Bikeshed {#shed-the-lib-bike}
 ----------------
 
-`std::hang` could be named something else. Here are suggestions:
+`std::this_thread::hang` could be named something else. Here are suggestions:
 
 * `std::halt` was deemed confusing by EWG/SG1 because some CPU instructions share the name and halt the entire computer for a while.
-* `std::halt_thread`
 * `std::stop`
-* `std::stop_thread`
 * `std::pause`
-* `std::pause_thread`
 * `std::freeze`
-* `std::freeze_thread`
 * `std::busy`
 * `std::hamster_wheel`
 * `std::beach_ball`
@@ -270,7 +272,7 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::hang()` if this iteration statement:
+  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::this_thread::hang()` if this iteration statement:
   </ins>
 
   <ins>
@@ -316,7 +318,7 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::hang()` if this iteration statement:
+  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::this_thread::hang()` if this iteration statement:
   </ins>
 
   <ins>
@@ -354,13 +356,13 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
-                                        <pre><code>std::hang();</code></pre>
+                                        <pre><code>std::this_thread::hang();</code></pre>
                                 </td>
                                 <td>
-                                        <pre><code>std::hang();</code></pre>
+                                        <pre><code>std::this_thread::hang();</code></pre>
                                 </td>
                                 <td>
                                         Idiomatic trivial infinite loop
@@ -380,13 +382,13 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
-                                        <pre><code>std::hang();</code></pre>
+                                        <pre><code>std::this_thread::hang();</code></pre>
                                 </td>
                                 <td>
-                                        <pre><code>std::hang();</code></pre>
+                                        <pre><code>std::this_thread::hang();</code></pre>
                                 </td>
                                 <td>
                                         Idiomatic trivial infinite loop
@@ -406,10 +408,10 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
-                                        <pre><code>std::hang();</code></pre>
+                                        <pre><code>std::this_thread::hang();</code></pre>
                                 </td>
                                 <td>
                                         undefined behavior
@@ -472,13 +474,13 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
                                         The iteration statement's controlling expression is a constant expression which converts to `true`
@@ -500,7 +502,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
                                         undefined behavior
@@ -533,10 +535,10 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::hang();`)
+                                        infinite loop (same as `std::this_thread::hang();`)
                                 </td>
                                 <td>
                                         undefined behavior
