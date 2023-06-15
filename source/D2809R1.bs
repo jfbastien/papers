@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 3
+!Draft Revision: 4
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
@@ -177,7 +177,7 @@ The approach with `yield` also causes problems pertaining to code motion: a comp
 
 A change is therefore required which does not match the C semantics, and C would then need to be updated to match. It should be pointed out that C technically does not have forward progress guarantees, but hints at maybe having some guarantees, thefore changes to C ought to consider also adding forward progress guarantees.
 
-The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a call to a new function, `std::halt();`. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
+The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a call to a new function, `std::hang();`. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
 
 The proposed wording also adds to the list of allowed assumptions that a `[[noreturn]]` function or `std::this_thread::yield()` will be called. They were a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
 
@@ -202,7 +202,7 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::halt()` if this iteration statement:
+  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::hang()` if this iteration statement:
   </ins>
 
   <ins>
@@ -218,15 +218,14 @@ Modify **[intro.progress]** as follows:
     * a `co_await` expression,
     * a `co_yield` expression, and
 
-  * the iteration statement isn't terminated by any of:
+  * the iteration statement doesn't contain any of:
 
     * an exception being thrown,
-    * a call to `std::longjmp()`,
-    * a signal handler.
+    * a call to `std::longjmp()`.
 
   </ins>
 
-  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial empty loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
+  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
 
 </blockquote>
 
@@ -245,8 +244,8 @@ The header `<utility>` contains some basic function and class templates that are
     [[noreturn]] void unreachable();
 
     <ins>
-    // [utility.halt], halt
-    [[noreturn]] void halt();
+    // [utility.hang], hang
+    [[noreturn]] void hang();
     </ins>
 
     // ...
@@ -255,14 +254,14 @@ The header `<utility>` contains some basic function and class templates that are
   </code></pre>
 </blockquote>
 
-Add a new section **[utility.halt]** as follows:
+Add a new section **[utility.hang]** as follows:
 
 <blockquote>
   
-  <ins>22.2.� Function halt [utility.halt]</ins>
+  <ins>22.2.� Function hang [utility.hang]</ins>
 
   <pre><code>
-    <ins>[[noreturn]] void halt();</ins>
+    <ins>[[noreturn]] void hang();</ins>
   </code></pre>
 
   <ins>*Effects*: Equivalent to:</ins>
@@ -272,6 +271,27 @@ Add a new section **[utility.halt]** as follows:
   </code></pre>
 
 </blockquote>
+
+Bikeshed {#shed-the-bike}
+--------
+
+`std::hang` could be named something else. Here are suggestions:
+
+* `std::halt` was deemed confusing by EWG/SG1 because some CPU instructions share the name and halt the entire computer for a while.
+* `std::halt_thread`
+* `std::stop`
+* `std::stop_thread`
+* `std::pause`
+* `std::pause_thread`
+* `std::freeze`
+* `std::freeze_thread`
+* `std::busy`
+* `std::hamster_wheel`
+* `std::beach_ball`
+* `std::chill_pill`
+* `std::hold_your_horses`
+* `std::🔁`
+* `std::🎡`
 
 
 Effect {#effect}
@@ -291,12 +311,15 @@ Here are examples of the effects of this proposed change:
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::halt();`)
+                                        infinite loop (same as `std::hang();`)
                                 </td>
                                 <td>
-                                        <pre><code>std::halt();</code></pre>
+                                        <pre><code>std::hang();</code></pre>
                                 </td>
                                 <td>
                                         Idiomatic trivial infinite loop
@@ -311,15 +334,41 @@ Here are examples of the effects of this proposed change:
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::halt();`)
+                                        infinite loop (same as `std::hang();`)
                                 </td>
                                 <td>
-                                        <pre><code>std::halt();</code></pre>
+                                        <pre><code>std::hang();</code></pre>
                                 </td>
                                 <td>
                                         Idiomatic trivial infinite loop
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        while (true)
+                                            "a meaningless statement";
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::hang();`)
+                                </td>
+                                <td>
+                                        <pre><code>std::hang();</code></pre>
+                                </td>
+                                <td>
+                                        Idiomatic trivial infinite loop, including a meaningless in the loop body
                                 </td>
                 </tr>
                 <tr>
@@ -332,15 +381,48 @@ Here are examples of the effects of this proposed change:
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         The iteration statement's controlling expression isn't a constant expression which converts to `true`
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        constexpr bool done{false};
+                                        while (!done)
+                                            /* nothing */;
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::hang();`)
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::hang();`)
+                                </td>
+                                <td>
+                                        The iteration statement's controlling expression is a constant expression which converts to `true`
                                 </td>
                 </tr>
                 <tr>
@@ -354,15 +436,45 @@ Here are examples of the effects of this proposed change:
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::halt();`)
+                                        infinite loop (same as `std::hang();`)
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         Contains `break;`, the iteration statement's controlling expression is a constant expression which converts to `true`
+                                </td>
+                </tr>
+                <tr>
+                                <td>
+                                        <pre><code>
+                                        while (true)
+                                            if constexpr (false)
+                                                break;
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::hang();`)
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::hang();`)
+                                </td>
+                                <td>
+                                        The `if constexpr` is unevaluated, the `break;` is therefore not relevant
                                 </td>
                 </tr>
                 <tr>
@@ -374,13 +486,28 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged
+                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        <pre><code>
+                                        void external();
+                                        while (true)
+                                            external();
+                                        </code></pre>
                                 </td>
                                 <td>
-                                        unchanged
+                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        <pre><code>
+                                        void external();
+                                        while (true)
+                                            external();
+                                        </code></pre>
                                 </td>
                                 <td>
-                                        unchanged
+                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        <pre><code>
+                                        void external();
+                                        while (true)
+                                            external();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         `external` might contain a side-effect, the loop cannot be assumed to be infinite
@@ -389,19 +516,25 @@ Here are examples of the effects of this proposed change:
                 <tr>
                                 <td>
                                         <pre><code>
-                                        bool done{false};
-                                        while (!done)
+                                        while (true)
                                             std::this_thread::yield();
                                         </code></pre>
                                 </td>
                                 <td>
                                         undefined behavior
+                                        <pre><code>
+                                        std::unreachable();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         undefined behavior (using `thrd_yield()`)
                                 </td>
                                 <td>
                                         unchanged
+                                        <pre><code>
+                                        while (true)
+                                            std::this_thread::yield();
+                                        </code></pre>
                                 </td>
                                 <td>
                                         a loop without side-effects which nonetheless yields provides forward progress
@@ -421,6 +554,7 @@ An alternative would be to specify something along the lines of:
 
   * terminate,
   * <ins>call a function marked `[[noreturn]]`,</ins>
+  * <ins>call `std::this_thread::yield()`,</ins>
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue, or
   * perform a synchronization operation or an atomic operation.
