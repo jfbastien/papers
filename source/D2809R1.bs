@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 7
+!Draft Revision: 8
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
@@ -204,7 +204,7 @@ The header `<utility>` contains some basic function and class templates that are
     <ins>
     // [utility.halt], halt
     namespace this_thread {
-      [[noreturn]] void halt();
+      [[noreturn]] void halt() noexcept;
     }
     </ins>
 
@@ -223,15 +223,15 @@ Add a new section **[utility.halt]** as follows:
   <pre><code>
     <ins>
     namespace this_thread {
-      [[noreturn]] void halt();
+      [[noreturn]] void halt() noexcept;
     }
     </ins>
   </code></pre>
 
   <ins>*Effects*: Equivalent to:</ins>
   <pre><code>
-  <ins>for (volatile bool done{false}; !done; )</ins>
-    <ins>/* nothing */;</ins>
+  <ins>while (true)</ins>
+    <ins>std::this_thread::yield();</ins>
   </code></pre>
 
 </blockquote>
