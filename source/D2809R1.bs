@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 6
+!Draft Revision: 7
 Audience: SG1, SG22, EWG
 Status: D
 Group: WG21
@@ -279,7 +279,7 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::this_thread::halt()` if this iteration statement:
+  Notwithstanding the above, the implementation must implement an iteration statement (*[stmt.iter]*) by a call to `std::this_thread::halt()` if this iteration statement:
   </ins>
 
   <ins>
@@ -325,7 +325,7 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation must assume that an iteration statement (*[stmt.iter]*) is equivalent to a call to `std::this_thread::halt()` if this iteration statement:
+  Notwithstanding the above, the implementation must implement an iteration statement (*[stmt.iter]*) by a call to `std::this_thread::halt()` if this iteration statement:
   </ins>
 
   <ins>
