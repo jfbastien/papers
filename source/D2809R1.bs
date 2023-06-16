@@ -241,7 +241,11 @@ Library Bikeshed {#shed-the-lib-bike}
 
 `std::this_thread::halt` could be named something else. Here are suggestions:
 
+* `std::infinite_loop`
+* `std::block_forever`
+* `std::sleep_forever`
 * `std::hang`
+* `std::sleep`
 * `std::stop`
 * `std::pause`
 * `std::suspend`
