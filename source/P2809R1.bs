@@ -2,14 +2,13 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: P2809
 Revision: 1
-!Draft Revision: 8
-Audience: SG1, SG22, EWG
-Status: D
+Audience: SG1, SG22, EWG, LEWG
+Status: P
 Group: WG21
-URL: http://wg21.link/D2809r1
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r1.bs">github.com/jfbastien/papers/blob/master/source/D2809r1.bs</a>
+URL: http://wg21.link/P2809r1
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P2809r1.bs">github.com/jfbastien/papers/blob/master/source/P2809r1.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2023-06-16
+Date: 2023-06-18
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -213,6 +212,8 @@ The header `<utility>` contains some basic function and class templates that are
   }
   </code></pre>
 </blockquote>
+
+Also modify **[thread.syn]** as above.
 
 Add a new section **[utility.halt]** as follows:
 
