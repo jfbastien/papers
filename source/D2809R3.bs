@@ -230,10 +230,10 @@ Modify **[thread.threads]** as follows:
       <ins>
       [[noreturn]] void yield_forever() noexcept;
       </ins>
-      template<class Clock, class Duration>
-        void sleep_until(const chrono::time_point<Clock, Duration>& abs_time);
-      template<class Rep, class Period>
-        void sleep_for(const chrono::duration<Rep, Period>& rel_time);    
+      template&lt:class Clock, class Duration&gt;
+        void sleep_until(const chrono::time_point&lt;Clock, Duration&gt;& abs_time);
+      template&lt;class Rep, class Period&gt;
+        void sleep_for(const chrono::duration&lt;Rep, Period&gt;& rel_time);    
     }
 
   }
@@ -245,11 +245,9 @@ Add a paragraph to section **[thread.thread.this]** as follows:
 <blockquote>
   
   <pre><code>
-  namespace this_thread {
     <ins>
       [[noreturn]] void yield_forever() noexcept;
     </ins>
-  }
   </code></pre>
 
   <ins>*Effects*: Equivalent to:</ins>
