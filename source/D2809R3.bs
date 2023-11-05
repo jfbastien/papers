@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 1
+!Draft Revision: 2
 Audience: SG1, SG22, LEWG, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2023-10-30
+Date: 2023-11-05
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -304,26 +304,26 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
   <ins>  
-  Notwithstanding the above, the implementation shall implement an iteration statement (*[stmt.iter]*) as equivalent to a call to `std::this_thread::yield_forever()` if this iteration statement:
+  Notwithstanding the above, the implementation shall implement an iteration statement (*[stmt.iter]*) as equivalent to a call to `std::this_thread::yield_forever()` if:
   </ins>
 
   <ins>
 
-  * does not contain one of the above in any of its subexpressions (*[intro.execution]*), and
-  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do`/`while` statement, and
-  * the iteration statement contains none of:
+  * the iteration statement, nor any of the subexpresssions (*[intro.execution]*), do not enclose any of the above, and
+  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do` statement, and
+  * the iteration statement encloses none of:
 
     * a top-level `break` statement (*[stmt.break]*),
-    * a `goto` statement (*[stmt.goto]*) whose label (*[stmt.label]*) is located outside of the iteration statement's substatement's block scope (*[basic.scope]*),
+    * a `goto` statement (*[stmt.goto]*) whose label (*[stmt.label]*) is located outside of the iteration statement's substatement,
     * a `return` statement (*[stmt.return]*),
     * a `co_return` statement (*[stmt.return.coroutine]*),
     * a `co_await` expression (*[expr.await]*),
     * a `co_yield` expression (*[expr.yield]*), and
 
-* the iteration statement and its subexpressions (*[intro.execution]*) contain neither of:
+* the iteration statement and its subexpressions (*[intro.execution]*) encloses neither of:
 
-  * a potentially-throwing expression (*[except.spec]*), nor
-  * a function call (*[expr.call]*) to `std::longjmp()` (*[csetjmp.syn]*).
+    * a potentially-throwing expression (*[except.spec]*), nor
+    * a function call (*[expr.call]*) to `std::longjmp` (*[csetjmp.syn]*).
 
   </ins>
   
@@ -331,7 +331,7 @@ Modify **[intro.progress]** as follows:
   <br>
   <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
   <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation should match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` should also provide `std::yield_forever`, and may offer this behavior. —*end note*]</ins>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation is encouraged to match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` is encouraged to also provide `std::yield_forever`, and is encouraged to offer the behavior described above. —*end note*]</ins>
 
 </blockquote>
 
@@ -360,7 +360,7 @@ Modify **[intro.progress]** as follows:
   <ins>
 
   * does not perform one of the above, and
-  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do`/`while` statement, and
+  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do` statement, and
   * the iteration statement's statement a null statement.
 
   </ins>
@@ -369,7 +369,7 @@ Modify **[intro.progress]** as follows:
   <br>
   <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
   <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation should match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` should also provide `std::yield_forever`, and may offer this behavior. —*end note*]</ins>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation is encouraged to match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` is encouraged to also provide `std::yield_forever`, and is encouraged to offer the behavior described above. —*end note*]</ins>
 
 </blockquote>
 
@@ -693,7 +693,7 @@ An alternative would be to specify something along the lines of:
 
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
 
-  <ins>Notwithstanding the above, a program containing an iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do`/`while`, which is dynamically executes, but which does not contain one of the above, has no forward progress guarantee until the iteration statement terminates, at which point its forward progress guarantees are restored.</ins>
+  <ins>Notwithstanding the above, a program enclosing an iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do`, which is dynamically executes, but which does not enclose one of the above, has no forward progress guarantee until the iteration statement terminates, at which point its forward progress guarantees are restored.</ins>
 </blockquote>
 
 This approach would cast a wider net, and allow SIMT implementation or cooperative multithreading implementation on a uniprocessor to fail to manifest forward progress on long-running loops which don't have side-effects yet do terminate.
