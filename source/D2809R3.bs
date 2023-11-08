@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 3
+!Draft Revision: 5
 Audience: SG22, LEWG, EWG
 Status: D
 Group: WG21
@@ -53,11 +53,59 @@ Other programming languages, compilers, and hardware explicitly or de-facto rely
 Revision History {#rev}
 ================
 
+Revision 0 {#r0}
+----------
+
 [[P2809r0]] proposed matching the C semantics. It was discussed at the 2023 Varna meeting and received feedback from SG1 against matching C semantics, as explained below.
+
+**Poll:** SG1 in Varna: Support what C supports (paper P2809R0 as is)
+
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td> 0 </td><td> 5 </td><td> 5 </td><td> 6 </td><td> 2 </td></tr>
+</table>
+
+Revision 1 {#r1}
+----------
 
 [[P2809r1]] incorporated feedback from the C++ committee.
 
+It was seen in Varna.
+
+**Poll:** EWG approves of the direction of D2809R1R3 (Trivial infinite loops are not Undefined Behavior), and would like to see it again with a more mature wording, reflecting the feedback given.
+
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td> 16 </td><td> 17 </td><td> 4 </td><td> 0 </td><td> 0 </td></tr>
+</table>
+
+**Result:** Consensus
+
+Revision 2 {#r2}
+----------
+
 [[P2809r2]] went through LEWG name bikeshedding, and chose a name.
+
+EWG reviewed this on Kona on Monday.
+
+**Poll:** forward P2809r2 “Trivial infinite loops are not Undefined Behavior” option #1 (after adding “function calls” to the list) to CWG for inclusion in C++26.
+
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td> 3 </td><td> 11 </td><td> 3 </td><td> 3 </td><td> 1 </td></tr>
+</table>
+
+**Poll:** forward P2809r2 “Trivial infinite loops are not Undefined Behavior” option #2 to CWG for inclusion in C++26.
+
+<table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td> 6 </td><td> 11 </td><td> 3 </td><td> 1 </td><td> 0 </td></tr>
+</table>
+
+**Result:** Consensus.
+
+Revision 3 {#r3}
+----------
 
 P2809r3 considers the freestanding behavior, and applies wording changes on the language side to follow CWG guidance.
 
@@ -288,6 +336,8 @@ This question was <a href="https://lists.isocpp.org/lib-ext/2023/06/25317.php">p
 
 Language Wording Option #1 {#lang-word-1}
 ==========================
+
+Per EWG discussion in [[#r2]], this is not the preferred option, [[#lang-word-2]] is preferred.
 
 Modify **[intro.progress]** as follows:
 
