@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 2
-Audience: SG1, SG22, LEWG, EWG
+!Draft Revision: 3
+Audience: SG22, LEWG, EWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2023-11-05
+Date: 2023-11-07
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -309,7 +309,7 @@ Modify **[intro.progress]** as follows:
 
   <ins>
 
-  * the iteration statement, nor any of the subexpresssions (*[intro.execution]*), do not enclose any of the above, and
+  * the iteration statement, nor any of the subexpresssions (*[intro.execution]*), do not enclose an access through a `volatile` glvalue, nor a synchronization operation or an atomic operation, and
   * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do` statement, and
   * the iteration statement encloses none of:
 
@@ -318,12 +318,9 @@ Modify **[intro.progress]** as follows:
     * a `return` statement (*[stmt.return]*),
     * a `co_return` statement (*[stmt.return.coroutine]*),
     * a `co_await` expression (*[expr.await]*),
-    * a `co_yield` expression (*[expr.yield]*), and
-
-* the iteration statement and its subexpressions (*[intro.execution]*) encloses neither of:
-
-    * a potentially-throwing expression (*[except.spec]*), nor
-    * a function call (*[expr.call]*) to `std::longjmp` (*[csetjmp.syn]*).
+    * a `co_yield` expression (*[expr.yield]*),
+    * a potentially-throwing expression (*[except.spec]*), and
+    * a function call (*[expr.call]*).
 
   </ins>
   
