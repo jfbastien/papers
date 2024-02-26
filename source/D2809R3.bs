@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 5
-Audience: SG22, LEWG, EWG
+!Draft Revision: 7
+Audience: SG22, CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2023-11-07
+Date: 2024-02-26
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -72,7 +72,7 @@ Revision 1 {#r1}
 
 It was seen in Varna.
 
-**Poll:** EWG approves of the direction of D2809R1R3 (Trivial infinite loops are not Undefined Behavior), and would like to see it again with a more mature wording, reflecting the feedback given.
+**Poll:** EWG approves of the direction of D2809R1R3 (Trivial infinite loops are not undefined behavior), and would like to see it again with a more mature wording, reflecting the feedback given.
 
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
@@ -88,14 +88,14 @@ Revision 2 {#r2}
 
 EWG reviewed this on Kona on Monday.
 
-**Poll:** forward P2809r2 “Trivial infinite loops are not Undefined Behavior” option #1 (after adding “function calls” to the list) to CWG for inclusion in C++26.
+**Poll:** forward P2809r2 “Trivial infinite loops are not undefined behavior” option #1 (after adding “function calls” to the list) to CWG for inclusion in C++26.
 
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
     <tr><td> 3 </td><td> 11 </td><td> 3 </td><td> 3 </td><td> 1 </td></tr>
 </table>
 
-**Poll:** forward P2809r2 “Trivial infinite loops are not Undefined Behavior” option #2 to CWG for inclusion in C++26.
+**Poll:** forward P2809r2 “Trivial infinite loops are not undefined behavior” option #2 to CWG for inclusion in C++26.
 
 <table>
     <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
@@ -107,7 +107,7 @@ EWG reviewed this on Kona on Monday.
 Revision 3 {#r3}
 ----------
 
-P2809r3 considers the freestanding behavior, and applies wording changes on the language side to follow CWG guidance.
+P2809r3 considers the freestanding behavior, and applies wording changes on the language side to follow CWG guidance. It was seen and approved by LEWG.
 
 
 Standards {#pedantry}
@@ -169,7 +169,7 @@ Freestanding implementations aren't given the same guarantees. Indeed, **[intro.
    Under a hosted implementation, a C++ program can have more than one thread running concurrently.
 </blockquote>
 
-Which means that freestanding implementation can have no threads running concurrently.
+Which means that a freestanding implementation can have no threads running concurrently.
 
 Combined with **[intro.progress]**:
 
@@ -244,7 +244,7 @@ while (true) {
 
 Because its controlling expression is not a constant expression. This difference is surprising because the loops look syntactically equivalent. The same applies for any loop which has a constant expression controlling expression that converts to `true`, and has a `return`, `longjmp`, or (potentially nested) `throw`.
 
-We could conside a change such as adding an implicit `std::this_thread::yield()` to all loops whose controlling expression is a constant expression, but doing so would needlessly pessimize code. This pessimization would likely be measured in multiples for GPU code. Indeed, without the `yield` some GPU hardware would yield_forever forward progress on *all* warps in a thread block if one of the warps were to have an infinite loop. This behavior is acceptable while infinite loops are Undefined Behavior, but pessimizes loops which aren't infinite (and therefore don't exhibit forward progress issues).
+We could conside a change such as adding an implicit `std::this_thread::yield()` to all loops whose controlling expression is a constant expression, but doing so would needlessly pessimize code. This pessimization would likely be measured in multiples for GPU code. Indeed, without the `yield` some GPU hardware would `yield_forever` forward progress on *all* warps in a thread block if one of the warps were to have an infinite loop. This behavior is acceptable while infinite loops are undefined behavior, but pessimizes loops which aren't infinite (and therefore don't exhibit forward progress issues).
 
 The approach with `yield` also causes problems pertaining to code motion: a compiler is no longer allowed to hoist code from below a loops whose controlling expression is a constant expression to above it, nor merge loops whose whose controlling expression is a constant expression. This is also a pessimization which affects more than "trivial" infinite loops.
 
@@ -306,117 +306,54 @@ Add a paragraph to section **[thread.thread.this]** as follows:
 
 </blockquote>
 
-Library Bikeshed {#shed-the-lib-bike}
-----------------
-
-`std::this_thread::yield_forever` could be named something else. Here are suggestions:
-
-* `halt`
-* `infinite_loop`
-* `block_forever`
-* `sleep_forever`
-* `hang`
-* `sleep`
-* `stop`
-* `pause`
-* `suspend`
-* `freeze`
-* `busy`
-* `stall`
-* `restrain`
-* `hamster_wheel`
-* `beach_ball`
-* `chill_pill`
-* `hold_your_horses`
-* `🔁`
-* `🎡`
-
-This question was <a href="https://lists.isocpp.org/lib-ext/2023/06/25317.php">posed to LEWG</a>. After over 50 emails were successfully sent, a clear name was not successfully identified. The author chose one of the suggestions because the semantics are to call `yield` in a loop, forever.
+    <ins>*Recommended practice:* A freestanding environment which implements `std::this_thread::yield` should also provide `std::this_thread::yield_forever`.</ins>
 
 
-Language Wording Option #1 {#lang-word-1}
-==========================
+Language Wording {#lang-word}
+================
 
-Per EWG discussion in [[#r2]], this is not the preferred option, [[#lang-word-2]] is preferred.
-
-Modify **[intro.progress]** as follows:
+Modify **[stmt.iter]**, adding the following section at its end:
 
 <blockquote>
-  The implementation may assume that any thread will eventually do one of the following:
-
-  * terminate,
-  * <ins>call a function marked `[[noreturn]]`,</ins>
-  * <ins>call `std::this_thread::yield()`,</ins>
-  * make a call to a library I/O function,
-  * perform an access through a `volatile` glvalue, or
-  * perform a synchronization operation or an atomic operation.
-
-  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
-  
-  <ins>  
-  Notwithstanding the above, the implementation shall implement an iteration statement (*[stmt.iter]*) as equivalent to a call to `std::this_thread::yield_forever()` if:
-  </ins>
-
-  <ins>
-
-  * the iteration statement, nor any of the subexpresssions (*[intro.execution]*), do not enclose an access through a `volatile` glvalue, nor a synchronization operation or an atomic operation, and
-  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do` statement, and
-  * the iteration statement encloses none of:
-
-    * a top-level `break` statement (*[stmt.break]*),
-    * a `goto` statement (*[stmt.goto]*) whose label (*[stmt.label]*) is located outside of the iteration statement's substatement,
-    * a `return` statement (*[stmt.return]*),
-    * a `co_return` statement (*[stmt.return.coroutine]*),
-    * a `co_await` expression (*[expr.await]*),
-    * a `co_yield` expression (*[expr.yield]*),
-    * a potentially-throwing expression (*[except.spec]*), and
-    * a function call (*[expr.call]*).
-
-  </ins>
-  
-  <ins>It is implementation-defined whether a program in a freestanding environment is required to implement the above behavior of iteration statements.</ins>
+  <ins>8.6.� Trivial empty iteration statement **[stmt.iter.empty]**</ins>
   <br>
-  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
+  <ins>An *iteration-statement* of the form that matches one of the following:</ins>
   <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation is encouraged to match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` is encouraged to also provide `std::yield_forever`, and is encouraged to offer the behavior described above. —*end note*]</ins>
+  
+  * <ins>`while` `(` *condition* `)` `;`</ins>
+  * <ins>`while` `(` *condition* `)` `{ }`</ins>
+  * <ins>`do` `;` `while` `(` *expression* `)` `;`</ins>
+  * <ins>`do` `{ }` `while` `(` *expression* `)` `;`</ins>
+  * <ins>`for` `(` *init-statement* *condition*<sub>*opt*</sub> `;` `)` `;`</ins>
+  * <ins>`for` `(` *init-statement* *condition*<sub>*opt*</sub> `;` `)` `{ }`</ins>
+  
+  <ins>is a *trivially empty iteration statement*.</ins>
+  <br>
+  <ins>A *trivially empty iteration statement*'s *controlling expression* is the *condition* for a `while` or `for` statement, and is the *expression* for a `do` statement.</ins>
 
 </blockquote>
 
-
-Language Wording Option #2 {#lang-word-2}
-==========================
-
 Modify **[intro.progress]** as follows:
 
 <blockquote>
   The implementation may assume that any thread will eventually do one of the following:
 
   * terminate,
-  * <ins>call a function marked `[[noreturn]]`,</ins>
   * <ins>call `std::this_thread::yield()`,</ins>
   * make a call to a library I/O function,
-  * perform an access through a `volatile` glvalue, or
-  * perform a synchronization operation or an atomic operation.
+  * perform an access through a `volatile` glvalue,<del> or</del>
+  * perform a synchronization operation or an atomic operation<del>.</del><ins>, or</ins>
+  * <ins>continue execution of a *trivially empty iteration statement* (**[stmt.iter.empty]**) whose *controlling expression* would, as the condition of a `constexpr if` statement, be valid and evaluate to `true`.</ins>
 
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
-  <ins>  
-  Notwithstanding the above, the implementation shall implement an iteration statement (*[stmt.iter]*) as equivalent to a call to `std::this_thread::yield_forever()` if this iteration statement:
-  </ins>
-
-  <ins>
-
-  * does not perform one of the above, and
-  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do` statement, and
-  * the iteration statement's statement a null statement.
-
-  </ins>
-
-  <ins>It is implementation-defined whether a program in a freestanding environment is required to implement the above behavior of iteration statements.</ins>
+  <ins>The implementation shall implement *trivially empty iteration statement*s (**[stmt.iter.empty]**) whose *controlling expression* would, as the condition of a `constexpr if` statement, be valid and evaluate to `true` as equivalent to a call to `std::this_thread::yield_forever()`.</ins>
   <br>
-  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being Undefined Behavior per the previous clause. —*end note*]</ins>
+  <ins>It is implementation-defined whether a program in a freestanding environment is required to implement the above behavior of *trivially empty iteration statement*s.</ins>
   <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation is encouraged to match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` is encouraged to also provide `std::yield_forever`, and is encouraged to offer the behavior described above. —*end note*]</ins>
+  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being undefined behavior because of the forward progress guarantees. —*end note*]</ins>
+  <br>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. —*end note*]</ins>
 
 </blockquote>
 
@@ -427,7 +364,7 @@ Effect {#effect}
 Here are examples of the effects of this proposed change:
 
 <table>
-        <thead><tr><th>Code</th><th>Current equivalence in C++</th><th>Current equivalence in C</th><th>Equivalence with Language Wording #1</th><th>Equivalence with Language Wording #2</th><th>Note</th></tr></thead>
+        <thead><tr><th>Code</th><th>Current equivalence in C++</th><th>Current equivalence in C</th><th>Equivalence with Proposed Language Wording</th><th>Equivalence with Alternate Language Wording</th><th>Note</th></tr></thead>
         <tbody>
                 <tr>
                                 <td>
@@ -498,13 +435,13 @@ Here are examples of the effects of this proposed change:
                                         infinite loop (same as `std::this_thread::yield_forever();`)
                                 </td>
                                 <td>
-                                        <pre><code>std::this_thread::yield_forever();</code></pre>
-                                </td>
-                                <td>
                                         undefined behavior
                                         <pre><code>
                                         std::unreachable();
                                         </code></pre>
+                                </td>
+                                <td>
+                                        <pre><code>std::this_thread::yield_forever();</code></pre>
                                 </td>
                                 <td>
                                         Trivial infinite loop, including a meaningless statement in the loop body
@@ -625,13 +562,13 @@ Here are examples of the effects of this proposed change:
                                         infinite loop (same as `std::this_thread::yield_forever();`)
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
-                                </td>
-                                <td>
                                         undefined behavior
                                         <pre><code>
                                         std::unreachable();
                                         </code></pre>
+                                </td>
+                                <td>
+                                        infinite loop (same as `std::this_thread::yield_forever();`)
                                 </td>
                                 <td>
                                         The `if constexpr` is unevaluated, the `break;` is therefore not relevant
@@ -646,7 +583,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        unchanged (undefined behavior if `external` doesn't contain a side-effect)
                                         <pre><code>
                                         void external();
                                         while (true)
@@ -654,7 +591,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        unchanged (undefined behavior if `external` doesn't contain a side-effect)
                                         <pre><code>
                                         void external();
                                         while (true)
@@ -662,7 +599,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        unchanged (undefined behavior if `external` doesn't contain a side-effect)
                                         <pre><code>
                                         void external();
                                         while (true)
@@ -670,7 +607,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged (Undefined Behavior if `external` doesn't contain a side-effect)
+                                        unchanged (undefined behavior if `external` doesn't contain a side-effect)
                                         <pre><code>
                                         void external();
                                         while (true)
@@ -726,7 +663,87 @@ Here are examples of the effects of this proposed change:
 Alternative {#alt}
 ===========
 
-An alternative would be to specify something along the lines of:
+Library Bikeshed {#shed-the-lib-bike}
+================
+
+`std::this_thread::yield_forever` could be named something else. Here are suggestions:
+
+* `halt`
+* `infinite_loop`
+* `block_forever`
+* `sleep_forever`
+* `hang`
+* `sleep`
+* `stop`
+* `pause`
+* `suspend`
+* `freeze`
+* `busy`
+* `stall`
+* `restrain`
+* `hamster_wheel`
+* `beach_ball`
+* `chill_pill`
+* `hold_your_horses`
+* `🔁`
+* `🎡`
+
+This question was <a href="https://lists.isocpp.org/lib-ext/2023/06/25317.php">posed to LEWG</a>. After over 50 emails were successfully sent, a clear name was not successfully identified. The author chose one of the suggestions because the semantics are to call `yield` in a loop, forever.
+
+
+Alternative Language Wording {#lang-alt}
+============================
+
+Per EWG discussion in [[#r2]], this is not the preferred option, [[#lang-word]] is preferred.
+
+Modify **[intro.progress]** as follows:
+
+<blockquote>
+  The implementation may assume that any thread will eventually do one of the following:
+
+  * terminate,
+  * <ins>call a function marked `[[noreturn]]`,</ins>
+  * <ins>call `std::this_thread::yield()`,</ins>
+  * make a call to a library I/O function,
+  * perform an access through a `volatile` glvalue, or
+  * perform a synchronization operation or an atomic operation.
+
+  [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
+  
+  <ins>  
+  Notwithstanding the above, the implementation shall implement an iteration statement (*[stmt.iter]*) as equivalent to a call to `std::this_thread::yield_forever()` if:
+  </ins>
+
+  <ins>
+
+  * the iteration statement, nor any of the subexpresssions (*[intro.execution]*), do not enclose an access through a `volatile` glvalue, nor a synchronization operation or an atomic operation, and
+  * the iteration statement's controlling expression is a converted constant expression (*[expr.const]*) that converts to `true`, where the controlling expression is the *condition* of a `while` or `for` statement, or the `expression` of a `do` statement, and
+  * the iteration statement encloses none of:
+
+    * a top-level `break` statement (*[stmt.break]*),
+    * a `goto` statement (*[stmt.goto]*) whose label (*[stmt.label]*) is located outside of the iteration statement's substatement,
+    * a `return` statement (*[stmt.return]*),
+    * a `co_return` statement (*[stmt.return.coroutine]*),
+    * a `co_await` expression (*[expr.await]*),
+    * a `co_yield` expression (*[expr.yield]*),
+    * a potentially-throwing expression (*[except.spec]*), and
+    * a function call (*[expr.call]*).
+
+  </ins>
+  
+  <ins>It is implementation-defined whether a program in a freestanding environment is required to implement the above behavior of iteration statements.</ins>
+  <br>
+  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being undefined behavior per the above. —*end note*]</ins>
+  <br>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. An implementation is encouraged to match the behavior of potentially infinite iteration statements with its implementation-defined concurrent behavior. A freestanding environment which implements `std::yield` is encouraged to also provide `std::yield_forever`, and is encouraged to offer the behavior described above. —*end note*]</ins>
+
+</blockquote>
+
+
+Handwavy Language Wording {#lang-wave}
+=========================
+
+An alternative that saw little interest in discussions would be to specify something along the lines of:
 
 <blockquote>
   The implementation may assume that any thread will eventually do one of the following:
