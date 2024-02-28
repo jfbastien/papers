@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 7
+!Draft Revision: 8
 Audience: SG22, CWG
 Status: D
 Group: WG21
@@ -312,12 +312,14 @@ Add a paragraph to section **[thread.thread.this]** as follows:
 Language Wording {#lang-word}
 ================
 
-Modify **[stmt.iter]**, adding the following section at its end:
+Modify **[stmt.iter.general]**, adding the following paragraph at its end:
 
 <blockquote>
-  <ins>8.6.� Trivial empty iteration statement **[stmt.iter.empty]**</ins>
+  8.6.1 General
   <br>
-  <ins>An *iteration-statement* of the form that matches one of the following:</ins>
+  [...]
+  <br>
+  <ins>An iteration statement of the form that matches one of the following:</ins>
   <br>
   
   * <ins>`while` `(` *condition* `)` `;`</ins>
@@ -329,7 +331,17 @@ Modify **[stmt.iter]**, adding the following section at its end:
   
   <ins>is a *trivially empty iteration statement*.</ins>
   <br>
-  <ins>A *trivially empty iteration statement*'s *controlling expression* is the *condition* for a `while` or `for` statement, and is the *expression* for a `do` statement.</ins>
+  <ins>The *controlling expression* of a trivially empty iteration statement is the condition for a `while` or `for` statement (or `true`, if the `for` statement has no condition), and is the expression for a `do` statement.</ins>
+  <br>
+  <ins>A trivially empty iteration statement for which the converted controlling expression shall be a constant expression that evaluates to `true`, is a *trivial infinite loop*.</ins>
+  <br>
+  <ins>A trivial infinite loop is equivalent to a call to `std::this_thread::yield_forever()`.</ins>
+  <br>
+  <ins>It is implementation-defined whether the above behavior of a trivial infinite loop is implemented in a freestanding environment.</ins>
+  <br>
+  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being undefined behavior because of the forward progress guarantees. —*end note*]</ins>
+  <br>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. —*end note*]</ins>
 
 </blockquote>
 
@@ -343,18 +355,10 @@ Modify **[intro.progress]** as follows:
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue,<del> or</del>
   * perform a synchronization operation or an atomic operation<del>.</del><ins>, or</ins>
-  * <ins>continue execution of a *trivially empty iteration statement* (**[stmt.iter.empty]**) whose *controlling expression* would, as the condition of a `constexpr if` statement, be valid and evaluate to `true`.</ins>
+  * <ins>continue execution of a trivial infinite loop (**[stmt.iter.general**]).</ins>
 
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
-  <ins>The implementation shall implement *trivially empty iteration statement*s (**[stmt.iter.empty]**) whose *controlling expression* would, as the condition of a `constexpr if` statement, be valid and evaluate to `true` as equivalent to a call to `std::this_thread::yield_forever()`.</ins>
-  <br>
-  <ins>It is implementation-defined whether a program in a freestanding environment is required to implement the above behavior of *trivially empty iteration statement*s.</ins>
-  <br>
-  <ins>[*Note:* This is intended to allow programmers to use idiomatic trivial infinite loops without these loops being undefined behavior because of the forward progress guarantees. —*end note*]</ins>
-  <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed. —*end note*]</ins>
-
 </blockquote>
 
 
