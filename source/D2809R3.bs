@@ -2,7 +2,7 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 8
+!Draft Revision: 9
 Audience: SG22, CWG
 Status: D
 Group: WG21
@@ -319,21 +319,19 @@ Modify **[stmt.iter.general]**, adding the following paragraph at its end:
   <br>
   [...]
   <br>
-  <ins>An iteration statement of the form that matches one of the following:</ins>
+  <ins>A *trivially empty iteration statement* is an iteration statement matching one of the following forms:</ins>
   <br>
   
-  * <ins>`while` `(` *condition* `)` `;`</ins>
-  * <ins>`while` `(` *condition* `)` `{ }`</ins>
+  * <ins>`while` `(` *expression* `)` `;`</ins>
+  * <ins>`while` `(` *expression* `)` `{ }`</ins>
   * <ins>`do` `;` `while` `(` *expression* `)` `;`</ins>
   * <ins>`do` `{ }` `while` `(` *expression* `)` `;`</ins>
-  * <ins>`for` `(` *init-statement* *condition*<sub>*opt*</sub> `;` `)` `;`</ins>
-  * <ins>`for` `(` *init-statement* *condition*<sub>*opt*</sub> `;` `)` `{ }`</ins>
+  * <ins>`for` `(` *init-statement* *expression*<sub>*opt*</sub> `;` `)` `;`</ins>
+  * <ins>`for` `(` *init-statement* *expression*<sub>*opt*</sub> `;` `)` `{ }`</ins>
   
-  <ins>is a *trivially empty iteration statement*.</ins>
+  <ins>The *controlling expression* of a trivially empty iteration statement is the *expression* of a `while`, `do`, or `for` statement (or `true`, if the `for` statement has no *expression*).</ins>
   <br>
-  <ins>The *controlling expression* of a trivially empty iteration statement is the condition for a `while` or `for` statement (or `true`, if the `for` statement has no condition), and is the expression for a `do` statement.</ins>
-  <br>
-  <ins>A trivially empty iteration statement for which the converted controlling expression shall be a constant expression that evaluates to `true`, is a *trivial infinite loop*.</ins>
+  <ins>A *trivial infinite loop* is a trivially empty iteration statement for which the converted controlling expression, when interpreted as a *constant-expression*, evaluates to `true`.</ins>
   <br>
   <ins>A trivial infinite loop is equivalent to a call to `std::this_thread::yield_forever()`.</ins>
   <br>
