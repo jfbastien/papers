@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 9
+!Draft Revision: 10
 Audience: SG22, CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2024-02-26
+Date: 2024-03-03
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -349,7 +349,7 @@ Modify **[intro.progress]** as follows:
   The implementation may assume that any thread will eventually do one of the following:
 
   * terminate,
-  * <ins>call `std::this_thread::yield()`,</ins>
+  * <ins>invoke `std::this_thread::yield()`,</ins>
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue,<del> or</del>
   * perform a synchronization operation or an atomic operation<del>.</del><ins>, or</ins>
