@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 10
+!Draft Revision: 11
 Audience: SG22, CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2024-03-03
+Date: 2024-03-13
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -358,6 +358,21 @@ Modify **[intro.progress]** as follows:
   [*Note:* This is intended to allow compiler transformations such as removal<ins>, merging, and reordering</ins> of empty loops, even when termination cannot be proven. —*end note*]
   
 </blockquote>
+
+CWG concerns {#cwg-concerns}
+------------
+
+CWG has expressed concerns regarding the above wording, and needs to consider it further. In particular, some expressions may evaluate to `true` at compilation time and `false` at runtime, yielding surprising semantics.
+
+A simple example of this would be:
+
+<pre><code>
+  int x = 42;
+  while (std::is_constant_evaluated() || --x) ;
+</code></pre>
+
+Other examples could be created by using different evaluation of floating-point math between compile time and runtime.
+
 
 
 Effect {#effect}
