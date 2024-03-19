@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 12
+!Draft Revision: 13
 Audience: SG22, CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2024-03-18
+Date: 2024-03-19
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -115,6 +115,9 @@ However, CWG suggested changes which then removed the need for `std::this_thread
 Standards {#pedantry}
 =========
 
+C++ Standard {#cpp}
+------------
+
 Since C++11, the Standard's forward progress guarantees have been defined in **[intro.progress]** as follows:
 
 <blockquote>
@@ -136,6 +139,9 @@ This forward progress guarantee applies to the following iteration statements:
     `for` `(` *init-statement* *condition*<sub>*opt*</sub> `;` *expression*<sub>*opt*</sub> `)` *statement*<br>
     `for` `(` *init-statement*<sub>*opt*</sub> *for-range-declaration* `:` *for-range-initializer* `)` *statement*<br>
 </blockquote>
+
+C Standard {#c}
+----------
 
 Since C11, the Standard's forward progress guarantees have been defined in **Iteration statements** (section 6.8.5 of C17) as follows:
 
@@ -162,8 +168,8 @@ This forward progress guarantee applies to the following iteration statements:
 
 By omission, iteration statements are undefined if the controlling expression does not meet the criteria above.
 
-Freestanding {#freebird}
-------------
+Freestanding in C++ {#freebird}
+-------------------
 
 Freestanding implementations aren't given the same guarantees. Indeed, **[intro.multithread.general]** states:
 
@@ -292,9 +298,9 @@ Modify **[stmt.iter.general]**, adding the following paragraph at its end:
   <br>
   <ins>A *trivial infinite loop* is a trivially empty iteration statement for which the converted controlling expression, when interpreted as a *constant-expression*, evaluates to `true`.</ins>
   <br>
-  <ins>The *statement* of a trivial infinite loop is replaced with a call to `std::this_thread::yield()`; it is implementation-defined whether this replacement occurs on freestanding environments.</ins>
+  <ins>The *statement* of a trivial infinite loop is replaced with a call to `std::this_thread::yield`; it is implementation-defined whether this replacement occurs on freestanding implementations.</ins>
   <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed, such systems therefore require explicit cooperation. The behavior of trivial infinite loops is therefore implementation-defined because a call to `yield` would add implicit cooperations where none was otherwise intended. —*end note*]</ins>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed; such systems therefore require explicit cooperation. The behavior of trivial infinite loops is therefore implementation-defined because a call to `yield` would add implicit cooperation where none was otherwise intended. —*end note*]</ins>
 
 </blockquote>
 
@@ -337,13 +343,13 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) thrd_yield();`
                                 </td>
                                 <td>
-                                        <pre><code>std::this_thread::yield_forever();</code></pre>
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
-                                        <pre><code>std::this_thread::yield_forever();</code></pre>
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
                                         Idiomatic trivial infinite loop
@@ -363,13 +369,13 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) thrd_yield();`
                                 </td>
                                 <td>
-                                        <pre><code>std::this_thread::yield_forever();</code></pre>
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
-                                        <pre><code>std::this_thread::yield_forever();</code></pre>
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
                                         Idiomatic trivial infinite loop
@@ -389,7 +395,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) thrd_yield();`
                                 </td>
                                 <td>
                                         undefined behavior
@@ -398,7 +404,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        <pre><code>std::this_thread::yield_forever();</code></pre>
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
                                         Trivial infinite loop, including a meaningless statement in the loop body
@@ -455,13 +461,13 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) thrd_yield();`
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
                                         The iteration statement's controlling expression is a constant expression which converts to `true`
@@ -483,7 +489,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) thrd_yield();`
                                 </td>
                                 <td>
                                         undefined behavior
@@ -516,7 +522,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) thrd_yield();`
                                 </td>
                                 <td>
                                         undefined behavior
@@ -525,7 +531,7 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        infinite loop (same as `std::this_thread::yield_forever();`)
+                                        `while (1) std::this_thread::yield();`
                                 </td>
                                 <td>
                                         The `if constexpr` is unevaluated, the `break;` is therefore not relevant
@@ -596,14 +602,12 @@ Here are examples of the effects of this proposed change:
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged
                                         <pre><code>
                                         while (true)
                                             std::this_thread::yield();
                                         </code></pre>
                                 </td>
                                 <td>
-                                        unchanged
                                         <pre><code>
                                         while (true)
                                             std::this_thread::yield();
