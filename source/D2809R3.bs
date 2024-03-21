@@ -2,14 +2,14 @@
 Title: Trivial infinite loops are not Undefined Behavior
 Shortname: D2809
 Revision: 3
-!Draft Revision: 14
+!Draft Revision: 15
 Audience: SG22, CWG
 Status: D
 Group: WG21
 URL: http://wg21.link/D2809r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D2809r3.bs">github.com/jfbastien/papers/blob/master/source/D2809r3.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2024-03-19
+Date: 2024-03-21
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -260,7 +260,7 @@ A change is therefore required which does not match the C semantics, and C would
 
 The proposed wording captures very narrowly a few forms of infinite loops and makes them equivalent to a repeated call to `std::this_thread::yield();`. This behavior is implementation-defined in freestanding implementations, because some freestanding implementations do not offer forward progress guarantees and require explicit cooperation, adding a call to `yield` would therefore add cooperation where none was intended. By doing so, the proposal does not pessimize certain types of loops as C does, and continues to allow an implementation to assume that most loops will terminate.
 
-The proposed wording also adds to the list of allowed assumptions that a `[[noreturn]]` function or `std::this_thread::yield()` will be called. They were a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
+The proposed wording also adds to the list of allowed assumptions that `std::this_thread::yield()` will be called. It was a missing form of valid non-forward-progress in threads that was discovered while discussing this paper in SG1.
 
 This paper does not affect other forms of backwards control flow such as `goto`, `setjmp`/`longjmp`, infinite tail recursion, nor looping with signal handlers. While they are also forms of loops, infinite versions of them are not idiomatic in C and C++. Functional programmers might be upset at this fact.
 
@@ -296,11 +296,11 @@ Modify **[stmt.iter.general]**, adding the following paragraph at its end:
   
   <ins>The *controlling expression* of a trivially empty iteration statement is the *expression* of a `while`, `do`, or `for` statement (or `true`, if the `for` statement has no *expression*).</ins>
   <br>
-  <ins>A *trivial infinite loop* is a trivially empty iteration statement for which the converted controlling expression, when interpreted as a *constant-expression*, evaluates to `true`.</ins>
+  <ins>A *trivial infinite loop* is a trivially empty iteration statement for which the converted controlling expression, is a constant expression when interpreted as a *constant-expression* **[expr.const]**, evaluates to `true`.</ins>
   <br>
-  <ins>The *statement* of a trivial infinite loop is replaced with a call to `std::this_thread::yield`; it is implementation-defined whether this replacement occurs on freestanding implementations.</ins>
+  <ins>The *statement* of a trivial infinite loop is replaced with a call to the function `std::this_thread::yield` **[thread.thread.this]**; it is implementation-defined whether this replacement occurs on freestanding implementations.</ins>
   <br>
-  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed; such systems therefore require explicit cooperation. The behavior of trivial infinite loops is therefore implementation-defined because a call to `yield` would add implicit cooperation where none was otherwise intended. —*end note*]</ins>
+  <ins>[*Note:* In a freestanding environment, concurrent forward progress is not guaranteed; such systems therefore require explicit cooperation. A call to `yield` can add implicit cooperation where none was otherwise intended. —*end note*]</ins>
 
 </blockquote>
 
@@ -310,8 +310,7 @@ Modify **[intro.progress]** as follows:
   The implementation may assume that any thread will eventually do one of the following:
 
   * terminate,
-  * <ins>call a function marked `[[noreturn]]`,</ins>
-  * <ins>invoke `std::this_thread::yield()`,</ins>
+  * <ins>invoke the function `std::this_thread::yield` **[thread.thread.this]**,</ins>
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue,<del> or</del>
   * perform a synchronization operation or an atomic operation<del>.</del><ins>, or</ins>
@@ -636,7 +635,6 @@ Modify **[intro.progress]** as follows:
   The implementation may assume that any thread will eventually do one of the following:
 
   * terminate,
-  * <ins>call a function marked `[[noreturn]]`,</ins>
   * <ins>call `std::this_thread::yield()`,</ins>
   * make a call to a library I/O function,
   * perform an access through a `volatile` glvalue, or
