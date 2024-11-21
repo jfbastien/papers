@@ -2,7 +2,7 @@
 Title: There are exactly 8 bits in a byte
 Shortname: P3477
 Revision: 1
-Audience: EWG, LEWG, SG22
+Audience: CWG, LEWG, SG22
 Status: P
 Group: WG21
 URL: http://wg21.link/P3477r1
