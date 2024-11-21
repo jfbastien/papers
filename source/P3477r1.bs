@@ -2,14 +2,13 @@
 Title: There are exactly 8 bits in a byte
 Shortname: P3477
 Revision: 1
-!Draft Revision: 1
 Audience: EWG, LEWG, SG22
-Status: D
+Status: P
 Group: WG21
-URL: http://wg21.link/D3477r1
-!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/D3477r1.bs">github.com/jfbastien/papers/blob/master/source/D3477r1.bs</a>
+URL: http://wg21.link/P3477r1
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P3477r1.bs">github.com/jfbastien/papers/blob/master/source/P3477r1.bs</a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2024-10-17
+Date: 2024-11-21
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -63,7 +62,7 @@ The overwhelming support for 8-bit bytes in hardware and software platforms mean
 * OpenServer
 * UnixWare
 * VxWorks
-* vz/OS
+* z/OS
 
 And many others as being formerly compliant, or mostly compliant.
 
@@ -79,13 +78,19 @@ standards for these languages. The compiler supports the 1989, 1999, and 2011 ve
 the 2003 version of the C++ language.
 </blockquote>
 
-<a href="https://e2e.ti.com/support/microcontrollers/c2000-microcontrollers-group/c2000/f/c2000-microcontrollers-forum/1340214/tms320f28p650dk-compiler-with-c-11-support">TI has expressed that it does not intend to support C++11 or later</a>.
+<a href="https://e2e.ti.com/support/microcontrollers/c2000-microcontrollers-group/c2000/f/c2000-microcontrollers-forum/1340214/tms320f28p650dk-compiler-with-c-11-support">TI has expressed that it does not intend to support C++11 or later</a>. They offer a <a href="https://qeeniu.net/lit/an/sprad88a/sprad88a.pdf?ts=1712908769025">migration guide from 8-bit bytes</a>.
 
 Another recent DSP which is sometimes brought up is CEVA-TeakLite. The latest generation, <a href="https://www.ceva-ip.com/wp-content/uploads/2017/02/CEVA-TeakLite-4-DSP-Family.pdf">CEVA-TeakLite-4, only supports a C compiler</a>.
 
 Yet another potentially relevant architecture is SHARC, whose <a href="https://www.analog.com/media/en/dsp-documentation/software-manuals/cces-sharccompiler-manual.pdf">latest compiler manual</a> explains which architectures support different architectural features in section "Processor Features", and whether the compiler option `-char-size[-8|-32]` is available. In any case, only C++03 and C++11 are supported, with significant features missing (but interesting anachronisms can be enabled, I recommend reading that section of the manual!).
 
 A popular DSP which supports 8-bit bytes is <a href="https://www.cadence.com/content/dam/cadence-www/global/en_US/documents/tools/silicon-solutions/compute-ip/sw-dev-wp.pdf">Tensilica, whose compiler is based on clang</a>.
+
+Qualcomm provides three compilers that target their Kalimba series of DSPs. The `kcc`, `kalcc`, and `kalcc32` compilers all appear to be C compilers with no support for C++. These compilers support a 24 bit byte size according to Coverity's configuration, no public documentation seems available to confirm this.
+
+An EDG representative has privately stated:
+
+<blockquote>I checked the configuration files that our customers share with us. One customer shared a configuration file that sets bytes to 32 as recently as 2022. This would configure a front end that supports C++17 and some C++20.</blockquote>
 
 The author would happily retract this papers or change the proposal if hardware implementors expressed a desire to support modern C++ on their non-8-bit-per-byte hardware.
 
@@ -225,7 +230,7 @@ Edit [**cstdint.syn**] as follows:
     using int_least<i>N</i>_t   = <i>see below</i>;             // optional
 
     using intmax_t       = <i>signed integer type</i>;
-    using intptr_t       = <i>signed integer type</i>;<del>   // optional</del>
+    using intptr_t       = <i>signed integer type</i>;   // optional
 
     using uint8_t        = <i>unsigned integer type</i>;<del> // optional</del>
     using uint16_t       = <i>unsigned integer type</i>;<del> // optional</del>
@@ -246,7 +251,7 @@ Edit [**cstdint.syn**] as follows:
     using uint_least<i>N</i>_t  = <i>see below</i>;             // optional
 
     using uintmax_t      = <i>unsigned integer type</i>;
-    using uintptr_t      = <i>unsigned integer type</i>;<del> // optional</del>
+    using uintptr_t      = <i>unsigned integer type</i>; // optional
   }
 
   #define INT<i>N</i>_MIN         <i>see below</i>
@@ -265,9 +270,9 @@ Edit [**cstdint.syn**] as follows:
   #define INTMAX_MAX       <i>see below</i>
   #define UINTMAX_MAX      <i>see below</i>
 
-  #define INTPTR_MIN       <i>see below</i>           <del>   // optional</del>
-  #define INTPTR_MAX       <i>see below</i>           <del>   // optional</del>
-  #define UINTPTR_MAX      <i>see below</i>           <del>   // optional</del>
+  #define INTPTR_MIN       <i>see below</i>              // optional
+  #define INTPTR_MAX       <i>see below</i>              // optional
+  #define UINTPTR_MAX      <i>see below</i>              // optional
 
   #define PTRDIFF_MIN      <i>see below</i>
   #define PTRDIFF_MAX      <i>see below</i>
