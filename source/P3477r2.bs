@@ -1,0 +1,372 @@
+<pre class='metadata'>
+Title: There are exactly 8 bits in a byte
+Shortname: P3477
+Revision: 2
+Audience: CWG, LEWG
+Status: P
+Group: WG21
+URL: http://wg21.link/P3477r2
+!Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P3477r2.bs">github.com/jfbastien/papers/blob/master/source/P3477r2.bs</a>
+Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
+Date: 2025-01-12
+Markup Shorthands: markdown yes
+Toggle Diffs: no
+No abstract: true
+</pre>
+
+<style>
+table, th, td { border: 2px solid grey; }
+ins { color: #080; }
+</style>
+
+<strong>Abstract: </strong>`8`ers gonna `8`.
+
+
+Revision History {#yawn}
+================
+
+r0 {#r0}
+----
+
+[[P3477R0]] was the first published version of the paper, prompted by internet denizens nerd-sniping the author into witing the paper. There was much rejoicing
+
+r1 {#r1}
+----
+
+[[P3477r1]] was revised a month later, after the internet denizens read the paper and provided substantial feedback regarding exotic architectures, and pointing out some embarrassing typos. In that period, a few internet denizens showed once more that they don't read papers and only read the title, commenting on things that are already in the paper. The author would scold them here, but realizes the futility of even mentioning this shortcoming.
+
+The C++ committee's Evolution Working Group <a href="https://github.com/cplusplus/papers/issues/2131#issuecomment-2491532773">also reviewed the paper</a>, with the following outcome:
+
+<blockquote>
+  Poll: D3477r1: There are exactly 8 bits in a byte: forward to CWG/LEWG for inclusion in C++26, removing the intptr/uintptr changes.
+  
+  <table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td> 9 </td><td> 17 </td><td> 3 </td><td> 4 </td><td> 0 </td></tr>
+  </table>
+
+  Result: consensus in favor
+</blockquote>
+
+r2 {#r2}
+----
+
+The previous revision was <a href="https://github.com/cplusplus/papers/issues/2131#issuecomment-2577359770">seen by the C++ committee's SG22 C/C++ Liaison Group</a>, with the following outcome:
+
+<blockquote>
+  We think WG14 might be interested too, perhaps with a change to hosted environments only.
+  No concerns raised from SG22 perspective.
+</blockquote>
+
+No other changes to the paper besides removing SG22 from the audience list.
+
+
+Rationale {#ratio}
+=========
+
+C has the `CHAR_BIT` macro which contains the implementation-defined number of bits in a byte, without restrictions on the value of this number. C++ imports this macro as-is. Many other macros and character traits have values derived from `CHAR_BIT`. While this was historically relevant in computing’s early days, modern hardware has overwhelmingly converged on the assumption that a byte is 8 bits. This document proposes that C++ formally mandates that a byte is 8 bits.
+
+Mainstream compilers already support this reality:
+
+* GCC <a href="https://github.com/gcc-mirror/gcc/blob/e7380688fa5917011c3fb85b5e06fb00f776a95d/gcc/genmodes.cc#L837">sets a default value of `8`</a> but <a href="https://github.com/search?q=repo%3Agcc-mirror%2Fgcc%20BITS_PER_UNIT%20path%3A%22gcc%2Fconfig%2F%22&type=code">no upstream target changes the default</a>;
+* <a href="https://github.com/llvm/llvm-project/blob/7ec32094933bbf0201ea0670209c090a00bf8d83/clang/lib/Frontend/InitPreprocessor.cpp#L1103">LLVM sets `__CHAR_BIT__` to `8`</a>; and
+* <a href="https://learn.microsoft.com/en-us/cpp/c-runtime-library/data-type-constants">MSVC defines `CHAR_BIT` to `8`</a>.
+
+We can find vestigial support, for example GCC dropped <a href="https://github.com/gcc-mirror/gcc/commit/a4a4b1d36476aaa60ebd05db0dfd16145dc72338#diff-d074f0fa705c64c47c773f7a884ecf60ee9699c1dbff6295c5ca535558b9a8b8">dsp16xx in 2004</a>, and <a href="https://github.com/gcc-mirror/gcc/commit/c7bdf0a6af41a480ecb6a103636ef9069721c0bd#diff-5386a7d0786c0a34dfad58442a8bfa9225ac1b3db899af287bf610d5be7360e9L94">1750a in 2002</a>. Search <a href="https://www.google.com/search?q=%22define+BITS_PER_UNIT%22+-%22define+BITS_PER_UNIT+8%22">the web for more evidence</a> finds a few GCC out-of-tree ports which do not seem relevant to modern C++.
+
+[[POSIX]] has mandated this reality since POSIX.1-2001 (or IEEE Std 1003.1-2001), saying:
+
+<blockquote>
+
+  As a consequence of adding `int8_t`, the following are true:
+
+  * A byte is exactly 8 bits.
+
+  * `CHAR_BIT` has the value 8, `SCHAR_MAX` has the value 127, `SCHAR_MIN` has the value -128, and `UCHAR_MAX` has the value 255.
+
+  Since the POSIX.1 standard explicitly requires 8-bit char with two's complement arithmetic, it is easier for application writers if the same two's complement guarantees are extended to all of the other standard integer types. Furthermore, in programming environments with a 32-bit long, some POSIX.1 interfaces, such as `mrand48()`, cannot be implemented if long does not use a two's complement representation.
+
+</blockquote>
+
+To add onto the reality that POSIX chose in 2001, C++20 has only supported two's complement storage since [[P0907r4]], and C23 has followed suit.
+
+The overwhelming support for 8-bit bytes in hardware and software platforms means that software written for non-8-bit bytes is incompatible with software written for 8-bit bytes, and vice versa. C and C++ code targeting non-8-bit bytes are incompatible dialects of C and C++.
+
+<a href="https://en.wikipedia.org/wiki/POSIX#POSIX-certified">Wikipedia quotes</a> the following operating systems as being currently POSIX compliant (and therefore supporting 8-bit bytes):
+
+* AIX
+* HP-UX
+* INTEGRITY
+* macOS
+* OpenServer
+* UnixWare
+* VxWorks
+* z/OS
+
+And many others as being formerly compliant, or mostly compliant.
+
+Even StackOverflow, the pre-AI repository of our best knowledge (after Wikipedia), <a href="https://stackoverflow.com/questions/2098149/what-platforms-have-something-other-than-8-bit-char">gushes with enthusiasm about non-8-bit byte architectures</a>, and asks <a href="https://stackoverflow.com/questions/6971886/exotic-architectures-the-standards-committees-care-about">which exotic architecture the committee cares about</a>.
+
+This paper cannot succeed without mentioning the PDP-10 (though noting that PDP-11 has 8-bit bytes), and the fact that some DSPs have 16-bit, 24-bit, or 32-bit words treated as "bytes." These architectures made sense in their era, where word sizes varied and the notion of a byte wasn’t standardized. Today, nearly every general-purpose and embedded system adheres to the 8-bit byte model. The question isn't whether there are still architectures where bytes aren't 8-bits (there are!) but whether these care about modern C++... and whether modern C++ cares about them.
+
+The example which seems the most relevant of current architecture with non-8-bit-bytes is TI's TMS320C28x, whose <a href="https://www.ti.com/lit/ug/spru514z/spru514z.pdf">compiler manual</a> states:
+
+<blockquote>
+  The TI compiler accepts C and C++ code conforming to the International Organization for Standardization (ISO)
+standards for these languages. The compiler supports the 1989, 1999, and 2011 versions of the C language and
+the 2003 version of the C++ language.
+</blockquote>
+
+<a href="https://e2e.ti.com/support/microcontrollers/c2000-microcontrollers-group/c2000/f/c2000-microcontrollers-forum/1340214/tms320f28p650dk-compiler-with-c-11-support">TI has expressed that it does not intend to support C++11 or later</a>. They offer a <a href="https://qeeniu.net/lit/an/sprad88a/sprad88a.pdf?ts=1712908769025">migration guide from 8-bit bytes</a>.
+
+Another recent DSP which is sometimes brought up is CEVA-TeakLite. The latest generation, <a href="https://www.ceva-ip.com/wp-content/uploads/2017/02/CEVA-TeakLite-4-DSP-Family.pdf">CEVA-TeakLite-4, only supports a C compiler</a>.
+
+Yet another potentially relevant architecture is SHARC, whose <a href="https://www.analog.com/media/en/dsp-documentation/software-manuals/cces-sharccompiler-manual.pdf">latest compiler manual</a> explains which architectures support different architectural features in section "Processor Features", and whether the compiler option `-char-size[-8|-32]` is available. In any case, only C++03 and C++11 are supported, with significant features missing (but interesting anachronisms can be enabled, I recommend reading that section of the manual!).
+
+A popular DSP which supports 8-bit bytes is <a href="https://www.cadence.com/content/dam/cadence-www/global/en_US/documents/tools/silicon-solutions/compute-ip/sw-dev-wp.pdf">Tensilica, whose compiler is based on clang</a>.
+
+Qualcomm provides three compilers that target their Kalimba series of DSPs. The `kcc`, `kalcc`, and `kalcc32` compilers all appear to be C compilers with no support for C++. These compilers support a 24 bit byte size according to Coverity's configuration, no public documentation seems available to confirm this.
+
+An EDG representative has privately stated:
+
+<blockquote>I checked the configuration files that our customers share with us. One customer shared a configuration file that sets bytes to 32 as recently as 2022. This would configure a front end that supports C++17 and some C++20.</blockquote>
+
+The author would happily retract this papers or change the proposal if hardware implementors expressed a desire to support modern C++ on their non-8-bit-per-byte hardware.
+
+Does this proposal prevent new weird architectures from being created? Not really! These hypothetical new architectures would write their entire software stack from scratch with or without this paper, and would benefit from C23's `_BitInt` as standardized by [[N2763]] rather than have `char` and other types of implicit size.
+
+
+Motivation {#yay}
+==========
+
+Why bother? A few reasons:
+
+* The complexity of supporting non-8-bit byte architectures sprinkles small but unnecessary burden in quite a few parts of language and library;
+* Compilers and toolchains are required to support edge cases that do not reflect modern usage;
+* New programmers are easily confused and find C++'s exotic tastes obtuse;
+* Some seasoned programmers joyfully spend time supporting non-existant platforms "for portability" if they are unwise, even writing <a href="https://isocpp.org/wiki/faq/intrinsic-types#bits-per-byte">FAQs about this</a> which others then read and preach as gospel;
+* <a href="https://x.com/SebAaltonen/status/1843630586063413672">Our language looks silly</a>, solving problems that nobody has.
+
+One reason not to bother: there still are processors with non-8-bit bytes. The question facing us is: are they relevant to modern C++? If we keep supporting the current approach where Bytes"R"Us, will developers who use these processors use the new versions of C++?
+
+A cut-the-baby-in-half alternative is to mandate that `CHAR_BIT % 8 == 0`. Is that even making anything better? Only if the Committee decides to keep supporting Digital Signal Processors (DSPs) and other processors where `CHAR_BIT` is not `8` but is a multiple of `8`.
+
+Another way to cut-the-baby-in-half is to mandate that `CHAR_BIT` be `8` on hosted implementations, and leave implementation freedom on freestanding implementations.
+
+
+Impact on C {#c}
+===========
+
+This proposal explores whether C++ is relevant to architectures where bytes are not 8 bits, and whether these architectures are relevant to C++. The C committee might reach a different conclusion with respect to this language. Ideally, both committees would be aligned. This papers therefore defers to WG14 and the SG22 liaison group to inform WG21.
+
+
+Wording {#word}
+=======
+
+Language {#lang-word}
+--------
+
+Edit [**intro.memory**] as follows:
+
+<blockquote>
+  The fundamental storage unit in the ++ memory model is the byte. A byte is <ins>`8` bits, which is </ins>at least large enough to contain the ordinary literal encoding of any element of the basic character set literal character set and the eight-bit code units of the Unicode UTF-8 encoding form and is composed of a contiguous sequence of bits,
+  the number of which is bits in a byte. The least significant bit is called the low-order bit; the most significant bit is called the high-order bit. The memory available to a C++ program consists of one or more sequences of contiguous bytes. Every byte has a unique address.
+  <blockquote>
+    The number of bits in a byte is reported by the macro `CHAR_BIT` in the header `climits`.<ins> Its value is `8`.</ins>
+  </blockquote>
+</blockquote>
+
+
+
+Library {#lib-word}
+-------
+
+Edit [**climits.syn**] as follows:
+
+<blockquote>
+  <pre><code>
+  // all freestanding
+  #define CHAR_BIT <del>see below</del><ins>8</ins>
+  #define SCHAR_MIN <del>see below</del><ins>-128</ins>
+  #define SCHAR_MAX <del>see below</del><ins>127</ins>
+  #define UCHAR_MAX <del>see below</del><ins>255</ins>
+  #define CHAR_MIN see below
+  #define CHAR_MAX see below
+  #define MB_LEN_MAX see below
+  #define SHRT_MIN see below
+  #define SHRT_MAX see below
+  #define USHRT_MAX see below
+  #define INT_MIN see below
+  #define INT_MAX see below
+  #define UINT_MAX see below
+  #define LONG_MIN see below
+  #define LONG_MAX see below
+  #define ULONG_MAX see below
+  #define LLONG_MIN see below
+  #define LLONG_MAX see below
+  #define ULLONG_MAX see below
+  </code></pre>
+  The header `climits` defines all macros the same as the C standard library header `limits.h`<ins>, except as noted above</ins>.
+  <blockquote>
+    Except for `CHAR_BIT` and `MB_LEN_MAX`, a macro referring to an integer type `T` defines a constant whose type is the promoted type of `T`.
+  </blockquote>
+</blockquote>
+
+Edit [**cstdint.syn**] as follows:
+
+<blockquote>
+  The header `cstdint` supplies integer types having specified widths, and macros that specify limits of integer types.
+  <pre><code>
+    int8_t
+    int16_t
+    int32_t
+    int64_t
+    int_fast8_t
+    int_fast16_t
+    int_fast32_t
+    int_fast64_t
+    int_least8_t
+    int_least16_t
+    int_least32_t
+    int_least64_t
+    intmax_t
+    intptr_t
+    uint8_t
+    uint16_t
+    uint32_t
+    uint64_t
+    uint_fast8_t
+    uint_fast16_t
+    uint_fast32_t
+    uint_fast64_t
+    uint_least8_t
+    uint_least16_t
+    uint_least32_t
+    uint_least64_t
+    uintmax_t
+    uintptr_t
+  </code></pre>
+
+  <pre><code>
+  // all freestanding
+  namespace std {
+    using int8_t         = <i>signed integer type</i>;<del>   // optional</del>
+    using int16_t        = <i>signed integer type</i>;<del>   // optional</del>
+    using int32_t        = <i>signed integer type</i>;<del>   // optional</del>
+    using int64_t        = <i>signed integer type</i>;<del>   // optional</del>
+    using int<i>N</i>_t         = <i>see below</i>;             // optional
+
+    using int_fast8_t    = <i>signed integer type</i>;
+    using int_fast16_t   = <i>signed integer type</i>;
+    using int_fast32_t   = <i>signed integer type</i>;
+    using int_fast64_t   = <i>signed integer type</i>;
+    using int_fast<i>N</i>_t    = <i>see below</i>;             // optional
+
+    using int_least8_t   = <i>signed integer type</i>;
+    using int_least16_t  = <i>signed integer type</i>;
+    using int_least32_t  = <i>signed integer type</i>;
+    using int_least64_t  = <i>signed integer type</i>;
+    using int_least<i>N</i>_t   = <i>see below</i>;             // optional
+
+    using intmax_t       = <i>signed integer type</i>;
+    using intptr_t       = <i>signed integer type</i>;   // optional
+
+    using uint8_t        = <i>unsigned integer type</i>;<del> // optional</del>
+    using uint16_t       = <i>unsigned integer type</i>;<del> // optional</del>
+    using uint32_t       = <i>unsigned integer type</i>;<del> // optional</del>
+    using uint64_t       = <i>unsigned integer type</i>;<del> // optional</del>
+    using uint<i>N</i>_t        = <i>see below</i>;             // optional
+
+    using uint_fast8_t   = <i>unsigned integer type</i>;
+    using uint_fast16_t  = <i>unsigned integer type</i>;
+    using uint_fast32_t  = <i>unsigned integer type</i>;
+    using uint_fast64_t  = <i>unsigned integer type</i>;
+    using uint_fast<i>N</i>_t   = <i>see below</i>;             // optional
+
+    using uint_least8_t  = <i>unsigned integer type</i>;
+    using uint_least16_t = <i>unsigned integer type</i>;
+    using uint_least32_t = <i>unsigned integer type</i>;
+    using uint_least64_t = <i>unsigned integer type</i>;
+    using uint_least<i>N</i>_t  = <i>see below</i>;             // optional
+
+    using uintmax_t      = <i>unsigned integer type</i>;
+    using uintptr_t      = <i>unsigned integer type</i>; // optional
+  }
+
+  #define INT<i>N</i>_MIN         <i>see below</i>
+  #define INT<i>N</i>_MAX         <i>see below</i>
+  #define UINT<i>N</i>_MAX        <i>see below</i>
+
+  #define INT_FAST<i>N</i>_MIN    <i>see below</i>
+  #define INT_FAST<i>N</i>_MAX    <i>see below</i>
+  #define UINT_FAST<i>N</i>_MAX   <i>see below</i>
+
+  #define INT_LEAST<i>N</i>_MIN   <i>see below</i>
+  #define INT_LEAST<i>N</i>_MAX   <i>see below</i>
+  #define UINT_LEAST<i>N</i>_MAX  <i>see below</i>
+
+  #define INTMAX_MIN       <i>see below</i>
+  #define INTMAX_MAX       <i>see below</i>
+  #define UINTMAX_MAX      <i>see below</i>
+
+  #define INTPTR_MIN       <i>see below</i>              // optional
+  #define INTPTR_MAX       <i>see below</i>              // optional
+  #define UINTPTR_MAX      <i>see below</i>              // optional
+
+  #define PTRDIFF_MIN      <i>see below</i>
+  #define PTRDIFF_MAX      <i>see below</i>
+  #define SIZE_MAX         <i>see below</i>
+
+  #define SIG_ATOMIC_MIN   <i>see below</i>
+  #define SIG_ATOMIC_MAX   <i>see below</i>
+
+  #define WCHAR_MIN        <i>see below</i>
+  #define WCHAR_MAX        <i>see below</i>
+
+  #define WINT_MIN         <i>see below</i>
+  #define WINT_MAX         <i>see below</i>
+
+  #define INT<i>N</i>_C(value)    <i>see below</i>
+  #define UINT<i>N</i>_C(value)   <i>see below</i>
+  #define INTMAX_C(value)  <i>see below</i>
+  #define UINTMAX_C(value) <i>see below</i>
+  </code></pre>
+
+  The header defines all types and macros the same as the C standard library header `stdint.h`<ins>, except that none of the types nor macros for `8`, `16`, `32`, nor `64` are optional because bytes are `8` bits</ins>.
+
+  All types that use the placeholder <i>N</i> are optional when <i>N</i> is not `8`, `16`, `32`, or `64`. <del>The exact-width types <code>int<i>N</i>_t</code> and <code>uint<i>N</i>_t</code> for <i>N</i> = `8`, `16`, `32`, and `64` are also optional; however, i</del><ins>I</ins>f an implementation defines integer types with the corresponding width and no padding bits, it defines the corresponding typedef-names. Each of the macros listed in this subclause is defined if and only if the implementation defines the corresponding typedef-name.
+  <blockquote>
+  The macros <code>INT<i>N</i>_C</code> and <code>UINT<i>N</i>_C</code> correspond to the typedef-names <code>int_least<i>N</i>_t</code> and <code>uint_least<i>N</i>_t</code>, respectively.</del>
+  </blockquote>
+</blockquote>
+
+Within [**localization**], remove the 4 *mandates* clauses specifying:
+
+<blockquote>
+  <del>`CHAR_BIT == 8` is `true`</del>
+</blockquote>
+
+Within [**cinttypes.syn**], do not change the list of `PRI` macros, and leave this paragraph as-is:
+
+<blockquote>
+  Each of the `PRI` macros listed in this subclause is defined if and only if the implementation defines the corresponding *typedef-name* in [**cstdint.syn**]. Each of the `SCN` macros listed in this subclause is defined if and only if the implementation defines the corresponding *typedef-name* in [[**cstdint.syn**]] and has a suitable `fscanf` length modifier for the type.
+</blockquote>
+
+
+<pre class=biblio>
+{
+  "POSIX": {
+    "href": "https://pubs.opengroup.org/onlinepubs/9799919799/",
+    "title": "The Open Group Base Specifications Issue 8",
+    "publisher": "IEEE Std 1003.1-2024",
+    "date": "2024"
+  },
+  "N2763": {
+    "href": "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2763.pdf",
+    "title": "Adding a Fundamental Type for N-bit integers",
+    "authors": ["Aaron Ballman", "Melanie Blower", "Tommy Hoffner", "Erich Keane"],
+    "publisher": "ISO/IEC JTC1 SC22 WG14",
+    "date": "2021-06-21"
+  }
+}
+</pre>
