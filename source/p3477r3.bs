@@ -2,14 +2,15 @@
 Title: There are exactly 8 bits in a byte
 Shortname: D3477
 Revision: 3
-!Draft Revision: 0
+!Draft Revision: 2
 Audience: CWG, EWG, LWG, LEWG
 Status: D
 Group: WG21
 URL: http://wg21.link/P3477r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P3477r3.bs">github.com/jfbastien/papers/blob/master/source/P3477r3.bs</a>
+!C++ Standard Base: <a href="https://github.com/cplusplus/draft/commit/5d16ad051cad754b49057c456d64bf50c9180688"><tt>5d16ad051cad754b49057c456d64bf50c9180688</tt></a>
 Editor: JF Bastien, Woven by Toyota, cxx@jfbastien.com
-Date: 2025-02-02
+Date: 2025-02-09
 Markup Shorthands: markdown yes
 Toggle Diffs: no
 No abstract: true
@@ -63,7 +64,7 @@ The C++ committee's Evolution Working Group <a href="https://github.com/cplusplu
 r2 {#r2}
 ----
 
-The previous revision was <a href="https://github.com/cplusplus/papers/issues/2131#issuecomment-2577359770">seen by the C++ committee's SG22 C/C++ Liaison Group</a>, with the following outcome:
+Revision r1 was <a href="https://github.com/cplusplus/papers/issues/2131#issuecomment-2577359770">seen by the C++ committee's SG22 C/C++ Liaison Group</a>, with the following outcome:
 
 <blockquote>
   We think WG14 might be interested too, perhaps with a change to hosted environments only.
@@ -285,31 +286,31 @@ Language {#lang-word}
 Edit [**intro.memory**] as follows:
 
 <blockquote>
-  The fundamental storage unit in the ++ memory model is the byte. A byte is <ins>`8` bits, which is </ins>at least large enough to contain the ordinary literal encoding of any element of the basic character set literal character set and the eight-bit code units of the Unicode UTF-8 encoding form and is composed of a contiguous sequence of bits,
-  the number of which is bits in a byte. The least significant bit is called the low-order bit; the most significant bit is called the high-order bit. The memory available to a C++ program consists of one or more sequences of contiguous bytes. Every byte has a unique address.
-  <blockquote>
-    The number of bits in a byte is reported by the macro `CHAR_BIT` in the header `climits`.<ins> Its value is `8`.</ins>
-  </blockquote>
+  The fundamental storage unit in the C++ memory model is the *byte*<ins>, which is a contiguous sequence of 8 bits</ins>. <del>A byte is at least large enough to contain the ordinary literal encoding of any element of the basic character set and the eight-bit code units of the Unicode UTF-8 encoding form and is composed of a contiguous sequence of bits, the number of which is implementation defined. </del>The memory available to C++ program consists of one or more sequences of contiguous bytes. Every byte has a unique address.
+  <p><del>
+    [ *Note:* The number of bits in a byte is reported by the macro `CHAR_BIT` in the header `climits`. — *end note* ]
+  </del>
+  <p><ins>
+    [ *Note:* A byte is at least large enough to contain the ordinary literal encoding of any element of the basic character set and the eight-bit code units of the Unicode UTF-8 encoding form. — *end note* ]
+  </ins>
 </blockquote>
 
 Edit [**basic.fundamental**] as follows:
 
 <blockquote>
 
-Table � — Minimum width [**basic.fundamental.width**]
+Table � — <del>Minimum width</del><ins>Width</ins> [**basic.fundamental.width**]
 
 <table>
-    <thead><tr><td>Type</td><td>Minimum width *N*</td></tr></thead>
-    <tr><td><del>`signed char`</del></td><td><del>8</del></td></tr>
-    <tr><td>`short int`</td><td>16</td></tr>
-    <tr><td>`int`</td><td>16</td></tr>
-    <tr><td>`long int`</td><td>32</td></tr>
-    <tr><td>`long long int`</td><td>64</td></tr>
+    <thead><tr><td>Type</td><td><del>Minimum width</del><ins>Width</ins> *N*</td></tr></thead>
+    <tr><td>`signed char`</td><td>8</td></tr>
+    <tr><td>`short int`</td><td><ins>at least </ins>16</td></tr>
+    <tr><td>`int`</td><td><ins>at least </ins>16</td></tr>
+    <tr><td>`long int`</td><td><ins>at least </ins>32</td></tr>
+    <tr><td>`long long int`</td><td><ins>at least </ins>64</td></tr>
 </table>
 
-<ins>The width of `signed char` shall be 8 since a byte is 8 bits [**intro.memory**].</ins>
-
-The width of each standard signed integer type shall not be less than the values specified in [**basic.fundamental.width**]. The value representation of a signed or unsigned integer type comprises *N* bits, where N is the respective width. Each set of values for any padding bits [**basic.types.general**] in the object representation are alternative representations of the value specified by the value representation.
+The width of each standard signed integer type shall<del> not be less than</del><ins> match</ins> the values specified in [**basic.fundamental.width**]. The value representation of a signed or unsigned integer type comprises *N* bits, where N is the respective width. Each set of values for any padding bits [**basic.types.general**] in the object representation are alternative representations of the value specified by the value representation.
 
 Except as specified above, the width of a signed or unsigned integer type is implementation-defined.
 </blockquote>
@@ -408,6 +409,34 @@ Edit [**cstdint.syn**] as follows:
     uint_least64_t
     uintmax_t
     uintptr_t
+    INTN_MIN
+    INTN_MAX
+    UINTN_MAX
+    INT_FASTN_MIN
+    INT_FASTN_MAX
+    UINT_FASTN_MAX
+    INT_LEASTN_MIN
+    INT_LEASTN_MAX
+    UINT_LEASTN_MAX
+    INTMAX_MIN
+    INTMAX_MAX
+    UINTMAX_MAX
+    INTPTR_MIN
+    INTPTR_MAX
+    UINTPTR_MAX
+    PTRDIFF_MIN
+    PTRDIFF_MAX
+    SIZE_MAX
+    SIG_ATOMIC_MIN
+    SIG_ATOMIC_MAX
+    WCHAR_MAX
+    WCHAR_MIN
+    WINT_MIN
+    WINT_MAX
+    INTN_C
+    UINTN_C
+    INTMAX_C
+    UINTMAX_C
   </code></pre>
 
   <pre><code>
@@ -495,9 +524,9 @@ Edit [**cstdint.syn**] as follows:
   #define UINTMAX_C(value) <i>see below</i>
   </code></pre>
 
-  The header defines all types and macros the same as the C standard library header `stdint.h`<ins>, except that none of the types nor macros for `8`, `16`, `32`, nor `64` are optional because bytes are `8` bits</ins>.
+  The header defines all types and macros the same as the C standard library header `stdint.h`<ins>, except that none of the types nor macros for `8`, `16`, `32`, nor `64` are optional</ins>.
 
-  All types that use the placeholder <i>N</i> are optional when <i>N</i> is not `8`, `16`, `32`, or `64`. The exact-width types <code>int<i>N</i>_t</code> and <code>uint<i>N</i>_t</code> for <i>N</i> = `8`, `16`, `32`, and `64` <del>are also optional; however, if an implementation defines integer types with the corresponding width and no padding bits, it defines the corresponding typedef-names. </del><ins>can each be among the standard integer types [**basic.fundamental**], or among extended signed integer types [**basic.fundamental**].</ins>Each of the macros listed in this subclause is defined if and only if the implementation defines the corresponding typedef-name.
+  All types that use the placeholder <i>N</i> are optional when <i>N</i> is not `8`, `16`, `32`, or `64`. The exact-width types <code>int<i>N</i>_t</code> and <code>uint<i>N</i>_t</code> for <i>N</i> = `8`, `16`, `32`, and `64` <del>are also optional; however, if an implementation defines integer types with the corresponding width and no padding bits, it defines the corresponding typedef-names. </del><ins>may be aliases for the standard integer types [**basic.fundamental**], or the extended integer types [**basic.fundamental**].</ins>Each of the macros listed in this subclause is defined if and only if the implementation defines the corresponding typedef-name.
   <blockquote>
   The macros <code>INT<i>N</i>_C</code> and <code>UINT<i>N</i>_C</code> correspond to the typedef-names <code>int_least<i>N</i>_t</code> and <code>uint_least<i>N</i>_t</code>, respectively.</del>
   </blockquote>
