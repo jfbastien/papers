@@ -1,10 +1,9 @@
 <pre class='metadata'>
 Title: There are exactly 8 bits in a byte
-Shortname: D3477
+Shortname: P3477
 Revision: 3
-!Draft Revision: 2
-Audience: CWG, EWG, LWG, LEWG
-Status: D
+Audience: CWG, LWG, LEWG
+Status: P
 Group: WG21
 URL: http://wg21.link/P3477r3
 !Source: <a href="https://github.com/jfbastien/papers/blob/master/source/P3477r3.bs">github.com/jfbastien/papers/blob/master/source/P3477r3.bs</a>
@@ -86,6 +85,19 @@ An astute reader pointed out a missing editorial edit to an example hidden deep 
 A section on other languages and their choice of bytes was added in [[#thereareotherlanguages]].
 
 LEWG has requested that EWG review the updated paper.
+
+<a href="https://wiki.edg.com/bin/edit/Wg21hagenberg2025/NotesEWGP3477">EWG did so in Hagenberg</a>, and took the following poll:
+
+<blockquote>
+  Poll: D3477R3: There are exactly 8 bits in a byte: Having heard the feedback from LEWG's Reflector review, as well as the response, EWG re-affirms its vote to forward D3477R3 to CWG/LEWG for inclusion in C++26.
+  
+  <table>
+    <thead><tr><td>SF</td><td>F</td><td>N</td><td>A</td><td>SA</td></tr></thead>
+    <tr><td> 21 </td><td> 12 </td><td> 3 </td><td> 0 </td><td> 1 </td></tr>
+  </table>
+
+  Consensus in favor.
+</blockquote>
 
 
 Rationale {#ratio}
